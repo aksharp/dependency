@@ -1,14 +1,20 @@
 package db
 
+import javax.inject.{Inject, Singleton}
+
 import com.bryzek.dependency.v0.models.UserForm
 import com.bryzek.dependency.actors.MainActor
-import io.flow.postgresql.{Query, OrderBy}
+import io.flow.postgresql.{OrderBy, Query}
 import io.flow.common.v0.models.{Name, User, UserReference}
 import anorm._
 import play.api.db._
-import play.api.Play.current
 
-object UsersDao {
+
+@Singleton
+class UsersDao @Inject() (
+  db: Database,
+  usersDao: UsersDao
+) {
 
   private[db] val SystemEmailAddress = "system@bryzek.com"
   private[db] val AnonymousEmailAddress = "anonymous@bryzek.com"
@@ -54,7 +60,7 @@ object UsersDao {
           Seq("Please enter a valid email address")
 
         } else {
-          UsersDao.findByEmail(email) match {
+          usersDao.findByEmail(email) match {
             case None => Nil
             case Some(_) => Seq("Email is already registered")
           }
@@ -72,13 +78,13 @@ object UsersDao {
       case Nil => {
         val id = io.flow.play.util.IdGenerator("usr").randomId()
 
-        DB.withConnection { implicit c =>
+        db.withConnection { implicit c =>
           SQL(InsertQuery).on(
             'id -> id,
             'email -> form.email.map(_.trim),
             'first_name -> Util.trimmedString(form.name.flatMap(_.first)),
             'last_name -> Util.trimmedString(form.name.flatMap(_.last)),
-            'updated_by_user_id -> createdBy.getOrElse(UsersDao.anonymousUser).id
+            'updated_by_user_id -> createdBy.getOrElse(usersDao.anonymousUser).id
           ).execute()
         }
 
@@ -121,7 +127,7 @@ object UsersDao {
     limit: Long = 25,
     offset: Long = 0
   ): Seq[User] = {
-    DB.withConnection { implicit c =>
+    db.withConnection { implicit c =>
       Standards.query(
         BaseQuery,
         tableName = "users",

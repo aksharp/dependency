@@ -1,16 +1,23 @@
 package db
 
+import javax.inject.{Inject, Singleton}
+
 import com.bryzek.dependency.actors.MainActor
-import com.bryzek.dependency.v0.models.{Scms, Binary, BinaryForm, Library, LibraryForm, Project, ProjectForm, ProjectSummary, OrganizationSummary, Visibility}
+import com.bryzek.dependency.v0.models.{Binary, BinaryForm, Library, LibraryForm, OrganizationSummary, Project, ProjectForm, ProjectSummary, Scms, Visibility}
 import com.bryzek.dependency.api.lib.GithubUtil
-import io.flow.postgresql.{Query, OrderBy, Pager}
+import io.flow.postgresql.{OrderBy, Pager, Query}
 import io.flow.common.v0.models.UserReference
 import anorm._
 import play.api.db._
-import play.api.Play.current
 import play.api.libs.json._
 
-object ProjectsDao {
+@Singleton
+class ProjectsDao @Inject() (
+  db: Database,
+  membershipsDao: MembershipsDao,
+  projectLibrariesDao: ProjectLibrariesDao,
+  projectBinariesDao: ProjectBinariesDao
+) {
 
   private[this] val BaseQuery = Query(s"""
     select projects.id,
@@ -86,7 +93,7 @@ object ProjectsDao {
       Seq("Name cannot be empty")
 
     } else {
-      ProjectsDao.findByOrganizationKeyAndName(Authorization.All, form.organization, form.name) match {
+      findByOrganizationKeyAndName(Authorization.All, form.organization, form.name) match {
         case None => Seq.empty
         case Some(p) => {
           Some(p.id) == existing.map(_.id) match {
@@ -97,7 +104,7 @@ object ProjectsDao {
       }
     }
 
-    val organizationErrors = MembershipsDao.isMemberByOrgKey(form.organization, user) match  {
+    val organizationErrors = membershipsDao.isMemberByOrgKey(form.organization, user) match  {
       case false => Seq("You do not have access to this organization")
       case true => Nil
     }
@@ -112,10 +119,10 @@ object ProjectsDao {
         val org = OrganizationsDao.findByKey(Authorization.All, form.organization).getOrElse {
           sys.error("Could not find organization with key[${form.organization}]")
         }
-        
+
         val id = io.flow.play.util.IdGenerator("prj").randomId()
 
-        DB.withConnection { implicit c =>
+        db.withConnection { implicit c =>
           SQL(InsertQuery).on(
             'id -> id,
             'organization_id -> org.id,
@@ -150,7 +157,7 @@ object ProjectsDao {
           "Changing organization not currently supported"
         )
 
-        DB.withConnection { implicit c =>
+        db.withConnection { implicit c =>
           SQL(UpdateQuery).on(
             'id -> project.id,
             'visibility -> form.visibility.toString,
@@ -175,18 +182,18 @@ object ProjectsDao {
 
   def delete(deletedBy: UserReference, project: Project) {
     Pager.create { offset =>
-      ProjectLibrariesDao.findAll(Authorization.All, projectId = Some(project.id), limit = Some(100), offset = offset)
-    }.foreach { ProjectLibrariesDao.delete(deletedBy, _) }
+      projectLibrariesDao.findAll(Authorization.All, projectId = Some(project.id), limit = Some(100), offset = offset)
+    }.foreach { projectLibrariesDao.delete(deletedBy, _) }
 
     Pager.create { offset =>
-      ProjectBinariesDao.findAll(Authorization.All, projectId = Some(project.id), offset = offset)
-    }.foreach { ProjectBinariesDao.delete(deletedBy, _) }
+      projectBinariesDao.findAll(Authorization.All, projectId = Some(project.id), offset = offset)
+    }.foreach { projectBinariesDao.delete(deletedBy, _) }
 
     Pager.create { offset =>
       RecommendationsDao.findAll(Authorization.All, projectId = Some(project.id), offset = offset)
     }.foreach { RecommendationsDao.delete(deletedBy, _) }
 
-    DbHelpers.delete("projects", deletedBy.id, project.id)
+    DbHelpers.delete(db, "projects", deletedBy.id, project.id)
     MainActor.ref ! MainActor.Messages.ProjectDeleted(project.id)
   }
 
@@ -216,7 +223,7 @@ object ProjectsDao {
     offset: Long = 0
   ): Seq[Project] = {
 
-    DB.withConnection { implicit c =>
+    db.withConnection { implicit c =>
       Standards.query(
         BaseQuery,
         tableName = "projects",

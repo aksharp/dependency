@@ -1,15 +1,20 @@
 package db
 
+import javax.inject.{Inject, Singleton}
+
 import com.bryzek.dependency.v0.models.UserIdentifier
 import io.flow.common.v0.models.{User, UserReference}
-import io.flow.postgresql.{Query, OrderBy}
+import io.flow.postgresql.{OrderBy, Query}
 import io.flow.play.util.UrlKey
 import anorm._
 import play.api.db._
-import play.api.Play.current
 import play.api.libs.json._
 
-object UserIdentifiersDao {
+
+@Singleton
+class UserIdentifiersDao @Inject() (
+  db: Database
+) {
 
   val GithubOauthUserIdentifierValue = "github_oauth"
 
@@ -42,7 +47,7 @@ object UserIdentifiersDao {
   }
 
   def createForUser(createdBy: UserReference, user: User): UserIdentifier = {
-    DB.withConnection { implicit c =>
+    db.withConnection { implicit c =>
       createWithConnection(createdBy, user)
     }
   }
@@ -82,7 +87,7 @@ object UserIdentifiersDao {
   }
 
   def delete(deletedBy: UserReference, identifier: UserIdentifier) {
-    DbHelpers.delete("user_identifiers", deletedBy.id, identifier.id)
+    DbHelpers.delete(db, "user_identifiers", deletedBy.id, identifier.id)
   }
 
   def findById(auth: Authorization, id: String): Option[UserIdentifier] = {
@@ -98,7 +103,7 @@ object UserIdentifiersDao {
     limit: Long = 25,
     offset: Long = 0
   ): Seq[UserIdentifier] = {
-    DB.withConnection { implicit c =>
+    db.withConnection { implicit c =>
       findAllWithConnection(
         auth,
         id = id,

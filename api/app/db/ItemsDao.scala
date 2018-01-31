@@ -1,14 +1,16 @@
 package db
 
+import javax.inject.{Inject, Singleton}
+
 import com.bryzek.dependency.v0.models.{Binary, BinarySummary, Item, ItemSummary, ItemSummaryUndefinedType, Library, LibrarySummary}
 import com.bryzek.dependency.v0.models.{OrganizationSummary, Project, ProjectSummary, ResolverSummary, Visibility}
 import com.bryzek.dependency.v0.models.json._
 import io.flow.common.v0.models.UserReference
-import io.flow.postgresql.{Query, OrderBy}
+import io.flow.postgresql.{OrderBy, Query}
 import anorm._
 import play.api.db._
-import play.api.Play.current
 import play.api.libs.json._
+
 import scala.util.{Failure, Success, Try}
 
 case class ItemForm(
@@ -18,7 +20,10 @@ case class ItemForm(
   contents: String
 )
 
-object ItemsDao {
+@Singleton
+class ItemsDao @Inject() (
+  db: Database
+) {
 
   private[this] val BaseQuery = Query(s"""
     select items.id,
@@ -138,7 +143,7 @@ object ItemsDao {
   }
 
   private[db] def replace(user: UserReference, form: ItemForm): Item = {
-    DB.withConnection { implicit c =>
+    db.withConnection { implicit c =>
       findByObjectId(Authorization.All, objectId(form.summary)).map { item =>
         deleteWithConnection(user, item)(c)
       }
@@ -175,7 +180,7 @@ object ItemsDao {
   }
 
   def delete(deletedBy: UserReference, item: Item) {
-    DB.withConnection { implicit c =>
+    db.withConnection { implicit c =>
       deleteWithConnection(deletedBy, item)(c)
     }
   }
@@ -183,7 +188,7 @@ object ItemsDao {
   private[this] def deleteWithConnection(deletedBy: UserReference, item: Item)(
     implicit c: java.sql.Connection
   ) {
-    DbHelpers.delete("items", deletedBy.id, item.id)
+    DbHelpers.delete(db, "items", deletedBy.id, item.id)
   }
 
   def deleteByObjectId(auth: Authorization, deletedBy: UserReference, objectId: String) {
@@ -210,7 +215,7 @@ object ItemsDao {
     limit: Long = 25,
     offset: Long = 0
   ): Seq[Item] = {
-    DB.withConnection { implicit c =>
+    db.withConnection { implicit c =>
       BaseQuery.
         and(auth.organizations("items.organization_id", Some("items.visibility")).sql).
         equals("items.id", id).

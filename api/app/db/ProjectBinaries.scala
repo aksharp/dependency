@@ -1,13 +1,14 @@
 package db
 
+import javax.inject.{Inject, Singleton}
+
 import com.bryzek.dependency.actors.MainActor
 import com.bryzek.dependency.api.lib.Version
 import com.bryzek.dependency.v0.models.{Binary, BinaryType, Project, ProjectBinary, SyncEvent}
-import io.flow.postgresql.{Query, OrderBy, Pager}
+import io.flow.postgresql.{OrderBy, Pager, Query}
 import io.flow.common.v0.models.UserReference
 import anorm._
 import play.api.db._
-import play.api.Play.current
 import play.api.libs.json._
 
 case class ProjectBinaryForm(
@@ -17,7 +18,12 @@ case class ProjectBinaryForm(
   path: String
 )
 
-object ProjectBinariesDao {
+@Singleton
+class ProjectBinariesDao @Inject() (
+  db: Database,
+  membershipsDao: MembershipsDao,
+  projectBinariesDao: ProjectBinariesDao
+) {
 
   private[this] val BaseQuery = Query(s"""
     select project_binaries.id,
@@ -74,7 +80,7 @@ object ProjectBinariesDao {
     val projectErrors = ProjectsDao.findById(Authorization.All, form.projectId) match {
       case None => Seq("Project not found")
       case Some(project) => {
-        MembershipsDao.isMemberByOrgId(project.organization.id, user) match {
+        membershipsDao.isMemberByOrgId(project.organization.id, user) match {
           case false => Seq("You are not authorized to edit this project")
           case true => Nil
         }
@@ -82,7 +88,7 @@ object ProjectBinariesDao {
     }
 
     val existsErrors = if (nameErrors.isEmpty && versionErrors.isEmpty) {
-      ProjectBinariesDao.findByProjectIdAndNameAndVersion(
+      projectBinariesDao.findByProjectIdAndNameAndVersion(
         Authorization.All, form.projectId, form.name.toString, form.version
       ) match {
         case None => Nil
@@ -98,7 +104,7 @@ object ProjectBinariesDao {
   }
 
   def upsert(createdBy: UserReference, form: ProjectBinaryForm): Either[Seq[String], ProjectBinary] = {
-    ProjectBinariesDao.findByProjectIdAndNameAndVersion(
+    projectBinariesDao.findByProjectIdAndNameAndVersion(
       Authorization.All, form.projectId, form.name.toString, form.version
     ) match {
       case None => {
@@ -115,7 +121,7 @@ object ProjectBinariesDao {
       case Nil => {
         val id = io.flow.play.util.IdGenerator("prb").randomId()
 
-        DB.withConnection { implicit c =>
+        db.withConnection { implicit c =>
           SQL(InsertQuery).on(
             'id -> id,
             'project_id -> form.projectId,
@@ -138,7 +144,7 @@ object ProjectBinariesDao {
   }
 
   def removeBinary(user: UserReference, projectBinary: ProjectBinary) {
-    DB.withConnection { implicit c =>
+    db.withConnection { implicit c =>
       SQL(RemoveBinaryQuery).on(
         'id -> projectBinary.id,
         'updated_by_user_id -> user.id
@@ -162,7 +168,7 @@ object ProjectBinariesDao {
   }
 
   def setBinary(user: UserReference, projectBinary: ProjectBinary, binary: Binary) {
-    DB.withConnection { implicit c =>
+    db.withConnection { implicit c =>
       SQL(SetBinaryQuery).on(
         'id -> projectBinary.id,
         'binary_id -> binary.id,
@@ -172,7 +178,7 @@ object ProjectBinariesDao {
   }
 
   def delete(deletedBy: UserReference, binary: ProjectBinary) {
-    DbHelpers.delete("project_binaries", deletedBy.id, binary.id)
+    DbHelpers.delete(db, "project_binaries", deletedBy.id, binary.id)
     MainActor.ref ! MainActor.Messages.ProjectBinaryDeleted(binary.project.id, binary.id, binary.version)
   }
 
@@ -209,7 +215,7 @@ object ProjectBinariesDao {
     limit: Long = 25,
     offset: Long = 0
   ): Seq[ProjectBinary] = {
-    DB.withConnection { implicit c =>
+    db.withConnection { implicit c =>
       Standards.query(
         BaseQuery,
         tableName = "project_binaries",

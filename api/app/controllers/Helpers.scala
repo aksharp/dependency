@@ -3,14 +3,19 @@ package controllers
 import db.{Authorization, BinariesDao, LibrariesDao, OrganizationsDao, ProjectsDao, ResolversDao, UsersDao}
 import com.bryzek.dependency.v0.models.{Binary, Library, Organization, Project, Resolver}
 import io.flow.common.v0.models.{User, UserReference}
+import io.flow.play.controllers.IdentifiedRequest
 import play.api.mvc.{Result, Results}
 
 trait Helpers {
 
-  def withBinary(user: UserReference, id: String)(
+  def authorization[T](request: IdentifiedRequest[T]): Authorization = {
+    Authorization.User(request.user.id)
+  }
+
+  def withBinary(binariesDao: BinariesDao, user: UserReference, id: String)(
     f: Binary => Result
   ): Result = {
-    BinariesDao.findById(Authorization.User(user.id), id) match {
+    binariesDao.findById(Authorization.User(user.id), id) match {
       case None => {
         Results.NotFound
       }
@@ -20,10 +25,10 @@ trait Helpers {
     }
   }
   
-  def withLibrary(user: UserReference, id: String)(
+  def withLibrary(librariesDao: LibrariesDao, user: UserReference, id: String)(
     f: Library => Result
   ): Result = {
-    LibrariesDao.findById(Authorization.User(user.id), id) match {
+    librariesDao.findById(Authorization.User(user.id), id) match {
       case None => {
         Results.NotFound
       }
@@ -46,10 +51,10 @@ trait Helpers {
     }
   }
 
-  def withProject(user: UserReference, id: String)(
+  def withProject(projectsDao: ProjectsDao, user: UserReference, id: String)(
     f: Project => Result
   ): Result = {
-    ProjectsDao.findById(Authorization.User(user.id), id) match {
+    projectsDao.findById(Authorization.User(user.id), id) match {
       case None => {
         Results.NotFound
       }
@@ -59,10 +64,10 @@ trait Helpers {
     }
   }
 
-  def withResolver(user: UserReference, id: String)(
+  def withResolver(resolversDao: ResolversDao, user: UserReference, id: String)(
     f: Resolver => Result
   ): Result = {
-    ResolversDao.findById(Authorization.User(user.id), id) match {
+    resolversDao.findById(Authorization.User(user.id), id) match {
       case None => {
         Results.NotFound
       }
@@ -72,10 +77,10 @@ trait Helpers {
     }
   }
 
-  def withUser(id: String)(
+  def withUser(usersDao: UsersDao, id: String)(
     f: User => Result
   ) = {
-    UsersDao.findById(id) match {
+    usersDao.findById(id) match {
       case None => {
         Results.NotFound
       }

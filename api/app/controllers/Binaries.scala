@@ -1,20 +1,20 @@
 package controllers
 
-import db.{Authorization, BinariesDao}
-import io.flow.play.controllers.IdentifiedRestController
-import io.flow.play.util.Validation
-import io.flow.common.v0.models.UserReference
-import com.bryzek.dependency.v0.models.{Binary, BinaryForm}
+import com.bryzek.dependency.v0.models.BinaryForm
 import com.bryzek.dependency.v0.models.json._
-import io.flow.common.v0.models.json._
-import play.api.mvc._
+import db.{Authorization, BinariesDao}
+import io.flow.play.controllers.{FlowController, FlowControllerComponents}
+import io.flow.play.util.{Config, Validation}
 import play.api.libs.json._
+import play.api.mvc._
 
 @javax.inject.Singleton
 class Binaries @javax.inject.Inject() (
-  override val config: io.flow.play.util.Config,
-  override val tokenClient: io.flow.token.v0.interfaces.Client
-) extends Controller with IdentifiedRestController with Helpers {
+  binariesDao: BinariesDao,
+  val config: Config,
+  val controllerComponents: ControllerComponents,
+  val flowControllerComponents: FlowControllerComponents
+  ) extends FlowController with Helpers {
 
   def get(
     id: Option[String],
@@ -26,7 +26,7 @@ class Binaries @javax.inject.Inject() (
   ) = Identified { request =>
     Ok(
       Json.toJson(
-        BinariesDao.findAll(
+        binariesDao.findAll(
           Authorization.User(request.user.id),
           id = id,
           ids = optionals(ids),
@@ -40,7 +40,7 @@ class Binaries @javax.inject.Inject() (
   }
 
   def getById(id: String) = Identified { request =>
-    withBinary(request.user, id) { binary =>
+    withBinary(binariesDao, request.user, id) { binary =>
       Ok(Json.toJson(binary))
     }
   }
@@ -52,7 +52,7 @@ class Binaries @javax.inject.Inject() (
       }
       case s: JsSuccess[BinaryForm] => {
         val form = s.get
-        BinariesDao.create(request.user, form) match {
+        binariesDao.create(request.user, form) match {
           case Left(errors) => UnprocessableEntity(Json.toJson(Validation.errors(errors)))
           case Right(binary) => Created(Json.toJson(binary))
         }
@@ -61,8 +61,8 @@ class Binaries @javax.inject.Inject() (
   }
 
   def deleteById(id: String) = Identified { request =>
-    withBinary(request.user, id) { binary =>
-      BinariesDao.delete(request.user, binary)
+    withBinary(binariesDao, request.user, id) { binary =>
+      binariesDao.delete(request.user, binary)
       NoContent
     }
   }

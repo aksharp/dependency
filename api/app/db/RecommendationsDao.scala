@@ -1,13 +1,20 @@
 package db
 
+import javax.inject.{Inject, Singleton}
+
 import com.bryzek.dependency.v0.models.{Project, Recommendation, RecommendationType}
 import io.flow.common.v0.models.UserReference
-import io.flow.postgresql.{Query, OrderBy, Pager}
+import io.flow.postgresql.{OrderBy, Pager, Query}
 import anorm._
 import play.api.db._
-import play.api.Play.current
 
-object RecommendationsDao {
+@Singleton
+class RecommendationsDao @Inject() (
+  db: Database,
+  libraryRecommendationsDao: LibraryRecommendationsDao,
+  binaryRecommendationsDao: BinaryRecommendationsDao,
+  recommendationsDao: RecommendationsDao
+) {
 
   private[this] case class RecommendationForm(
     projectId: String,
@@ -45,7 +52,7 @@ object RecommendationsDao {
   """
 
   def sync(user: UserReference, project: Project) {
-    val libraries = LibraryRecommendationsDao.forProject(project).map { rec =>
+    val libraries = libraryRecommendationsDao.forProject(project).map { rec =>
       RecommendationForm(
         projectId = project.id,
         `type` = RecommendationType.Library,
@@ -56,7 +63,7 @@ object RecommendationsDao {
       )
     }
 
-    val binaries = BinaryRecommendationsDao.forProject(project).map { rec =>
+    val binaries = binaryRecommendationsDao.forProject(project).map { rec =>
       RecommendationForm(
         projectId = project.id,
         `type` = RecommendationType.Binary,
@@ -70,13 +77,13 @@ object RecommendationsDao {
     val newRecords = libraries ++ binaries
 
     val existing = Pager.create { offset =>
-      RecommendationsDao.findAll(Authorization.All, projectId = Some(project.id), limit = 1000, offset = offset)
+      recommendationsDao.findAll(Authorization.All, projectId = Some(project.id), limit = 1000, offset = offset)
     }.toSeq
 
     val toAdd = newRecords.filter { rec => !existing.map(toForm).contains(rec) }
     val toRemove = existing.filter { rec => !newRecords.contains(toForm(rec)) }
 
-    DB.withTransaction { implicit c =>
+    db.withTransaction { implicit c =>
       toAdd.foreach { upsert(user, _) }
       toRemove.foreach { rec =>
         DbHelpers.delete(c, "recommendations", user.id, rec.id)
@@ -90,7 +97,7 @@ object RecommendationsDao {
   }
 
   def delete(deletedBy: UserReference, rec: Recommendation) {
-    DbHelpers.delete("recommendations", deletedBy.id, rec.id)
+    DbHelpers.delete(db, "recommendations", deletedBy.id, rec.id)
   }
 
   private[this] def upsert(
@@ -172,7 +179,7 @@ object RecommendationsDao {
     limit: Long = 25,
     offset: Long = 0
   ): Seq[Recommendation] = {
-    DB.withConnection { implicit c =>
+    db.withConnection { implicit c =>
       Standards.query(
         BaseQuery,
         tableName = "recommendations",

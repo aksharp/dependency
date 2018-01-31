@@ -1,11 +1,12 @@
 package db
 
+import javax.inject.{Inject, Singleton}
+
 import com.bryzek.dependency.api.lib.Recommendations
 import com.bryzek.dependency.v0.models.{Library, LibraryVersion, Project, ProjectLibrary, VersionForm}
 import io.flow.postgresql.Pager
 import anorm._
 import play.api.db._
-import play.api.Play.current
 import play.api.libs.json._
 
 case class LibraryRecommendation(
@@ -15,19 +16,25 @@ case class LibraryRecommendation(
   latest: LibraryVersion
 )
 
-object LibraryRecommendationsDao {
+@Singleton
+class LibraryRecommendationsDao @Inject() (
+  db: Database,
+  projectLibrariesDao: ProjectLibrariesDao,
+  libraryVersionsDao: LibraryVersionsDao,
+  librariesDao: LibrariesDao
+) {
 
   def forProject(project: Project): Seq[LibraryRecommendation] = {
     var recommendations = scala.collection.mutable.ListBuffer[LibraryRecommendation]()
     val auth = Authorization.Organization(project.organization.id)
 
-    ProjectLibrariesDao.findAll(
+    projectLibrariesDao.findAll(
       Authorization.Organization(project.organization.id),
       projectId = Some(project.id),
       hasLibrary = Some(true),
       limit = None
     ).foreach { projectLibrary =>
-      projectLibrary.library.flatMap { lib => LibrariesDao.findById(auth, lib.id) }.map { library =>
+      projectLibrary.library.flatMap { lib => librariesDao.findById(auth, lib.id) }.map { library =>
         val recentVersions = versionsGreaterThan(auth, library, projectLibrary.version)
         recommend(projectLibrary, recentVersions).map { v =>
           recommendations ++= Seq(
@@ -64,7 +71,7 @@ object LibraryRecommendationsDao {
     library: Library,
     version: String
   ): Seq[LibraryVersion] = {
-    LibraryVersionsDao.findAll(
+    libraryVersionsDao.findAll(
       auth,
       libraryId = Some(library.id),
       greaterThanVersion = Some(version),

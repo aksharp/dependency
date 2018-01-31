@@ -1,11 +1,12 @@
 package db
 
+import javax.inject.{Inject, Singleton}
+
 import com.bryzek.dependency.api.lib.Recommendations
 import com.bryzek.dependency.v0.models.{Binary, BinaryVersion, Project, ProjectBinary, VersionForm}
 import io.flow.postgresql.Pager
 import anorm._
 import play.api.db._
-import play.api.Play.current
 import play.api.libs.json._
 
 case class BinaryRecommendation(
@@ -15,7 +16,12 @@ case class BinaryRecommendation(
   latest: BinaryVersion
 )
 
-object BinaryRecommendationsDao {
+@Singleton
+class BinaryRecommendationsDao @Inject() (
+  db: Database,
+  binariesDao: BinariesDao,
+  binaryVersionsDao: BinaryVersionsDao
+) {
 
   def forProject(project: Project): Seq[BinaryRecommendation] = {
     var recommendations = scala.collection.mutable.ListBuffer[BinaryRecommendation]()
@@ -29,7 +35,7 @@ object BinaryRecommendationsDao {
         offset = offset
       )
     }.foreach { projectBinary =>
-      projectBinary.binary.flatMap { lib => BinariesDao.findById(auth, lib.id) }.map { binary =>
+      projectBinary.binary.flatMap { lib => binariesDao.findById(auth, lib.id) }.map { binary =>
         val recentVersions = versionsGreaterThan(auth, binary, projectBinary.version)
         recommend(projectBinary, recentVersions).map { v =>
           recommendations ++= Seq(
@@ -64,7 +70,7 @@ object BinaryRecommendationsDao {
   private[this] def versionsGreaterThan(auth: Authorization, binary: Binary, version: String): Seq[BinaryVersion] = {
     var recommendations = scala.collection.mutable.ListBuffer[BinaryVersion]()
     Pager.create { offset =>
-      BinaryVersionsDao.findAll(
+      binaryVersionsDao.findAll(
         auth,
         binaryId = Some(binary.id),
         greaterThanVersion = Some(version),

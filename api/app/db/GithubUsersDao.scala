@@ -1,13 +1,18 @@
 package db
 
-import io.flow.postgresql.{Query, OrderBy}
+import javax.inject.{Inject, Singleton}
+
+import io.flow.postgresql.{OrderBy, Query}
 import com.bryzek.dependency.v0.models.{GithubUser, GithubUserForm}
 import io.flow.common.v0.models.UserReference
 import anorm._
 import play.api.db._
-import play.api.Play.current
 
-object GithubUsersDao {
+
+@Singleton
+class GithubUsersDao @Inject() (
+  db: Database
+) {
 
   private[this] val BaseQuery = Query(s"""
     select github_users.id,
@@ -25,7 +30,7 @@ object GithubUsersDao {
   """
 
   def upsertById(createdBy: Option[UserReference], form: GithubUserForm): GithubUser = {
-    DB.withConnection { implicit c =>
+    db.withConnection { implicit c =>
       upsertByIdWithConnection(createdBy, form)
     }
   }
@@ -37,7 +42,7 @@ object GithubUsersDao {
   }
 
   def create(createdBy: Option[UserReference], form: GithubUserForm): GithubUser = {
-    DB.withConnection { implicit c =>
+    db.withConnection { implicit c =>
       createWithConnection(createdBy, form)
     }
   }
@@ -74,7 +79,7 @@ object GithubUsersDao {
     limit: Long = 25,
     offset: Long = 0
   ): Seq[GithubUser] = {
-    DB.withConnection { implicit c =>
+    db.withConnection { implicit c =>
       BaseQuery.
         optionalIn("github_users.id", id).
         equals("github_users.user_id", userId).

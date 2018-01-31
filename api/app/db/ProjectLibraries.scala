@@ -1,13 +1,14 @@
 package db
 
+import javax.inject.{Inject, Singleton}
+
 import com.bryzek.dependency.actors.MainActor
 import com.bryzek.dependency.api.lib.Version
 import com.bryzek.dependency.v0.models.{Library, ProjectLibrary, SyncEvent, VersionForm}
-import io.flow.postgresql.{Query, OrderBy, Pager}
+import io.flow.postgresql.{OrderBy, Pager, Query}
 import io.flow.common.v0.models.UserReference
 import anorm._
 import play.api.db._
-import play.api.Play.current
 import play.api.libs.json._
 
 case class ProjectLibraryForm(
@@ -18,7 +19,11 @@ case class ProjectLibraryForm(
   path: String
 )
 
-object ProjectLibrariesDao {
+@Singleton
+class ProjectLibrariesDao @Inject() (
+  db: Database,
+  membershipsDao: MembershipsDao
+) {
 
   private[this] val BaseQuery = Query(s"""
     select project_libraries.id,
@@ -83,7 +88,7 @@ object ProjectLibrariesDao {
     val projectErrors = ProjectsDao.findById(Authorization.All, form.projectId) match {
       case None => Seq("Project not found")
       case Some(project) => {
-        MembershipsDao.isMemberByOrgId(project.organization.id, user) match {
+        membershipsDao.isMemberByOrgId(project.organization.id, user) match {
           case false => Seq("You are not authorized to edit this project")
           case true => Nil
         }
@@ -91,7 +96,7 @@ object ProjectLibrariesDao {
     }
 
     val existsErrors = if (Seq(groupIdErrors, artifactIdErrors, versionErrors, projectErrors).flatten.isEmpty) {
-      ProjectLibrariesDao.findByProjectIdAndGroupIdAndArtifactIdAndVersion(
+      findByProjectIdAndGroupIdAndArtifactIdAndVersion(
         Authorization.All, form.projectId, form.groupId, form.artifactId, form.version
       ) match {
         case None => Nil
@@ -107,7 +112,7 @@ object ProjectLibrariesDao {
   }
 
   def upsert(createdBy: UserReference, form: ProjectLibraryForm): Either[Seq[String], ProjectLibrary] = {
-    ProjectLibrariesDao.findByProjectIdAndGroupIdAndArtifactIdAndVersion(
+    findByProjectIdAndGroupIdAndArtifactIdAndVersion(
       Authorization.All, form.projectId, form.groupId, form.artifactId, form.version
     ) match {
       case None => {
@@ -124,7 +129,7 @@ object ProjectLibrariesDao {
       case Nil => {
         val id = io.flow.play.util.IdGenerator("prl").randomId()
 
-        DB.withConnection { implicit c =>
+        db.withConnection { implicit c =>
           SQL(InsertQuery).on(
             'id -> id,
             'project_id -> form.projectId,
@@ -149,7 +154,7 @@ object ProjectLibrariesDao {
   }
 
   def removeLibrary(user: UserReference, projectLibrary: ProjectLibrary) {
-    DB.withConnection { implicit c =>
+    db.withConnection { implicit c =>
       SQL(RemoveLibraryQuery).on(
         'id -> projectLibrary.id,
         'updated_by_user_id -> user.id
@@ -173,7 +178,7 @@ object ProjectLibrariesDao {
   }
 
   def setLibrary(user: UserReference, projectLibrary: ProjectLibrary, library: Library) {
-    DB.withConnection { implicit c =>
+    db.withConnection { implicit c =>
       SQL(SetLibraryQuery).on(
         'id -> projectLibrary.id,
         'library_id -> library.id,
@@ -183,7 +188,7 @@ object ProjectLibrariesDao {
   }
 
   def delete(deletedBy: UserReference, library: ProjectLibrary) {
-    DbHelpers.delete("project_libraries", deletedBy.id, library.id)
+    DbHelpers.delete(db, "project_libraries", deletedBy.id, library.id)
     MainActor.ref ! MainActor.Messages.ProjectLibraryDeleted(library.project.id, library.id, library.version)
   }
 
@@ -226,7 +231,7 @@ object ProjectLibrariesDao {
     offset: Long = 0
   ): Seq[ProjectLibrary] = {
 
-    DB.withConnection { implicit c =>
+    db.withConnection { implicit c =>
       Standards.queryWithOptionalLimit(
         BaseQuery,
         tableName = "project_libraries",

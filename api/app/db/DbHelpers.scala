@@ -2,7 +2,7 @@ package db
 
 import anorm._
 import play.api.db._
-import play.api.Play.current
+
 
 object DbHelpers {
 
@@ -10,8 +10,8 @@ object DbHelpers {
     select util.delete_by_id({updated_by_user_id}, '%s', {id})
   """
 
-  def delete(tableName: String, deletedById: String, id: String) {
-    DB.withConnection { implicit c =>
+  def delete(db: Database, tableName: String, deletedById: String, id: String) {
+    db.withConnection { implicit c =>
       delete(c, tableName, deletedById, id)
     }
   }

@@ -1,16 +1,22 @@
 package db
 
+import javax.inject.{Inject, Singleton}
+
 import com.bryzek.dependency.actors.MainActor
 import com.bryzek.dependency.api.lib.Version
 import com.bryzek.dependency.v0.models.{Library, LibraryForm}
-import io.flow.postgresql.{Query, OrderBy, Pager}
+import io.flow.postgresql.{OrderBy, Pager, Query}
 import io.flow.common.v0.models.UserReference
 import anorm._
 import play.api.db._
-import play.api.Play.current
 import play.api.libs.json._
 
-object LibrariesDao {
+@Singleton
+class LibrariesDao @Inject() (
+  db: Database,
+  librariesDao: LibrariesDao,
+  libraryVersionsDao: LibraryVersionsDao
+) {
 
   private[this] val BaseQuery = Query(s"""
     select libraries.id,
@@ -53,7 +59,7 @@ object LibrariesDao {
     }
 
     val existsErrors = if (groupIdErrors.isEmpty && artifactIdErrors.isEmpty) {
-      LibrariesDao.findByGroupIdAndArtifactId(Authorization.All, form.groupId, form.artifactId) match {
+      librariesDao.findByGroupIdAndArtifactId(Authorization.All, form.groupId, form.artifactId) match {
         case None => Nil
         case Some(lib) => {
           if (Some(lib.id) == existing.map(_.id)) {
@@ -71,14 +77,14 @@ object LibrariesDao {
   }
 
   def upsert(createdBy: UserReference, form: LibraryForm): Either[Seq[String], Library] = {
-    LibrariesDao.findByGroupIdAndArtifactId(Authorization.All, form.groupId, form.artifactId) match {
+    librariesDao.findByGroupIdAndArtifactId(Authorization.All, form.groupId, form.artifactId) match {
       case None => {
         create(createdBy, form)
       }
       case Some(lib) => {
-        DB.withConnection { implicit c =>
+        db.withConnection { implicit c =>
           form.version.foreach { version =>
-            LibraryVersionsDao.upsertWithConnection(createdBy, lib.id, version)
+            libraryVersionsDao.upsertWithConnection(createdBy, lib.id, version)
           }
         }
         Right(lib)
@@ -91,7 +97,7 @@ object LibrariesDao {
       case Nil => {
         val id = io.flow.play.util.IdGenerator("lib").randomId()
 
-        DB.withTransaction { implicit c =>
+        db.withTransaction { implicit c =>
           SQL(InsertQuery).on(
             'id -> id,
             'organization_id -> form.organizationId,
@@ -101,7 +107,7 @@ object LibrariesDao {
             'updated_by_user_id -> createdBy.id
           ).execute()
           form.version.foreach { version =>
-            LibraryVersionsDao.upsertWithConnection(createdBy, id, version)
+            libraryVersionsDao.upsertWithConnection(createdBy, id, version)
           }
         }
 
@@ -118,15 +124,15 @@ object LibrariesDao {
   }
 
   def delete(deletedBy: UserReference, library: Library) {
-    LibraryVersionsDao.findAll(
+    libraryVersionsDao.findAll(
       Authorization.All,
       libraryId = Some(library.id),
       limit = None
     ).foreach { lv =>
-      LibraryVersionsDao.delete(deletedBy, lv)
+      libraryVersionsDao.delete(deletedBy, lv)
     }
 
-    DbHelpers.delete("libraries", deletedBy.id, library.id)
+    DbHelpers.delete(db, "libraries", deletedBy.id, library.id)
     MainActor.ref ! MainActor.Messages.LibraryDeleted(library.id)
   }
 
@@ -160,7 +166,7 @@ object LibrariesDao {
     limit: Long = 25,
     offset: Long = 0
   ): Seq[Library] = {
-    DB.withConnection { implicit c =>    
+    db.withConnection { implicit c =>    
       Standards.query(
         BaseQuery,
         tableName = "libraries",

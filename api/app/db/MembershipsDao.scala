@@ -1,14 +1,18 @@
 package db
 
+import javax.inject.{Inject, Singleton}
+
 import com.bryzek.dependency.v0.models.{Membership, MembershipForm, Organization, OrganizationSummary, Role}
-import io.flow.postgresql.{Query, OrderBy}
+import io.flow.postgresql.{OrderBy, Query}
 import io.flow.common.v0.models.UserReference
 import anorm._
 import play.api.db._
-import play.api.Play.current
 import play.api.libs.json._
 
-object MembershipsDao {
+@Singleton
+class MembershipsDao @Inject() (
+  db: Database
+) {
 
   val DefaultUserNameLength = 8
 
@@ -34,14 +38,14 @@ object MembershipsDao {
   """
 
   def isMemberByOrgId(orgId: String, user: UserReference): Boolean = {
-    MembershipsDao.findByOrganizationIdAndUserId(Authorization.All, orgId, user.id) match {
+    findByOrganizationIdAndUserId(Authorization.All, orgId, user.id) match {
       case None => false
       case Some(_) => true
     }
   }
 
   def isMemberByOrgKey(org: String, user: UserReference): Boolean = {
-    MembershipsDao.findByOrganizationAndUserId(Authorization.All, org, user.id) match {
+    findByOrganizationAndUserId(Authorization.All, org, user.id) match {
       case None => false
       case Some(_) => true
     }
@@ -54,7 +58,7 @@ object MembershipsDao {
     val roleErrors = form.role match {
       case Role.UNDEFINED(_) => Seq("Invalid role. Must be one of: " + Role.all.map(_.toString).mkString(", "))
       case _ => {
-        MembershipsDao.findByOrganizationAndUserId(Authorization.All, form.organization, form.userId) match {
+        findByOrganizationAndUserId(Authorization.All, form.organization, form.userId) match {
           case None => Seq.empty
           case Some(membership) => {
             Seq("User is already a member")
@@ -63,7 +67,7 @@ object MembershipsDao {
       }
     }
 
-    val organizationErrors = MembershipsDao.findByOrganizationAndUserId(Authorization.All, form.organization, user.id) match {
+    val organizationErrors = findByOrganizationAndUserId(Authorization.All, form.organization, user.id) match {
       case None => Seq("Organization does not exist or you are not authorized to access this organization")
       case Some(_) => Nil
     }
@@ -74,15 +78,15 @@ object MembershipsDao {
   def create(createdBy: UserReference, form: MembershipForm): Either[Seq[String], Membership] = {
     validate(createdBy, form) match {
       case Nil => {
-        val id = MembershipsDao.findByOrganizationAndUserId(Authorization.All, form.organization, form.userId) match {
+        val id = findByOrganizationAndUserId(Authorization.All, form.organization, form.userId) match {
           case None => {
-            DB.withConnection { implicit c =>
+            db.withConnection { implicit c =>
               create(c, createdBy, form)
             }
           }
           case Some(existing) => {
             // the role is changing. Replace record
-            DB.withTransaction { implicit c =>
+            db.withTransaction { implicit c =>
               DbHelpers.delete(c, "memberships", createdBy.id, existing.id)
               create(c, createdBy, form)
             }
@@ -120,7 +124,7 @@ object MembershipsDao {
   }
 
   def delete(deletedBy: UserReference, membership: Membership) {
-    DbHelpers.delete("memberships", deletedBy.id, membership.id)
+    DbHelpers.delete(db, "memberships", deletedBy.id, membership.id)
   }
 
   def findByOrganizationAndUserId(
@@ -165,7 +169,7 @@ object MembershipsDao {
     limit: Long = 25,
     offset: Long = 0
   ): Seq[Membership] = {
-    DB.withConnection { implicit c =>
+    db.withConnection { implicit c =>
     Standards.query(
       BaseQuery,
       tableName = "memberships",

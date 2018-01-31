@@ -4,16 +4,20 @@ import com.bryzek.dependency.api.lib.Github
 import com.bryzek.dependency.v0.models.GithubAuthenticationForm
 import com.bryzek.dependency.v0.models.json._
 import io.flow.common.v0.models.json._
-import io.flow.play.util.Validation
+import io.flow.play.controllers.{FlowController, FlowControllerComponents}
+import io.flow.play.util.{Config, Validation}
 import play.api.mvc._
 import play.api.libs.json._
+
 import scala.concurrent.Future
 
-class GithubUsers @javax.inject.Inject() (
-  val config: io.flow.play.util.Config,
+class GithubUsers @javax.inject.Inject()(
   val tokenClient: io.flow.token.v0.interfaces.Client,
-  val github: Github
-) extends Controller {
+  val github: Github,
+  val config: Config,
+  val controllerComponents: ControllerComponents,
+  val flowControllerComponents: FlowControllerComponents
+) extends FlowController {
 
   import scala.concurrent.ExecutionContext.Implicits.global
 

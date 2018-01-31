@@ -6,7 +6,7 @@ import io.flow.play.util.{IdGenerator, Random, UrlKey}
 import io.flow.common.v0.models.{User, UserReference}
 import anorm._
 import play.api.db._
-import play.api.Play.current
+
 import play.api.libs.json._
 
 object OrganizationsDao {

@@ -1,20 +1,21 @@
 package controllers
 
-import db.{Authorization, LibraryVersionsDao}
-import io.flow.play.controllers.IdentifiedRestController
-import io.flow.common.v0.models.UserReference
-import io.flow.play.util.Validation
 import com.bryzek.dependency.v0.models.LibraryVersion
 import com.bryzek.dependency.v0.models.json._
-import io.flow.common.v0.models.json._
-import play.api.mvc._
+import db.{Authorization, LibraryVersionsDao}
+import io.flow.common.v0.models.UserReference
+import io.flow.play.controllers.{FlowController, FlowControllerComponents}
+import io.flow.play.util.Config
 import play.api.libs.json._
+import play.api.mvc._
 
 @javax.inject.Singleton
 class LibraryVersions @javax.inject.Inject() (
-  override val config: io.flow.play.util.Config,
-  override val tokenClient: io.flow.token.v0.interfaces.Client
-) extends Controller with IdentifiedRestController {
+  libraryVersionsDao: LibraryVersionsDao,
+  val config: Config,
+  val controllerComponents: ControllerComponents,
+  val flowControllerComponents: FlowControllerComponents
+) extends FlowController {
 
   def get(
     id: Option[String],
@@ -25,7 +26,7 @@ class LibraryVersions @javax.inject.Inject() (
   ) = Identified { request =>
     Ok(
       Json.toJson(
-        LibraryVersionsDao.findAll(
+        libraryVersionsDao.findAll(
           Authorization.User(request.user.id),
           id = id,
           ids = optionals(ids),
@@ -46,7 +47,7 @@ class LibraryVersions @javax.inject.Inject() (
   def withLibraryVersion(user: UserReference, id: String) (
     f: LibraryVersion => Result
   ): Result = {
-    LibraryVersionsDao.findById(
+    libraryVersionsDao.findById(
       Authorization.User(user.id),
       id
     ) match {
