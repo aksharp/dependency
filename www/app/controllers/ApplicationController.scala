@@ -1,19 +1,22 @@
 package controllers
 
 import com.bryzek.dependency.www.lib.DependencyClientProvider
-import io.flow.play.util.{Pagination, PaginatedCollection}
+import io.flow.dependency.controllers.helpers.DependencyUiControllerHelper
+import io.flow.play.controllers.{FlowController, FlowControllerComponents}
+import io.flow.play.util.{Config, PaginatedCollection, Pagination}
 import play.api._
-import play.api.i18n.MessagesApi
+import play.api.i18n.{I18nSupport, MessagesApi}
 import play.api.mvc._
 
-class ApplicationController @javax.inject.Inject() (
-  val messagesApi: MessagesApi,
-  override val tokenClient: io.flow.token.v0.interfaces.Client,
-  override val dependencyClientProvider: DependencyClientProvider
-) extends BaseController(tokenClient, dependencyClientProvider) {
+class ApplicationController @javax.inject.Inject()(
+  val dependencyClientProvider: DependencyClientProvider,
+  val config: Config,
+  val controllerComponents: ControllerComponents,
+  val flowControllerComponents: FlowControllerComponents
+) extends FlowController with DependencyUiControllerHelper with I18nSupport  {
 
   import scala.concurrent.ExecutionContext.Implicits.global
- 
+
   override def section = Some(com.bryzek.dependency.www.lib.Section.Dashboard)
 
   def redirect = Action { request =>
@@ -24,7 +27,7 @@ class ApplicationController @javax.inject.Inject() (
     for {
       recommendations <- dependencyClient(request).recommendations.get(
         organization = organization,
-        limit = Pagination.DefaultLimit+1,
+        limit = Pagination.DefaultLimit + 1,
         offset = page * Pagination.DefaultLimit
       )
     } yield {
@@ -36,5 +39,6 @@ class ApplicationController @javax.inject.Inject() (
       )
     }
   }
+
 
 }

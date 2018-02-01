@@ -2,16 +2,19 @@ package controllers
 
 import com.bryzek.dependency.www.lib.{DependencyClientProvider, UiData}
 import com.bryzek.dependency.v0.models.GithubAuthenticationForm
+import io.flow.dependency.controllers.helpers.DependencyUiControllerHelper
+import io.flow.play.controllers.{FlowController, FlowControllerComponents}
+import io.flow.play.util.Config
 import play.api._
 import play.api.i18n._
 import play.api.mvc._
 
-class LoginController @javax.inject.Inject() (
-  val messagesApi: MessagesApi,
-  val provider: DependencyClientProvider
-) extends Controller
-    with I18nSupport
-{
+class LoginController @javax.inject.Inject()(
+  val provider: DependencyClientProvider,
+  val config: Config,
+  val controllerComponents: ControllerComponents,
+  val flowControllerComponents: FlowControllerComponents
+) extends FlowController with DependencyUiControllerHelper with I18nSupport {
 
   import scala.concurrent.ExecutionContext.Implicits.global
 
@@ -38,10 +41,12 @@ class LoginController @javax.inject.Inject() (
           u
         }
       }
-      Redirect(url).withSession { "user_id" -> user.id.toString }
+      Redirect(url).withSession {
+        "user_id" -> user.id.toString
+      }
     }.recover {
       case response: com.bryzek.dependency.v0.errors.ErrorsResponse => {
-        Ok(views.html.login.index(UiData(requestPath = request.path), returnUrl, response.errors.map(_.message)))
+        Ok(views.html.login.index(UiData(requestPath = request.path), returnUrl, response.errors.flatMap(_.messages)))
       }
     }
   }

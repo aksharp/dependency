@@ -3,21 +3,22 @@ package controllers
 import com.bryzek.dependency.v0.errors.UnitResponse
 import com.bryzek.dependency.v0.models.{Token, TokenForm}
 import com.bryzek.dependency.www.lib.DependencyClientProvider
-import io.flow.common.v0.models.User
-import io.flow.play.util.{Pagination, PaginatedCollection}
+import io.flow.dependency.controllers.helpers.DependencyUiControllerHelper
+import io.flow.play.controllers.{FlowController, FlowControllerComponents, IdentifiedRequest}
+import io.flow.play.util.{Config, PaginatedCollection, Pagination}
+import play.api.data.Forms._
+import play.api.data._
+import play.api.mvc._
+
 import scala.concurrent.Future
 
-import play.api._
-import play.api.i18n.MessagesApi
-import play.api.mvc._
-import play.api.data._
-import play.api.data.Forms._
-
-class TokensController @javax.inject.Inject() (
-  val messagesApi: MessagesApi,
-  override val tokenClient: io.flow.token.v0.interfaces.Client,
-  override val dependencyClientProvider: DependencyClientProvider
-) extends BaseController(tokenClient, dependencyClientProvider) {
+class TokensController @javax.inject.Inject()(
+  val tokenClient: io.flow.token.v0.interfaces.Client,
+  val dependencyClientProvider: DependencyClientProvider,
+  val config: Config,
+  val controllerComponents: ControllerComponents,
+  val flowControllerComponents: FlowControllerComponents
+) extends FlowController with DependencyUiControllerHelper {
 
   import scala.concurrent.ExecutionContext.Implicits.global
 
@@ -26,7 +27,7 @@ class TokensController @javax.inject.Inject() (
   def index(page: Int = 0) = Identified.async { implicit request =>
     for {
       tokens <- dependencyClient(request).tokens.get(
-        limit = Pagination.DefaultLimit+1,
+        limit = Pagination.DefaultLimit + 1,
         offset = page * Pagination.DefaultLimit
       )
     } yield {
@@ -48,7 +49,7 @@ class TokensController @javax.inject.Inject() (
 
   def postCreate = Identified.async { implicit request =>
     val form = TokensController.tokenForm.bindFromRequest
-    form.fold (
+    form.fold(
 
       errors => Future {
         Ok(views.html.tokens.create(uiData(request), errors))
@@ -64,7 +65,7 @@ class TokensController @javax.inject.Inject() (
           Redirect(routes.TokensController.show(token.id)).flashing("success" -> "Token created")
         }.recover {
           case r: com.bryzek.dependency.v0.errors.ErrorsResponse => {
-            Ok(views.html.tokens.create(uiData(request), form, r.errors.map(_.message)))
+            Ok(views.html.tokens.create(uiData(request), form, r.errors.flatMap(_.messages)))
           }
         }
       }

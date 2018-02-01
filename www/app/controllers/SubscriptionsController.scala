@@ -3,8 +3,11 @@ package controllers
 import com.bryzek.dependency.v0.models.{Publication, SubscriptionForm}
 import com.bryzek.dependency.www.lib.{DependencyClientProvider, UiData}
 import io.flow.common.v0.models.User
-import scala.concurrent.Future
+import io.flow.dependency.controllers.helpers.DependencyUiControllerHelper
+import io.flow.play.controllers.{FlowController, FlowControllerComponents}
+import io.flow.play.util.Config
 
+import scala.concurrent.Future
 import play.api._
 import play.api.i18n._
 import play.api.mvc._
@@ -22,13 +25,15 @@ object Subscriptions {
 
 }
 
-class SubscriptionsController @javax.inject.Inject() (
-  val messagesApi: MessagesApi,
+class SubscriptionsController @javax.inject.Inject()(
   val tokenClient: io.flow.token.v0.interfaces.Client,
-  val dependencyClientProvider: DependencyClientProvider
-) extends Controller
-    with I18nSupport
-{
+  val dependencyClientProvider: DependencyClientProvider,
+  val config: Config,
+  val controllerComponents: ControllerComponents,
+  val flowControllerComponents: FlowControllerComponents
+) extends FlowController
+  with DependencyUiControllerHelper
+  with I18nSupport {
 
   import scala.concurrent.ExecutionContext.Implicits.global
 
@@ -63,7 +68,7 @@ class SubscriptionsController @javax.inject.Inject() (
         Subscriptions.UserPublication(
           publication = p,
           isSubscribed = !subscriptions.find(_.publication == p).isEmpty
-            )
+        )
       }
       Ok(views.html.subscriptions.identifier(uiData(request, users.headOption), identifier, userPublications))
     }

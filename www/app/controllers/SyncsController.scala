@@ -4,9 +4,11 @@ import com.bryzek.dependency.v0.errors.UnitResponse
 import com.bryzek.dependency.v0.models.Sync
 import com.bryzek.dependency.www.lib.DependencyClientProvider
 import io.flow.common.v0.models.User
-import io.flow.play.util.{Pagination, PaginatedCollection}
-import scala.concurrent.Future
+import io.flow.dependency.controllers.helpers.DependencyUiControllerHelper
+import io.flow.play.controllers.{FlowController, FlowControllerComponents}
+import io.flow.play.util.{Config, PaginatedCollection, Pagination}
 
+import scala.concurrent.Future
 import play.api._
 import play.api.i18n.MessagesApi
 import play.api.mvc._
@@ -14,10 +16,11 @@ import play.api.data._
 import play.api.data.Forms._
 
 class SyncsController @javax.inject.Inject() (
-  val messagesApi: MessagesApi,
-  override val tokenClient: io.flow.token.v0.interfaces.Client,
-  override val dependencyClientProvider: DependencyClientProvider
-) extends BaseController(tokenClient, dependencyClientProvider) {
+  val dependencyClientProvider: DependencyClientProvider,
+  val config: Config,
+  val controllerComponents: ControllerComponents,
+  val flowControllerComponents: FlowControllerComponents
+) extends FlowController with DependencyUiControllerHelper {
 
   import scala.concurrent.ExecutionContext.Implicits.global
 

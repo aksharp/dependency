@@ -3,9 +3,11 @@ package controllers
 import com.bryzek.dependency.v0.errors.UnitResponse
 import com.bryzek.dependency.v0.models.{Organization, Resolver, ResolverForm, UsernamePassword, Visibility}
 import com.bryzek.dependency.www.lib.DependencyClientProvider
-import io.flow.play.util.{Pagination, PaginatedCollection}
-import scala.concurrent.Future
+import io.flow.dependency.controllers.helpers.DependencyUiControllerHelper
+import io.flow.play.controllers.{FlowController, FlowControllerComponents, IdentifiedRequest}
+import io.flow.play.util.{Config, PaginatedCollection, Pagination}
 
+import scala.concurrent.Future
 import play.api._
 import play.api.i18n.MessagesApi
 import play.api.mvc._
@@ -13,10 +15,11 @@ import play.api.data._
 import play.api.data.Forms._
 
 class ResolversController @javax.inject.Inject() (
-  val messagesApi: MessagesApi,
-  override val tokenClient: io.flow.token.v0.interfaces.Client,
-  override val dependencyClientProvider: DependencyClientProvider
-) extends BaseController(tokenClient, dependencyClientProvider) {
+  val dependencyClientProvider: DependencyClientProvider,
+  val config: Config,
+  val controllerComponents: ControllerComponents,
+  val flowControllerComponents: FlowControllerComponents
+) extends FlowController with DependencyUiControllerHelper {
 
   import scala.concurrent.ExecutionContext.Implicits.global
 
@@ -85,7 +88,7 @@ class ResolversController @javax.inject.Inject() (
             Redirect(routes.ResolversController.show(resolver.id)).flashing("success" -> "Resolver created")
           }.recover {
             case response: com.bryzek.dependency.v0.errors.ErrorsResponse => {
-              Ok(views.html.resolvers.create(uiData(request), boundForm, orgs, response.errors.map(_.message)))
+              Ok(views.html.resolvers.create(uiData(request), boundForm, orgs, response.errors.flatMap(_.messages)))
             }
           }
         }

@@ -4,20 +4,23 @@ import com.bryzek.dependency.v0.errors.UnitResponse
 import com.bryzek.dependency.v0.models.{Organization, Project, ProjectForm, Scms, SyncEvent, Visibility}
 import com.bryzek.dependency.www.lib.DependencyClientProvider
 import io.flow.common.v0.models.User
-import io.flow.play.util.{Pagination, PaginatedCollection}
-import scala.concurrent.Future
+import io.flow.dependency.controllers.helpers.DependencyUiControllerHelper
+import io.flow.play.controllers.{FlowController, FlowControllerComponents, IdentifiedRequest}
+import io.flow.play.util.{Config, PaginatedCollection, Pagination}
 
+import scala.concurrent.Future
 import play.api._
 import play.api.i18n.MessagesApi
 import play.api.mvc._
 import play.api.data._
 import play.api.data.Forms._
 
-class ProjectsController @javax.inject.Inject() (
-  val messagesApi: MessagesApi,
-  override val tokenClient: io.flow.token.v0.interfaces.Client,
-  override val dependencyClientProvider: DependencyClientProvider
-) extends BaseController(tokenClient, dependencyClientProvider) {
+class ProjectsController @javax.inject.Inject()(
+  val dependencyClientProvider: DependencyClientProvider,
+  val config: Config,
+  val controllerComponents: ControllerComponents,
+  val flowControllerComponents: FlowControllerComponents
+) extends FlowController with DependencyUiControllerHelper {
 
   import scala.concurrent.ExecutionContext.Implicits.global
 
@@ -26,7 +29,7 @@ class ProjectsController @javax.inject.Inject() (
   def index(page: Int = 0) = Identified.async { implicit request =>
     for {
       projects <- dependencyClient(request).projects.get(
-        limit = Pagination.DefaultLimit+1,
+        limit = Pagination.DefaultLimit + 1,
         offset = page * Pagination.DefaultLimit
       )
     } yield {
@@ -44,17 +47,17 @@ class ProjectsController @javax.inject.Inject() (
       for {
         recommendations <- dependencyClient(request).recommendations.get(
           projectId = Some(project.id),
-          limit = Pagination.DefaultLimit+1,
+          limit = Pagination.DefaultLimit + 1,
           offset = recommendationsPage * Pagination.DefaultLimit
         )
         projectBinaries <- dependencyClient(request).projectBinaries.get(
           projectId = Some(id),
-          limit = Pagination.DefaultLimit+1,
+          limit = Pagination.DefaultLimit + 1,
           offset = binariesPage * Pagination.DefaultLimit
         )
         projectLibraries <- dependencyClient(request).projectLibraries.get(
           projectId = Some(id),
-          limit = Pagination.DefaultLimit+1,
+          limit = Pagination.DefaultLimit + 1,
           offset = librariesPage * Pagination.DefaultLimit
         )
         syncs <- dependencyClient(request).syncs.get(
@@ -105,7 +108,7 @@ class ProjectsController @javax.inject.Inject() (
         repositories <- dependencyClient(request).repositories.getGithub(
           organizationId = Some(org.id),
           existingProject = Some(false),
-          limit = Pagination.DefaultLimit+1,
+          limit = Pagination.DefaultLimit + 1,
           offset = repositoriesPage * Pagination.DefaultLimit
         )
       } yield {
@@ -121,7 +124,7 @@ class ProjectsController @javax.inject.Inject() (
   def postGithubOrg(
     orgKey: String,
     owner: String, // github owner, ex. flowcommerce    
-    name: String,  // github repo name, ex. user
+    name: String, // github repo name, ex. user
     repositoriesPage: Int = 0
   ) = Identified.async { implicit request =>
     withOrganization(request, orgKey) { org =>
@@ -140,7 +143,11 @@ class ProjectsController @javax.inject.Inject() (
                 organization = org.key,
                 name = repo.name,
                 scms = Scms.Github,
-                visibility = if (repo.`private`) { Visibility.Private } else { Visibility.Public },
+                visibility = if (repo.`private`) {
+                  Visibility.Private
+                } else {
+                  Visibility.Public
+                },
                 uri = repo.htmlUrl
               )
             ).map { project =>
@@ -168,7 +175,7 @@ class ProjectsController @javax.inject.Inject() (
     val boundForm = ProjectsController.uiForm.bindFromRequest
 
     organizations(request).flatMap { orgs =>
-      boundForm.fold (
+      boundForm.fold(
 
         formWithErrors => Future {
           Ok(views.html.projects.create(uiData(request), formWithErrors, orgs))
@@ -187,7 +194,7 @@ class ProjectsController @javax.inject.Inject() (
             Redirect(routes.ProjectsController.sync(project.id)).flashing("success" -> "Project created")
           }.recover {
             case response: com.bryzek.dependency.v0.errors.ErrorsResponse => {
-              Ok(views.html.projects.create(uiData(request), boundForm, orgs, response.errors.map(_.message)))
+              Ok(views.html.projects.create(uiData(request), boundForm, orgs, response.errors.flatMap(_.messages)))
             }
           }
         }
@@ -222,31 +229,31 @@ class ProjectsController @javax.inject.Inject() (
     organizations(request).flatMap { orgs =>
       withProject(request, id) { project =>
         val boundForm = ProjectsController.uiForm.bindFromRequest
-          boundForm.fold (
+        boundForm.fold(
 
-            formWithErrors => Future {
-              Ok(views.html.projects.edit(uiData(request), project, formWithErrors, orgs))
-            },
+          formWithErrors => Future {
+            Ok(views.html.projects.edit(uiData(request), project, formWithErrors, orgs))
+          },
 
-            uiForm => {
-              dependencyClient(request).projects.putById(
-                project.id,
-                ProjectForm(
-                  organization = project.organization.key,
-                  name = uiForm.name,
-                  scms = Scms(uiForm.scms),
-                  visibility = Visibility(uiForm.visibility),
-                  uri = uiForm.uri
-                )
-              ).map { project =>
-                Redirect(routes.ProjectsController.show(project.id)).flashing("success" -> "Project updated")
-              }.recover {
-                case response: com.bryzek.dependency.v0.errors.ErrorsResponse => {
-                  Ok(views.html.projects.edit(uiData(request), project, boundForm, orgs, response.errors.map(_.message)))
-                }
+          uiForm => {
+            dependencyClient(request).projects.putById(
+              project.id,
+              ProjectForm(
+                organization = project.organization.key,
+                name = uiForm.name,
+                scms = Scms(uiForm.scms),
+                visibility = Visibility(uiForm.visibility),
+                uri = uiForm.uri
+              )
+            ).map { project =>
+              Redirect(routes.ProjectsController.show(project.id)).flashing("success" -> "Project updated")
+            }.recover {
+              case response: com.bryzek.dependency.v0.errors.ErrorsResponse => {
+                Ok(views.html.projects.edit(uiData(request), project, boundForm, orgs, response.errors.flatMap(_.messages)))
               }
             }
-          )
+          }
+        )
       }
     }
   }
@@ -291,7 +298,11 @@ class ProjectsController @javax.inject.Inject() (
           limit = 100
         )
       } yield {
-        val actualN = if (n < 1) { 1 } else { n }
+        val actualN = if (n < 1) {
+          1
+        } else {
+          n
+        }
 
         val sleepTime = (actualN * 1.1).toInt match {
           case `actualN` => actualN + 1
@@ -300,18 +311,26 @@ class ProjectsController @javax.inject.Inject() (
 
         val pending = pendingProjectLibraries.map { lib =>
           s"${lib.groupId}.${lib.artifactId}"
-        } ++ pendingProjectBinaries.map { _.name }
+        } ++ pendingProjectBinaries.map {
+          _.name
+        }
 
         val completed = completedProjectLibraries.map { lib =>
           s"${lib.groupId}.${lib.artifactId}"
-        } ++ completedProjectBinaries.map { _.name }
+        } ++ completedProjectBinaries.map {
+          _.name
+        }
 
-        syncs.find { _.event == SyncEvent.Completed } match {
+        syncs.find {
+          _.event == SyncEvent.Completed
+        } match {
           case Some(rec) => {
             Redirect(routes.ProjectsController.show(id))
           }
           case None => {
-            val syncStarted = syncs.find { _.event == SyncEvent.Started }
+            val syncStarted = syncs.find {
+              _.event == SyncEvent.Started
+            }
             if (!syncStarted.isEmpty && pending.isEmpty && !completed.isEmpty) {
               Redirect(routes.ProjectsController.show(id))
             } else if (n >= 10) {

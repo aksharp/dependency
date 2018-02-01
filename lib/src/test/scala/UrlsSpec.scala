@@ -8,13 +8,28 @@ class UrlsSpec extends FunSpec with Matchers with Factories {
 
   private[this] lazy val urls = Urls(
     new Config {
-      def optionalString(name: String): Option[String] = {
+      override def optionalString(name: String): Option[String] = {
         if (name == "dependency.www.host") {
           Some("http://localhost")
         } else {
           None
         }
       }
+
+      override def optionalList(name: String): Option[Seq[String]] = {
+        if (name == "dependency.www.host") {
+          Some(Seq("http://localhost"))
+        } else {
+          None
+        }
+      }
+
+      override def get(name: String): Option[String] =
+        if (name == "dependency.www.host") {
+          Some("http://localhost")
+        } else {
+          None
+        }
     }
   )
 

@@ -1,25 +1,26 @@
 package controllers
 
 import com.bryzek.dependency.v0.errors.UnitResponse
-import com.bryzek.dependency.v0.models.{Organization, OrganizationForm}
+import com.bryzek.dependency.v0.models.OrganizationForm
 import com.bryzek.dependency.www.lib.DependencyClientProvider
-import io.flow.play.util.{Pagination, PaginatedCollection}
+import io.flow.dependency.controllers.helpers.DependencyUiControllerHelper
+import io.flow.play.controllers.{FlowController, FlowControllerComponents}
+import io.flow.play.util.{Config, PaginatedCollection, Pagination}
+import play.api.data.Forms._
+import play.api.data._
+import play.api.mvc._
+
 import scala.concurrent.Future
 
-import play.api._
-import play.api.i18n.MessagesApi
-import play.api.mvc._
-import play.api.data._
-import play.api.data.Forms._
-
 class OrganizationsController @javax.inject.Inject() (
-  val messagesApi: MessagesApi,
-  override val tokenClient: io.flow.token.v0.interfaces.Client,
-  override val dependencyClientProvider: DependencyClientProvider
-) extends BaseController(tokenClient, dependencyClientProvider) {
+  val dependencyClientProvider: DependencyClientProvider,
+  val config: Config,
+  val controllerComponents: ControllerComponents,
+  val flowControllerComponents: FlowControllerComponents
+) extends FlowController with DependencyUiControllerHelper {
 
   import scala.concurrent.ExecutionContext.Implicits.global
- 
+
   override def section = None
 
   def redirectToDashboard(org: String) = Identified { implicit request =>
@@ -84,7 +85,7 @@ class OrganizationsController @javax.inject.Inject() (
           Redirect(routes.OrganizationsController.show(organization.key)).flashing("success" -> "Organization created")
         }.recover {
           case response: com.bryzek.dependency.v0.errors.ErrorsResponse => {
-            Ok(views.html.organizations.create(uiData(request), boundForm, response.errors.map(_.message)))
+            Ok(views.html.organizations.create(uiData(request), boundForm, response.errors.flatMap(_.messages)))
           }
         }
       }
@@ -123,7 +124,7 @@ class OrganizationsController @javax.inject.Inject() (
             Redirect(routes.OrganizationsController.show(updated.key)).flashing("success" -> "Organization updated")
           }.recover {
             case response: com.bryzek.dependency.v0.errors.ErrorsResponse => {
-              Ok(views.html.organizations.edit(uiData(request), organization, boundForm, response.errors.map(_.message)))
+              Ok(views.html.organizations.edit(uiData(request), organization, boundForm, response.errors.flatMap(_.messages)))
             }
           }
         }

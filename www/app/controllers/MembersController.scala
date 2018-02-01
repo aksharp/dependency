@@ -4,20 +4,23 @@ import com.bryzek.dependency.v0.errors.UnitResponse
 import com.bryzek.dependency.v0.models.{Membership, MembershipForm, Role}
 import com.bryzek.dependency.www.lib.DependencyClientProvider
 import io.flow.common.v0.models.User
-import io.flow.play.util.{Pagination, PaginatedCollection}
-import scala.concurrent.Future
+import io.flow.dependency.controllers.helpers.DependencyUiControllerHelper
+import io.flow.play.controllers.{FlowController, FlowControllerComponents, IdentifiedRequest}
+import io.flow.play.util.{Config, PaginatedCollection, Pagination}
 
+import scala.concurrent.Future
 import play.api._
 import play.api.i18n.MessagesApi
 import play.api.mvc._
 import play.api.data._
 import play.api.data.Forms._
 
-class MembersController @javax.inject.Inject() (
-  val messagesApi: MessagesApi,
-  override val tokenClient: io.flow.token.v0.interfaces.Client,
-  override val dependencyClientProvider: DependencyClientProvider
-) extends BaseController(tokenClient, dependencyClientProvider) {
+class MembersController @javax.inject.Inject()(
+  val dependencyClientProvider: DependencyClientProvider,
+  val config: Config,
+  val controllerComponents: ControllerComponents,
+  val flowControllerComponents: FlowControllerComponents
+) extends FlowController with DependencyUiControllerHelper {
 
   import scala.concurrent.ExecutionContext.Implicits.global
 
@@ -28,7 +31,7 @@ class MembersController @javax.inject.Inject() (
       for {
         memberships <- dependencyClient(request).memberships.get(
           organization = Some(org.key),
-          limit = Pagination.DefaultLimit+1,
+          limit = Pagination.DefaultLimit + 1,
           offset = page * Pagination.DefaultLimit
         )
       } yield {
@@ -38,7 +41,7 @@ class MembersController @javax.inject.Inject() (
             org,
             PaginatedCollection(page, memberships)
           )
-      )
+        )
       }
     }
   }
@@ -62,7 +65,7 @@ class MembersController @javax.inject.Inject() (
       val boundForm = MembersController.uiForm.bindFromRequest
 
       organizations(request).flatMap { orgs =>
-        boundForm.fold (
+        boundForm.fold(
 
           formWithErrors => Future {
             Ok(views.html.members.create(uiData(request).copy(organization = Some(org.key)), org, formWithErrors))
@@ -88,7 +91,7 @@ class MembersController @javax.inject.Inject() (
                   }.recover {
                     case response: com.bryzek.dependency.v0.errors.ErrorsResponse => {
                       Ok(views.html.members.create(
-                        uiData(request).copy(organization = Some(org.key)), org, boundForm, response.errors.map(_.message))
+                        uiData(request).copy(organization = Some(org.key)), org, boundForm, response.errors.flatMap(_.messages))
                       )
                     }
                   }
@@ -139,7 +142,7 @@ class MembersController @javax.inject.Inject() (
           Redirect(routes.MembersController.index(membership.organization.key)).flashing("success" -> s"User added as ${membership.role}")
         }.recover {
           case response: com.bryzek.dependency.v0.errors.ErrorsResponse => {
-            Redirect(routes.MembersController.index(membership.organization.key)).flashing("warning" -> response.errors.map(_.message).mkString(", "))
+            Redirect(routes.MembersController.index(membership.organization.key)).flashing("warning" -> response.errors.map(_.messages).mkString(", "))
           }
         }
       }

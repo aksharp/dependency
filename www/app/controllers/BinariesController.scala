@@ -3,18 +3,22 @@ package controllers
 import com.bryzek.dependency.v0.errors.UnitResponse
 import com.bryzek.dependency.v0.models.{Binary, SyncEvent}
 import com.bryzek.dependency.www.lib.{Config, DependencyClientProvider}
-import io.flow.play.util.{Pagination, PaginatedCollection}
-import scala.concurrent.Future
+import io.flow.dependency.controllers.helpers.DependencyUiControllerHelper
+import io.flow.play.controllers.{FlowController, FlowControllerComponents, IdentifiedRequest}
+import io.flow.play.util.{Config, PaginatedCollection, Pagination}
 
+import scala.concurrent.Future
 import play.api._
-import play.api.i18n.MessagesApi
+import play.api.i18n.{I18nSupport, MessagesApi}
 import play.api.mvc._
 
-class BinariesController @javax.inject.Inject() (
-  val messagesApi: MessagesApi,
-  override val tokenClient: io.flow.token.v0.interfaces.Client,
-  override val dependencyClientProvider: DependencyClientProvider
-) extends BaseController(tokenClient, dependencyClientProvider) {
+class BinariesController @javax.inject.Inject()(
+  tokenClient: io.flow.token.v0.interfaces.Client,
+  val dependencyClientProvider: DependencyClientProvider,
+  val config: Config,
+  val controllerComponents: ControllerComponents,
+  val flowControllerComponents: FlowControllerComponents
+) extends FlowController with DependencyUiControllerHelper with I18nSupport {
 
   import scala.concurrent.ExecutionContext.Implicits.global
 
@@ -23,7 +27,7 @@ class BinariesController @javax.inject.Inject() (
   def index(page: Int = 0) = Identified.async { implicit request =>
     for {
       binaries <- dependencyClient(request).binaries.get(
-        limit = Pagination.DefaultLimit+1,
+        limit = Pagination.DefaultLimit + 1,
         offset = page * Pagination.DefaultLimit
       )
     } yield {
@@ -45,12 +49,12 @@ class BinariesController @javax.inject.Inject() (
       for {
         versions <- dependencyClient(request).binaryVersions.get(
           binaryId = Some(id),
-          limit = Config.VersionsPerPage+1,
+          limit = Config.VersionsPerPage + 1,
           offset = versionsPage * Config.VersionsPerPage
         )
         projectBinaries <- dependencyClient(request).projectBinaries.get(
           binaryId = Some(id),
-          limit = Pagination.DefaultLimit+1,
+          limit = Pagination.DefaultLimit + 1,
           offset = projectsPage * Pagination.DefaultLimit
         )
         syncs <- dependencyClient(request).syncs.get(

@@ -5,6 +5,15 @@ code:
       generators:
         play_2_6_client: generated/app
         anorm_2_6_parsers: api/app/generated
+    error:
+      version: latest
+      generators:
+        play_2_6_client: generated/app
+        anorm_2_6_parsers: api/app/generated
+    healthcheck:
+      version: latest
+      generators:
+        play_2_6_client: generated/app
     docker-registry:
       version: latest
       generators:
@@ -23,7 +32,7 @@ code:
       generators:
         play_2_6_client: generated/app
     delta:
-      version: latest
+      version: 0.5.57-for-dependency-upgrade
       generators:
         play_2_x_routes: api/conf/delta.routes
         anorm_2_6_parsers: api/app/generated

@@ -1,16 +1,16 @@
 package controllers
 
 import com.bryzek.dependency.www.lib.UiData
-import io.flow.common.v0.models.Healthcheck
-import io.flow.common.v0.models.json._
-
-import play.api._
+import io.flow.play.controllers.{FlowController, FlowControllerComponents}
+import io.flow.play.util.Config
 import play.api.i18n._
 import play.api.mvc._
 
-class HealthchecksController @javax.inject.Inject() (
-  val messagesApi: MessagesApi
-) extends Controller with I18nSupport {
+class HealthchecksController @javax.inject.Inject()(
+  val config: Config,
+  val controllerComponents: ControllerComponents,
+  val flowControllerComponents: FlowControllerComponents
+) extends FlowController with I18nSupport {
 
   def index() = Action { implicit request =>
     Ok(
