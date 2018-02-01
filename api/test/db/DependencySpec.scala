@@ -4,28 +4,41 @@ import io.flow.play.util.Random
 import com.bryzek.dependency.v0.models._
 import io.flow.common.v0.models.{Name, User, UserReference}
 import java.util.UUID
+
+import io.flow.test.utils.FlowPlaySpec
 import org.scalatest.concurrent.Eventually._
 import org.scalatest.time.{Seconds, Span}
 
-trait Helpers {
+trait DependencySpec extends FlowPlaySpec {
+
+  val organizationsDao = init[OrganizationsDao]
+  val binariesDao = init[BinariesDao]
+  val binaryVersionsDao = init[BinaryVersionsDao]
+  val librariesDao = init[LibrariesDao]
+  val libraryVersionsDao = init[LibraryVersionsDao]
+  val usersDao = init[UsersDao]
+  val projectsDao = init[ProjectsDao]
+  val projectLibrariesDao = init[ProjectLibrariesDao]
+  val projectBinariesDao = init[ProjectBinariesDao]
+  val githubUsersDao = init[GithubUsersDao]
+  val tokensDao = init[TokensDao]
+  val syncsDao = init[SyncsDao]
+  val resolversDao = init[ResolversDao]
+  val membershipsDao = init[MembershipsDao]
+  val itemsDao = init[ItemsDao]
+  val subscriptionsDao = init[SubscriptionsDao]
+  val lastEmailsDao = init[LastEmailsDao]
+  val binaryRecommendationsDao = init[BinaryRecommendationsDao]
+  val libraryRecommendationsDao = init[LibraryRecommendationsDao]
+  val recommendationsDao = init[RecommendationsDao]
+  val userIdentifiersDao = init[UserIdentifiersDao]
+
+  val random = Random()
 
   import scala.language.implicitConversions
   implicit def toUserReference(user: User) = UserReference(id = user.id)
 
   lazy val systemUser = createUser()
-  val random = Random()
-
-  def createTestEmail(): String = {
-    s"${createTestKey}@test.bryzek.com"
-  }
-
-  def createTestName(): String = {
-    s"Z Test ${UUID.randomUUID.toString}"
-  }
-
-  def createTestKey(): String = {
-    s"z-test-${UUID.randomUUID.toString.toLowerCase}"
-  }
 
   def create[T](result: Either[Seq[String], T]): T = {
     result match {
@@ -66,9 +79,13 @@ trait Helpers {
     form: OrganizationForm = createOrganizationForm(),
     user: User = systemUser
   ): Organization = {
-    OrganizationsDao.create(user, form).right.getOrElse {
+    organizationsDao.create(user, form).right.getOrElse {
       sys.error("Failed to create organization")
     }
+  }
+
+  def createTestKey(): String = {
+    s"z-test-${UUID.randomUUID.toString.toLowerCase}"
   }
 
   def createOrganizationForm() = {
@@ -82,7 +99,7 @@ trait Helpers {
   ) (
     implicit form: BinaryForm = createBinaryForm(org)
   ): Binary = {
-    BinariesDao.create(systemUser, form).right.getOrElse {
+    binariesDao.create(systemUser, form).right.getOrElse {
       sys.error("Failed to create binary")
     }
   }
@@ -100,7 +117,7 @@ trait Helpers {
     implicit binary: Binary = createBinary(org),
              version: String = s"0.0.1-${UUID.randomUUID.toString}".toLowerCase
   ): BinaryVersion = {
-    BinaryVersionsDao.create(systemUser, binary.id, version)
+    binaryVersionsDao.create(systemUser, binary.id, version)
   }
 
   def createLibrary(
@@ -109,7 +126,7 @@ trait Helpers {
   ) (
     implicit form: LibraryForm = createLibraryForm(org, user)
   ): Library = {
-    LibrariesDao.create(user, form).right.getOrElse {
+    librariesDao.create(user, form).right.getOrElse {
       sys.error("Failed to create library")
     }
   }
@@ -135,7 +152,7 @@ trait Helpers {
     implicit library: Library = createLibrary(org, user),
              version: VersionForm = createVersionForm()
   ): LibraryVersion = {
-    LibraryVersionsDao.create(user, library.id, version)
+    libraryVersionsDao.create(user, library.id, version)
   }
 
   def createVersionForm(
@@ -150,13 +167,13 @@ trait Helpers {
   ) (
     implicit form: ProjectForm = createProjectForm(org)
   ): Project = {
-    val user = OrganizationsDao.findByKey(Authorization.All, form.organization).flatMap { org =>
-      UsersDao.findById(org.user.id)
+    val user = organizationsDao.findByKey(Authorization.All, form.organization).flatMap { org =>
+      usersDao.findById(org.user.id)
     }.getOrElse {
       sys.error("Could not find user that created org")
     }
 
-    create(ProjectsDao.create(user, form))
+    create(projectsDao.create(user, form))
   }
 
   def createProjectForm(
@@ -193,9 +210,9 @@ trait Helpers {
       )
     )
 
-    val libraryVersion = LibraryVersionsDao.upsert(systemUser, library.id, version)
+    val libraryVersion = libraryVersionsDao.upsert(systemUser, library.id, version)
 
-    ProjectLibrariesDao.setLibrary(systemUser, projectLibrary, library)
+    projectLibrariesDao.setLibrary(systemUser, projectLibrary, library)
 
     (project, libraryVersion)
   }
@@ -207,7 +224,7 @@ trait Helpers {
     val binaryVersion = createBinaryVersion(org)(binary = binary)
     val project = createProject(org)
 
-    val projectBinary = create(ProjectBinariesDao.create(
+    val projectBinary = create(projectBinariesDao.create(
       systemUser,
       createProjectBinaryForm(
         project = project,
@@ -216,7 +233,7 @@ trait Helpers {
       )
     ))
 
-    ProjectBinariesDao.setBinary(systemUser, projectBinary, binary)
+    projectBinariesDao.setBinary(systemUser, projectBinary, binary)
 
     (project, binaryVersion)
   }
@@ -239,7 +256,7 @@ trait Helpers {
   def createUser(
     form: UserForm = createUserForm()
   ): User = {
-    create(UsersDao.create(None, form))
+    create(usersDao.create(None, form))
   }
 
   def createUserForm(
@@ -253,7 +270,7 @@ trait Helpers {
   def createGithubUser(
     form: GithubUserForm = createGithubUserForm()
   ): GithubUser = {
-    GithubUsersDao.create(None, form)
+    githubUsersDao.create(None, form)
   }
 
   def createGithubUserForm(
@@ -271,7 +288,7 @@ trait Helpers {
   def createToken(
     form: TokenForm = createTokenForm()
   ): Token = {
-    create(TokensDao.create(systemUser, InternalTokenForm.UserCreated(form)))
+    create(tokensDao.create(systemUser, InternalTokenForm.UserCreated(form)))
   }
 
   def createTokenForm(
@@ -286,7 +303,7 @@ trait Helpers {
   def createSync(
     form: SyncForm = createSyncForm()
   ): Sync = {
-    SyncsDao.create(systemUser, form)
+    syncsDao.create(systemUser, form)
   }
 
   def createSyncForm(
@@ -307,7 +324,7 @@ trait Helpers {
   ) (
     implicit form: ResolverForm = createResolverForm(org)
   ): Resolver = {
-    create(ResolversDao.create(user, form))
+    create(resolversDao.create(user, form))
   }
 
   def createResolverForm(
@@ -325,7 +342,7 @@ trait Helpers {
   def createMembership(
     form: MembershipForm = createMembershipForm()
   ): Membership = {
-    create(MembershipsDao.create(systemUser, form))
+    create(membershipsDao.create(systemUser, form))
   }
 
   def createMembershipForm(
@@ -361,7 +378,7 @@ trait Helpers {
 
   def addLibraryVersion(project: Project, libraryVersion: LibraryVersion) {
     val projectLibrary = create(
-      ProjectLibrariesDao.upsert(
+      projectLibrariesDao.upsert(
         systemUser,
         ProjectLibraryForm(
           projectId = project.id,
@@ -373,7 +390,7 @@ trait Helpers {
       )
     )
 
-    ProjectLibrariesDao.setLibrary(systemUser, projectLibrary, libraryVersion.library)
+    projectLibrariesDao.setLibrary(systemUser, projectLibrary, libraryVersion.library)
   }
 
   def replaceItem(
@@ -381,7 +398,7 @@ trait Helpers {
   ) (
     implicit form: ItemForm = createItemForm(org)
   ): Item = {
-    ItemsDao.replace(systemUser, form)
+    itemsDao.replace(systemUser, form)
   }
 
   def createItemSummary(
@@ -419,8 +436,8 @@ trait Helpers {
     form: SubscriptionForm = createSubscriptionForm(),
     user: User = systemUser
   ): Subscription = {
-    SubscriptionsDao.upsertByUserIdAndPublication(user, form)
-    SubscriptionsDao.findByUserIdAndPublication(form.userId, form.publication).get
+    subscriptionsDao.upsertByUserIdAndPublication(user, form)
+    subscriptionsDao.findByUserIdAndPublication(form.userId, form.publication).get
   }
 
   def createSubscriptionForm(
@@ -436,7 +453,7 @@ trait Helpers {
   def createLastEmail(
     form: LastEmailForm = createLastEmailForm()
   ): LastEmail = {
-    LastEmailsDao.record(systemUser, form)
+    lastEmailsDao.record(systemUser, form)
   }
 
   def createLastEmailForm(
@@ -452,7 +469,7 @@ trait Helpers {
   ) (
     implicit form: ProjectLibraryForm = createProjectLibraryForm(project)
   ): ProjectLibrary = {
-    create(ProjectLibrariesDao.create(systemUser, form))
+    create(projectLibrariesDao.create(systemUser, form))
   }
 
   def createProjectLibraryForm(
@@ -477,7 +494,7 @@ trait Helpers {
   ) (
     implicit form: ProjectBinaryForm = createProjectBinaryForm(project)
   ): ProjectBinary = {
-    create(ProjectBinariesDao.create(systemUser, form))
+    create(projectBinariesDao.create(systemUser, form))
   }
 
   def createProjectBinaryForm(

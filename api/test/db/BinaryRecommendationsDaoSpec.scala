@@ -6,7 +6,7 @@ import play.api.test.Helpers._
 import org.scalatest._
 import org.scalatestplus.play._
 
-class BinaryRecommendationsDaoSpec extends PlaySpec with OneAppPerSuite with Helpers {
+class BinaryRecommendationsDaoSpec extends DependencySpec {
 
   import scala.concurrent.ExecutionContext.Implicits.global
 
@@ -24,7 +24,7 @@ class BinaryRecommendationsDaoSpec extends PlaySpec with OneAppPerSuite with Hel
     }
     (
       binary,
-      BinaryVersionsDao.findAll(
+      binaryVersionsDao.findAll(
         Authorization.Organization(org.id),
         binaryId = Some(binary.id),
         limit = versions.size
@@ -34,7 +34,7 @@ class BinaryRecommendationsDaoSpec extends PlaySpec with OneAppPerSuite with Hel
 
   def addBinaryVersion(project: Project, binaryVersion: BinaryVersion) {
     val projectBinary = create(
-      ProjectBinariesDao.upsert(
+      projectBinariesDao.upsert(
         systemUser,
         ProjectBinaryForm(
           projectId = project.id,
@@ -44,21 +44,21 @@ class BinaryRecommendationsDaoSpec extends PlaySpec with OneAppPerSuite with Hel
         )
       )
     )
-    ProjectBinariesDao.setBinary(systemUser, projectBinary, binaryVersion.binary)
+    projectBinariesDao.setBinary(systemUser, projectBinary, binaryVersion.binary)
   }
 
   lazy val org = createOrganization()
 
   "no-op if nothing to upgrade" in {
     val project = createProject(org)
-    BinaryRecommendationsDao.forProject(project) must be(Nil)
+    binaryRecommendationsDao.forProject(project) must be(Nil)
   }
 
   "ignores earlier versions of binary" in {
     val (binary, binaryVersions) = createBinaryWithMultipleVersions(org)
     val project = createProject(org)
     addBinaryVersion(project, binaryVersions.last)
-    BinaryRecommendationsDao.forProject(project) must be(Nil)
+    binaryRecommendationsDao.forProject(project) must be(Nil)
   }
 
   "with binary to upgrade" in {
@@ -66,7 +66,7 @@ class BinaryRecommendationsDaoSpec extends PlaySpec with OneAppPerSuite with Hel
     val project = createProject(org)
     addBinaryVersion(project, binaryVersions.find(_.version == "1.0.0").get)
     verify(
-      BinaryRecommendationsDao.forProject(project),
+      binaryRecommendationsDao.forProject(project),
       Seq(
         BinaryRecommendation(
           binary = binary,
@@ -85,7 +85,7 @@ class BinaryRecommendationsDaoSpec extends PlaySpec with OneAppPerSuite with Hel
     val project = createProject(org)
     addBinaryVersion(project, binaryVersions.find(_.version == "1.0.0").get)
     verify(
-      BinaryRecommendationsDao.forProject(project),
+      binaryRecommendationsDao.forProject(project),
       Seq(
         BinaryRecommendation(
           binary = binary,

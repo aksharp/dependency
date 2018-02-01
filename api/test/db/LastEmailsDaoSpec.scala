@@ -8,14 +8,14 @@ import org.scalatest._
 import org.scalatestplus.play._
 import java.util.UUID
 
-class LastEmailsDaoSpec extends PlaySpec with OneAppPerSuite with Helpers {
+class LastEmailsDaoSpec extends  DependencySpec {
 
   import scala.concurrent.ExecutionContext.Implicits.global
 
   "delete" in {
     val lastEmail = createLastEmail()
-    LastEmailsDao.delete(systemUser, lastEmail)
-    LastEmailsDao.findById(lastEmail.id) must be(None)
+    lastEmailsDao.delete(systemUser, lastEmail)
+    lastEmailsDao.findById(lastEmail.id) must be(None)
   }
 
   "record" in {
@@ -24,17 +24,17 @@ class LastEmailsDaoSpec extends PlaySpec with OneAppPerSuite with Helpers {
     val lastEmail2 = createLastEmail(form)
     lastEmail1.id must not be(lastEmail2.id)
 
-    LastEmailsDao.findById(lastEmail1.id) must be(None)
-    LastEmailsDao.findById(lastEmail2.id).map(_.id) must be(Some(lastEmail2.id))
+    lastEmailsDao.findById(lastEmail1.id) must be(None)
+    lastEmailsDao.findById(lastEmail2.id).map(_.id) must be(Some(lastEmail2.id))
   }
 
   "findByUserIdAndPublication" in {
     val form = createLastEmailForm()
     val lastEmail = createLastEmail(form)
 
-    LastEmailsDao.findByUserIdAndPublication(form.userId, form.publication).map(_.id) must be(Some(lastEmail.id))
-    LastEmailsDao.findByUserIdAndPublication(UUID.randomUUID.toString, form.publication).map(_.id) must be(None)
-    LastEmailsDao.findByUserIdAndPublication(form.userId, Publication.UNDEFINED("other")).map(_.id) must be(None)
+    lastEmailsDao.findByUserIdAndPublication(form.userId, form.publication).map(_.id) must be(Some(lastEmail.id))
+    lastEmailsDao.findByUserIdAndPublication(UUID.randomUUID.toString, form.publication).map(_.id) must be(None)
+    lastEmailsDao.findByUserIdAndPublication(form.userId, Publication.UNDEFINED("other")).map(_.id) must be(None)
   }
 
 }

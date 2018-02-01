@@ -7,7 +7,7 @@ import scala.concurrent.duration.Duration
 import scala.util.{Failure, Success, Try}
 import java.util.concurrent.TimeUnit
 
-trait MockClient extends db.Helpers {
+trait MockClient extends db.DependencySpec {
 
   val DefaultDuration = Duration(5, TimeUnit.SECONDS)
 

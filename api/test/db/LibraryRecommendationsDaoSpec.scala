@@ -6,7 +6,7 @@ import play.api.test.Helpers._
 import org.scalatest._
 import org.scalatestplus.play._
 
-class LibraryRecommendationsDaoSpec extends PlaySpec with OneAppPerSuite with Helpers {
+class LibraryRecommendationsDaoSpec extends  DependencySpec {
 
   import scala.concurrent.ExecutionContext.Implicits.global
 
@@ -37,14 +37,14 @@ class LibraryRecommendationsDaoSpec extends PlaySpec with OneAppPerSuite with He
   
   "no-op if nothing to upgrade" in {
     val project = createProject(org)
-    LibraryRecommendationsDao.forProject(project) must be(Nil)
+    libraryRecommendationsDao.forProject(project) must be(Nil)
   }
 
   "ignores earlier versions of library" in {
     val (library, libraryVersions) = createLibraryWithMultipleVersions(org)
     val project = createProject(org)
     addLibraryVersion(project, libraryVersions.last)
-    LibraryRecommendationsDao.forProject(project) must be(Nil)
+    libraryRecommendationsDao.forProject(project) must be(Nil)
   }
 
   "with library to upgrade" in {
@@ -52,7 +52,7 @@ class LibraryRecommendationsDaoSpec extends PlaySpec with OneAppPerSuite with He
     val project = createProject(org)
     addLibraryVersion(project, libraryVersions.head)
     verify(
-      LibraryRecommendationsDao.forProject(project),
+      libraryRecommendationsDao.forProject(project),
       Seq(
         LibraryRecommendation(
           library = library,
@@ -71,7 +71,7 @@ class LibraryRecommendationsDaoSpec extends PlaySpec with OneAppPerSuite with He
     val project = createProject(org)
     addLibraryVersion(project, libraryVersions.head)
     verify(
-      LibraryRecommendationsDao.forProject(project),
+      libraryRecommendationsDao.forProject(project),
       Seq(
         LibraryRecommendation(
           library = library,
