@@ -1,7 +1,7 @@
 package controllers
 
 import com.bryzek.dependency.api.lib.Github
-import db.{Authorization, OrganizationsDao, ProjectsDao}
+import db.{Authorization, OrganizationsDao, ProjectsDao, TokensDao}
 import io.flow.error.v0.models.json._
 import io.flow.play.controllers.{FlowController, FlowControllerComponents}
 import io.flow.play.util.{Config, Validation}
@@ -14,6 +14,8 @@ import io.flow.github.v0.models.json._
 
 class Repositories @javax.inject.Inject()(
   projectsDao: ProjectsDao,
+  organizationsDao: OrganizationsDao,
+  tokensDao: TokensDao,
   val github: Github,
   val config: Config,
   val controllerComponents: ControllerComponents,
@@ -37,7 +39,7 @@ class Repositories @javax.inject.Inject()(
     } else {
       val auth = Authorization.User(request.user.id)
       val org = organizationId.flatMap {
-        OrganizationsDao.findById(auth, _)
+        organizationsDao.findById(auth, _)
       }
 
       // Set limit to 1 if we are guaranteed at most 1 record back
@@ -47,7 +49,7 @@ class Repositories @javax.inject.Inject()(
         limit
       }
 
-      github.repositories(request.user, offset, actualLimit) { r =>
+      github.repositories(tokensDao, request.user, offset, actualLimit) { r =>
         (name match {
           case None => true
           case Some(n) => n.toLowerCase == r.name.toLowerCase

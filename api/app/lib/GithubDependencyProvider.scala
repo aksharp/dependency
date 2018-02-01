@@ -1,17 +1,13 @@
 package com.bryzek.dependency.api.lib
 
-import db.ProjectBinaryForm
-import io.flow.common.v0.models.{User, UserReference}
-import com.bryzek.dependency.v0.models.{BinaryForm, BinaryType, LibraryForm, Project, ProjectSummary}
-import io.flow.github.v0.Client
-import io.flow.github.v0.errors.UnitResponse
+import com.bryzek.dependency.v0.models.{BinaryType, Project, ProjectSummary}
+import db.{ProjectBinaryForm, TokensDao}
+import io.flow.common.v0.models.UserReference
 import io.flow.github.v0.models.{Contents, Encoding}
-import io.flow.play.util.DefaultConfig
 import org.apache.commons.codec.binary.Base64
+import play.api.libs.ws.WSClient
 
 import scala.concurrent.{ExecutionContext, Future}
-import scala.util.{Failure, Success, Try}
-import java.net.URI
 
 object GithubUtil {
 
@@ -60,8 +56,8 @@ object GithubUtil {
 
 object GithubDependencyProviderClient {
 
-  def instance(project: ProjectSummary, user: UserReference) = {
-    new GithubDependencyProvider(new DefaultGithub(), project, user)
+  def instance(wsClient: WSClient, tokensDao: TokensDao, project: ProjectSummary, user: UserReference) = {
+    new GithubDependencyProvider(new DefaultGithub(wsClient), project, user, tokensDao)
   }
 
 }
@@ -69,7 +65,8 @@ object GithubDependencyProviderClient {
 private[lib] case class GithubDependencyProvider(
   github: Github,
   project: ProjectSummary,
-  user: UserReference
+  user: UserReference,
+  tokensDao: TokensDao
 ) extends DependencyProvider {
 
   private val BuildSbtFilename = "build.sbt"
@@ -98,7 +95,7 @@ private[lib] case class GithubDependencyProvider(
   ) (
     implicit ec: ExecutionContext
   ): Future[Option[Dependencies]] = {
-    github.file(user, projectUri, BuildSbtFilename).map { result =>
+    github.file(tokensDao, user, projectUri, BuildSbtFilename).map { result =>
       result.flatMap { text =>
         val result = BuildSbtScalaParser(
           project = project,
@@ -121,7 +118,7 @@ private[lib] case class GithubDependencyProvider(
   ) (
     implicit ec: ExecutionContext
   ): Future[Option[Dependencies]] = {
-    github.file(user, projectUri, BuildPropertiesFilename).map { result =>
+    github.file(tokensDao, user, projectUri, BuildPropertiesFilename).map { result =>
       result.flatMap { text =>
         val properties = PropertiesParser(
           project = project,
@@ -151,7 +148,7 @@ private[lib] case class GithubDependencyProvider(
   ) (
     implicit ec: ExecutionContext
   ): Future[Option[Dependencies]] = {
-    github.file(user, projectUri, ProjectPluginsSbtFilename).map { result =>
+    github.file(tokensDao, user, projectUri, ProjectPluginsSbtFilename).map { result =>
       result.flatMap { text =>
         val result = ProjectPluginsSbtScalaParser(
           project = project,
