@@ -11,6 +11,7 @@ import play.api.mvc._
 
 class LoginController @javax.inject.Inject()(
   val provider: DependencyClientProvider,
+  val dependencyClientProvider: DependencyClientProvider,
   val config: Config,
   val controllerComponents: ControllerComponents,
   val flowControllerComponents: FlowControllerComponents
@@ -50,5 +51,9 @@ class LoginController @javax.inject.Inject()(
       }
     }
   }
+
+}
+
+object LoginController {
 
 }

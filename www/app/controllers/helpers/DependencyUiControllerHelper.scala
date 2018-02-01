@@ -14,7 +14,7 @@ import scala.concurrent.{Await, ExecutionContext, Future}
 
 trait DependencyUiControllerHelper extends I18nSupport {
 
-  def section: Option[Section]
+  def section: Option[Section] = None
 
   val dependencyClientProvider: DependencyClientProvider
 

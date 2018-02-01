@@ -1,7 +1,7 @@
 package controllers
 
 import com.bryzek.dependency.v0.models.{Publication, SubscriptionForm}
-import com.bryzek.dependency.www.lib.{DependencyClientProvider, UiData}
+import com.bryzek.dependency.www.lib.{DependencyClientProvider, Section, UiData}
 import io.flow.common.v0.models.User
 import io.flow.dependency.controllers.helpers.DependencyUiControllerHelper
 import io.flow.play.controllers.{FlowController, FlowControllerComponents}

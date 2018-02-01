@@ -136,7 +136,8 @@ trait GeneratedEmailMessage {
 
 class DailySummaryEmailMessage @Inject()(
   LastEmailsDao: LastEmailsDao,
-  RecommendationsDao: RecommendationsDao
+  RecommendationsDao: RecommendationsDao,
+  config: Config
 ) {
 
   def generate(r: Recipient): GeneratedEmailMessage =
@@ -147,8 +148,6 @@ class DailySummaryEmailMessage @Inject()(
     }
 
   private[this] val MaxRecommendations = 250
-
-  private[this] lazy val config = play.api.Play.current.injector.instanceOf[Config]
 
   def subject() = "Daily Summary"
 
