@@ -9,8 +9,10 @@ import io.flow.github.oauth.v0.models.AccessTokenForm
 import io.flow.github.v0.{Client => GithubClient}
 import io.flow.github.v0.errors.UnitResponse
 import io.flow.github.v0.models.{Repository => GithubRepository, User => GithubUser}
+
 import scala.concurrent.{ExecutionContext, Future}
 import play.api.Logger
+import play.api.libs.ws.WSClient
 
 case class GithubUserData(
   githubId: Long,
@@ -23,8 +25,9 @@ case class GithubUserData(
 
 object GithubHelper {
 
-  def apiClient(oauthToken: String): GithubClient = {
+  def apiClient(wsClient: WSClient, oauthToken: String): GithubClient = {
     new GithubClient(
+      wsClient,
       baseUrl = "https://api.github.com",
       defaultHeaders = Seq(
         ("Authorization" -> s"token $oauthToken")

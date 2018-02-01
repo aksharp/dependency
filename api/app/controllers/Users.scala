@@ -3,18 +3,23 @@ package controllers
 import com.bryzek.dependency.v0.models.UserForm
 import com.bryzek.dependency.v0.models.json._
 import db.{UserIdentifiersDao, UsersDao}
-import io.flow.common.v0.models.{Error, User}
+import io.flow.common.v0.models.User
 import io.flow.common.v0.models.json._
-import io.flow.play.controllers.IdentifiedRestController
-import io.flow.play.util.Validation
+import io.flow.error.v0.models.json._
+import io.flow.play.controllers.{FlowController, FlowControllerComponents}
+import io.flow.play.util.{Config, Validation}
 import play.api.mvc._
 import play.api.libs.json._
+
 import scala.concurrent.Future
 
-class Users @javax.inject.Inject() (
-  override val config: io.flow.play.util.Config,
-  override val tokenClient: io.flow.token.v0.interfaces.Client
-) extends Controller with IdentifiedRestController {
+class Users @javax.inject.Inject()(
+  usersDao: UsersDao,
+  UserIdentifiersDao: UserIdentifiersDao,
+  val config: Config,
+  val controllerComponents: ControllerComponents,
+  val flowControllerComponents: FlowControllerComponents
+) extends FlowController {
 
   import scala.concurrent.ExecutionContext.Implicits.global
 
@@ -28,7 +33,7 @@ class Users @javax.inject.Inject() (
     } else {
       Ok(
         Json.toJson(
-          UsersDao.findAll(
+          usersDao.findAll(
             id = id,
             email = email,
             identifier = identifier,
@@ -53,17 +58,17 @@ class Users @javax.inject.Inject() (
   }
 
   def post() = Anonymous.async(parse.json) { request =>
-    request.body.validate[UserForm] match {
-      case e: JsError => Future {
-        UnprocessableEntity(Json.toJson(Validation.invalidJson(e)))
-      }
-      case s: JsSuccess[UserForm] => {
-        request.user.map { userOption =>
-          UsersDao.create(userOption, s.get) match {
-            case Left(errors) => UnprocessableEntity(Json.toJson(Validation.errors(errors)))
-            case Right(user) => Created(Json.toJson(user))
-          }
-        }
+    Future {
+      request.body.validate[UserForm] match {
+        case e: JsError =>
+          UnprocessableEntity(Json.toJson(Validation.invalidJson(e)))
+        case s: JsSuccess[UserForm] =>
+          request.user.map { userOption =>
+            usersDao.create(Option(userOption), s.get) match {
+              case Left(errors) => UnprocessableEntity(Json.toJson(Validation.errors(errors)))
+              case Right(user) => Created(Json.toJson(user))
+            }
+          }.getOrElse(UnprocessableEntity("no user on request")) //todo: not sure how this worked before
       }
     }
   }
@@ -71,7 +76,7 @@ class Users @javax.inject.Inject() (
   def withUser(id: String)(
     f: User => Result
   ) = {
-    UsersDao.findById(id) match {
+    usersDao.findById(id) match {
       case None => {
         NotFound
       }

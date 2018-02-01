@@ -1,9 +1,12 @@
 package com.bryzek.dependency.actors
 
+import javax.inject.Inject
+
 import com.bryzek.dependency.v0.models.{Publication, SubscriptionForm}
 import io.flow.common.v0.models.User
 import db.{OrganizationsDao, SubscriptionsDao, UserIdentifiersDao, UsersDao}
 import akka.actor.Actor
+
 import scala.concurrent.ExecutionContext
 
 object UserActor {
@@ -17,14 +20,19 @@ object UserActor {
 
 }
 
-class UserActor extends Actor with Util {
+class UserActor @Inject()(
+  usersDao: UsersDao,
+  userIdentifiersDao: UserIdentifiersDao,
+  subscriptionsDao: SubscriptionsDao
+) extends Actor with Util {
 
+  lazy val SystemUser = usersDao.systemUser
   var dataUser: Option[User] = None
 
   def receive = {
 
     case m @ UserActor.Messages.Data(id) => withErrorHandler(m.toString) {
-      dataUser = UsersDao.findById(id)
+      dataUser = usersDao.findById(id)
     }
 
     case m @ UserActor.Messages.Created => withErrorHandler(m.toString) {
@@ -32,12 +40,12 @@ class UserActor extends Actor with Util {
         OrganizationsDao.upsertForUser(user)
 
         // This method will force create an identifier
-        UserIdentifiersDao.latestForUser(MainActor.SystemUser, user)
+        userIdentifiersDao.latestForUser(SystemUser, user)
 
         // Subscribe the user automatically to key personalized emails.
         Seq(Publication.DailySummary).foreach { publication =>
-          SubscriptionsDao.upsertByUserIdAndPublication(
-            MainActor.SystemUser,
+          subscriptionsDao.upsertByUserIdAndPublication(
+            SystemUser,
             SubscriptionForm(
               userId = user.id,
               publication = publication

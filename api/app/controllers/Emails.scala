@@ -10,6 +10,7 @@ import play.api.mvc._
 @javax.inject.Singleton
 class Emails @javax.inject.Inject() (
   usersDao: UsersDao,
+  dailySummaryEmailMessage: DailySummaryEmailMessage,
   val config: Config,
   val controllerComponents: ControllerComponents,
   val flowControllerComponents: FlowControllerComponents
@@ -37,7 +38,7 @@ class Emails @javax.inject.Inject() (
             val recipient = Recipient.fromUser(user).getOrElse {
               Recipient(email = "noemail@test.flow.io", name = user.name, userId = user.id, identifier = "TESTID")
             }
-            val generator = DailySummaryEmailMessage(recipient)
+            val generator = dailySummaryEmailMessage.generate(recipient)
 
             Ok(
               Seq(

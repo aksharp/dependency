@@ -1,19 +1,24 @@
 package controllers
 
-import db.SyncsDao
 import com.bryzek.dependency.actors.MainActor
-import io.flow.play.controllers.IdentifiedRestController
 import com.bryzek.dependency.v0.models.SyncEvent
 import com.bryzek.dependency.v0.models.json._
-import io.flow.common.v0.models.json._
-import play.api.mvc._
+import db.{BinariesDao, LibrariesDao, ProjectsDao, SyncsDao}
+import io.flow.play.controllers.{FlowController, FlowControllerComponents}
+import io.flow.play.util.Config
 import play.api.libs.json._
+import play.api.mvc._
 
 @javax.inject.Singleton
 class Syncs @javax.inject.Inject() (
-  override val config: io.flow.play.util.Config,
-  override val tokenClient: io.flow.token.v0.interfaces.Client
-) extends Controller with IdentifiedRestController with Helpers {
+  syncsDao: SyncsDao,
+  binariesDao: BinariesDao,
+  librariesDao: LibrariesDao,
+  projectsDao: ProjectsDao,
+  val config: Config,
+  val controllerComponents: ControllerComponents,
+  val flowControllerComponents: FlowControllerComponents
+) extends FlowController  with Helpers {
 
   def get(
     objectId: Option[String],
@@ -23,7 +28,7 @@ class Syncs @javax.inject.Inject() (
   ) = Identified { request =>
     Ok(
       Json.toJson(
-        SyncsDao.findAll(
+        syncsDao.findAll(
           objectId = objectId,
           event = event,
           limit = limit,
@@ -34,21 +39,21 @@ class Syncs @javax.inject.Inject() (
   }
 
   def postBinariesById(id: String) = Identified { request =>
-    withBinary(request.user, id) { binary =>
+    withBinary(binariesDao, request.user, id) { binary =>
       MainActor.ref ! MainActor.Messages.BinarySync(binary.id)
       NoContent
     }
   }
 
   def postLibrariesById(id: String) = Identified { request =>
-    withLibrary(request.user, id) { library =>
+    withLibrary(librariesDao, request.user, id) { library =>
       MainActor.ref ! MainActor.Messages.LibrarySync(library.id)
       NoContent
     }
   }
 
   def postProjectsById(id: String) = Identified { request =>
-    withProject(request.user, id) { project =>
+    withProject(projectsDao, request.user, id) { project =>
       MainActor.ref ! MainActor.Messages.ProjectSync(id)
       NoContent
     }

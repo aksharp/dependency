@@ -17,8 +17,6 @@ object MainActor {
     MainActorProvider.ref()
   }
 
-  lazy val SystemUser = db.UsersDao.systemUser
-
   object Messages {
 
     case class ProjectCreated(id: String)

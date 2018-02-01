@@ -1,19 +1,21 @@
 package controllers
 
-import db.{Authorization, ResolversDao}
-import io.flow.play.controllers.IdentifiedRestController
-import io.flow.play.util.Validation
-import com.bryzek.dependency.v0.models.{Resolver, ResolverForm, Visibility}
 import com.bryzek.dependency.v0.models.json._
-import io.flow.common.v0.models.json._
-import play.api.mvc._
+import com.bryzek.dependency.v0.models.{ResolverForm, Visibility}
+import db.{Authorization, ResolversDao}
+import io.flow.error.v0.models.json._
+import io.flow.play.controllers.{FlowController, FlowControllerComponents}
+import io.flow.play.util.{Config, Validation}
 import play.api.libs.json._
+import play.api.mvc._
 
 @javax.inject.Singleton
 class Resolvers @javax.inject.Inject() (
-  override val config: io.flow.play.util.Config,
-  override val tokenClient: io.flow.token.v0.interfaces.Client
-) extends Controller with IdentifiedRestController with Helpers {
+  resolversDao: ResolversDao,
+  val config: Config,
+  val controllerComponents: ControllerComponents,
+  val flowControllerComponents: FlowControllerComponents
+) extends FlowController with Helpers {
 
   def get(
     id: Option[String],
@@ -25,7 +27,7 @@ class Resolvers @javax.inject.Inject() (
   ) = Identified { request =>
     Ok(
       Json.toJson(
-        ResolversDao.findAll(
+        resolversDao.findAll(
           Authorization.User(request.user.id),
           id = id,
           ids = optionals(ids),
@@ -39,7 +41,7 @@ class Resolvers @javax.inject.Inject() (
   }
 
   def getById(id: String) = Identified { request =>
-    withResolver(request.user, id) { resolver =>
+    withResolver(resolversDao, request.user, id) { resolver =>
       Ok(Json.toJson(resolver))
     }
   }
@@ -50,7 +52,7 @@ class Resolvers @javax.inject.Inject() (
         UnprocessableEntity(Json.toJson(Validation.invalidJson(e)))
       }
       case s: JsSuccess[ResolverForm] => {
-        ResolversDao.create(request.user, s.get) match {
+        resolversDao.create(request.user, s.get) match {
           case Left(errors) => UnprocessableEntity(Json.toJson(Validation.errors(errors)))
           case Right(resolver) => Created(Json.toJson(resolver))
         }
@@ -59,8 +61,8 @@ class Resolvers @javax.inject.Inject() (
   }
 
   def deleteById(id: String) = Identified { request =>
-    withResolver(request.user, id) { resolver =>
-      ResolversDao.delete(request.user, resolver)
+    withResolver(resolversDao, request.user, id) { resolver =>
+      resolversDao.delete(request.user, resolver)
       NoContent
     }
   }
