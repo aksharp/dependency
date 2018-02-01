@@ -12,7 +12,8 @@ import play.api.libs.json._
 
 @Singleton
 class SubscriptionsDao @Inject() (
-  db: Database
+  db: Database,
+  usersDao: UsersDao
 ) {
 
   private[this] val BaseQuery = Query(s"""
@@ -36,7 +37,7 @@ class SubscriptionsDao @Inject() (
   private[db] def validate(
     form: SubscriptionForm
   ): Seq[String] = {
-    val userErrors = UsersDao.findById(form.userId) match {
+    val userErrors = usersDao.findById(form.userId) match {
       case None => Seq("User not found")
       case Some(_) => Nil
     }

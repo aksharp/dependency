@@ -45,7 +45,8 @@ object InternalTokenForm {
 
 @Singleton
 class TokensDao @Inject() (
-  db: Database
+  db: Database,
+  usersDao: UsersDao
 ) {
 
   private[this] val BaseQuery = Query(s"""
@@ -105,7 +106,7 @@ class TokensDao @Inject() (
     form match {
       case InternalTokenForm.GithubOauth(userId, token) => Nil
       case InternalTokenForm.UserCreated(f) => {
-        UsersDao.findById(f.userId) match {
+        usersDao.findById(f.userId) match {
           case None => Seq("User not found")
           case Some(_) => Nil
         }

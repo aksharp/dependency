@@ -18,8 +18,12 @@ import play.api.libs.json._
 class ResolversDao @Inject() (
   db: Database,
   librariesDao: LibrariesDao,
-  membershipsDao: MembershipsDao
+  membershipsDao: MembershipsDao,
+  organizationsDao: OrganizationsDao,
+  usersDao: UsersDao
 ) {
+
+  lazy val SystemUser = usersDao.systemUser
 
   val GithubOauthResolverTag = "github_oauth"
 
@@ -118,7 +122,7 @@ class ResolversDao @Inject() (
   def create(createdBy: UserReference, form: ResolverForm): Either[Seq[String], Resolver] = {
     validate(createdBy, form) match {
       case Nil => {
-        val org = OrganizationsDao.findByKey(Authorization.All, form.organization).getOrElse {
+        val org = organizationsDao.findByKey(Authorization.All, form.organization).getOrElse {
           sys.error("Could not find organization with key[${form.organization}]")
         }
 
@@ -156,7 +160,7 @@ class ResolversDao @Inject() (
         offset = offset
       )
     }.foreach { library =>
-      librariesDao.delete(MainActor.SystemUser, library)
+      librariesDao.delete(SystemUser, library)
     }
 
     MainActor.ref ! MainActor.Messages.ResolverDeleted(resolver.id)

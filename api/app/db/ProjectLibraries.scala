@@ -22,7 +22,8 @@ case class ProjectLibraryForm(
 @Singleton
 class ProjectLibrariesDao @Inject() (
   db: Database,
-  membershipsDao: MembershipsDao
+  membershipsDao: MembershipsDao,
+  projectsDao: ProjectsDao
 ) {
 
   private[this] val BaseQuery = Query(s"""
@@ -85,7 +86,7 @@ class ProjectLibrariesDao @Inject() (
       Nil
     }
 
-    val projectErrors = ProjectsDao.findById(Authorization.All, form.projectId) match {
+    val projectErrors = projectsDao.findById(Authorization.All, form.projectId) match {
       case None => Seq("Project not found")
       case Some(project) => {
         membershipsDao.isMemberByOrgId(project.organization.id, user) match {
