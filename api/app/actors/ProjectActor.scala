@@ -64,8 +64,8 @@ class ProjectActor @javax.inject.Inject()(
   recommendationsDao: RecommendationsDao,
   librariesDao: LibrariesDao,
   binariesDao: BinariesDao,
-  wsClient: WSClient
-
+  wsClient: WSClient,
+  resolversDao: ResolversDao
 ) extends Actor with ErrorHandler {
 
   lazy val SystemUser = usersDao.systemUser
@@ -320,6 +320,7 @@ class ProjectActor @javax.inject.Inject()(
       }
       case None => {
         DefaultLibraryArtifactProvider().resolve(
+          resolversDao = resolversDao,
           organization = projectLibrary.project.organization,
           groupId = projectLibrary.groupId,
           artifactId = projectLibrary.artifactId
