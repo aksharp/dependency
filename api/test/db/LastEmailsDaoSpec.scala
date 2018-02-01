@@ -8,6 +8,8 @@ import org.scalatest._
 import org.scalatestplus.play._
 import java.util.UUID
 
+import util.DependencySpec
+
 class LastEmailsDaoSpec extends  DependencySpec {
 
   import scala.concurrent.ExecutionContext.Implicits.global

@@ -8,6 +8,7 @@ import org.scalatestplus.play._
 import java.util.UUID
 
 import io.flow.test.utils.FlowPlaySpec
+import util.DependencySpec
 
 class BinariesDaoSpec extends DependencySpec {
 

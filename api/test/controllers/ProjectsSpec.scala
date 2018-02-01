@@ -1,15 +1,11 @@
 package controllers
 
-import com.bryzek.dependency.v0.{Authorization, Client}
-import com.bryzek.dependency.v0.models.{ProjectForm, ProjectPatchForm}
-
 import java.util.UUID
-import play.api.libs.ws._
+
 import play.api.test._
+import util.{DependencySpec, MockDependencyClient}
 
-class ProjectsSpec extends PlaySpecification with MockClient {
-
-  import scala.concurrent.ExecutionContext.Implicits.global
+class ProjectsSpec extends DependencySpec with MockDependencyClient {
 
   lazy val org = createOrganization()
   lazy val project1 = createProject(org)()
@@ -17,13 +13,11 @@ class ProjectsSpec extends PlaySpecification with MockClient {
 
   "GET /projects by id" in new WithServer(port=port) {
     await(
-      client.projects.get(id = Some(project1.id))
-    ).map(_.id) must beEqualTo(
-      Seq(project1.id)
-    )
+      identifiedClient().projects.get(id = Some(project1.id))
+    ).map(_.id) must contain theSameElementsAs Seq(project1.id)
 
     await(
-      client.projects.get(id = Some(UUID.randomUUID.toString))
+      identifiedClient().projects.get(id = Some(UUID.randomUUID.toString))
     ).map(_.id) must be(
       Nil
     )

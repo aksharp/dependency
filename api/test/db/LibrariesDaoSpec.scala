@@ -7,6 +7,8 @@ import play.api.test.Helpers._
 import org.scalatestplus.play._
 import java.util.UUID
 
+import util.DependencySpec
+
 class LibrariesDaoSpec extends  DependencySpec {
 
   import scala.concurrent.ExecutionContext.Implicits.global

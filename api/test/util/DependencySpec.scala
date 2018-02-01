@@ -1,10 +1,11 @@
-package db
+package util
 
-import io.flow.play.util.Random
-import com.bryzek.dependency.v0.models._
-import io.flow.common.v0.models.{Name, User, UserReference}
 import java.util.UUID
 
+import com.bryzek.dependency.v0.models._
+import db._
+import io.flow.common.v0.models.{Name, User, UserReference}
+import io.flow.play.util.Random
 import io.flow.test.utils.FlowPlaySpec
 import org.scalatest.concurrent.Eventually._
 import org.scalatest.time.{Seconds, Span}

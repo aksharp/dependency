@@ -1,10 +1,11 @@
 package db
 
-import com.bryzek.dependency.v0.models.{Project, LibraryForm, LibraryVersion, VersionForm}
+import com.bryzek.dependency.v0.models.{LibraryForm, LibraryVersion, Project, VersionForm}
 import play.api.test._
 import play.api.test.Helpers._
 import org.scalatest._
 import org.scalatestplus.play._
+import util.DependencySpec
 
 class LibraryRecommendationsDaoSpec extends  DependencySpec {
 

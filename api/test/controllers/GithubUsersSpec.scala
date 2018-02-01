@@ -1,18 +1,12 @@
 package controllers
 
-import db.GithubUsersDao
 import com.bryzek.dependency.api.lib.MockGithubData
-import com.bryzek.dependency.v0.Client
 import com.bryzek.dependency.v0.models.GithubAuthenticationForm
-import io.flow.play.util.Validation
-import io.flow.github.v0.models.OwnerType
-import io.flow.github.v0.models.{User => GithubUser}
-
-import java.util.UUID
-import play.api.libs.ws._
+import io.flow.github.v0.models.{OwnerType, User => GithubUser}
 import play.api.test._
+import util.{DependencySpec, MockDependencyClient}
 
-class GithubUsersSpec extends PlaySpecification with MockClient {
+class GithubUsersSpec extends DependencySpec with MockDependencyClient {
 
   import scala.concurrent.ExecutionContext.Implicits.global
 
@@ -38,13 +32,13 @@ class GithubUsersSpec extends PlaySpecification with MockClient {
     MockGithubData.addUser(githubUser, code)
 
     val user = await(anonClient.githubUsers.postGithub(GithubAuthenticationForm(code = code)))
-    user.email must beEqualTo(githubUser.email)
+    user.email must be(githubUser.email)
 
-    githubUsersDao.findAll(userId = Some(user.id), limit = 1).headOption.map(_.user.id) must beEqualTo(Some(user.id))
+    githubUsersDao.findAll(userId = Some(user.id), limit = 1).headOption.map(_.user.id) must be(Some(user.id))
 
     // Test idempotence
     val user2 = await(anonClient.githubUsers.postGithub(GithubAuthenticationForm(code = code)))
-    user2.email must beEqualTo(githubUser.email)
+    user2.email must be(githubUser.email)
   }
 
   "POST /authentications/github accepts account w/out email" in new WithServer(port=port) {
@@ -55,8 +49,8 @@ class GithubUsersSpec extends PlaySpecification with MockClient {
     val user = await(
       anonClient.githubUsers.postGithub(GithubAuthenticationForm(code = code))
     )
-    user.email should be(None)
-    db.UsersDao.findByGithubUserId(githubUser.id).map(_.id) must beEqualTo(Some(user.id))
+    user.email must be(None)
+    usersDao.findByGithubUserId(githubUser.id).map(_.id) must be(Some(user.id))
   }
 
 }

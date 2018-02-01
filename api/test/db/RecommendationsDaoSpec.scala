@@ -2,6 +2,7 @@ package db
 
 import com.bryzek.dependency.v0.models.{Organization, Recommendation}
 import org.scalatestplus.play._
+import util.DependencySpec
 
 class RecommendationsDaoSpec extends  DependencySpec {
 

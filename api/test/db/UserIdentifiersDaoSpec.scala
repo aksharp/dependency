@@ -2,12 +2,13 @@ package db
 
 import com.bryzek.dependency.v0.models.UserIdentifier
 import io.flow.common.v0.models.User
-
 import org.scalatest._
 import play.api.test._
 import play.api.test.Helpers._
 import org.scalatestplus.play._
 import java.util.UUID
+
+import util.DependencySpec
 
 class UserIdentifiersDaoSpec extends  DependencySpec {
 
