@@ -22,7 +22,8 @@ case class ProjectBinaryForm(
 class ProjectBinariesDao @Inject() (
   db: Database,
   membershipsDao: MembershipsDao,
-  projectBinariesDao: ProjectBinariesDao
+  projectBinariesDao: ProjectBinariesDao,
+  projectsDao: ProjectsDao
 ) {
 
   private[this] val BaseQuery = Query(s"""
@@ -77,7 +78,7 @@ class ProjectBinariesDao @Inject() (
       Nil
     }
 
-    val projectErrors = ProjectsDao.findById(Authorization.All, form.projectId) match {
+    val projectErrors = projectsDao.findById(Authorization.All, form.projectId) match {
       case None => Seq("Project not found")
       case Some(project) => {
         membershipsDao.isMemberByOrgId(project.organization.id, user) match {

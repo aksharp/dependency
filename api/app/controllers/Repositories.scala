@@ -9,6 +9,7 @@ import play.api.libs.json._
 import play.api.mvc._
 
 import scala.concurrent.Future
+import io.flow.error.v0.models.json._
 
 class Repositories @javax.inject.Inject()(
   projectsDao: ProjectsDao,

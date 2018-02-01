@@ -8,6 +8,7 @@ import io.flow.play.controllers.{FlowController, FlowControllerComponents}
 import io.flow.play.util.{Config, Validation}
 import play.api.libs.json._
 import play.api.mvc._
+import io.flow.error.v0.models.json._
 
 @javax.inject.Singleton
 class Memberships @javax.inject.Inject() (

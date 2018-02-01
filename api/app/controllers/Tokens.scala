@@ -9,6 +9,7 @@ import io.flow.common.v0.models.json._
 import io.flow.play.controllers.{FlowController, FlowControllerComponents}
 import play.api.mvc._
 import play.api.libs.json._
+import io.flow.error.v0.models.json._
 
 class Tokens @javax.inject.Inject()(
   val tokenClient: io.flow.token.v0.interfaces.Client,
