@@ -11,7 +11,8 @@ import play.api.libs.json._
 
 @Singleton
 class MembershipsDao @Inject() (
-  db: Database
+  db: Database,
+  organizationsDao: OrganizationsDao
 ) {
 
   val DefaultUserNameLength = 8
@@ -103,7 +104,7 @@ class MembershipsDao @Inject() (
   }
 
   private[db] def create(implicit c: java.sql.Connection, createdBy: UserReference, form: MembershipForm): String = {
-    val org = OrganizationsDao.findByKey(Authorization.All, form.organization).getOrElse {
+    val org = organizationsDao.findByKey(Authorization.All, form.organization).getOrElse {
       sys.error("Could not find organization with key[${form.organization}]")
     }
 

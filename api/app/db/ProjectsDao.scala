@@ -16,7 +16,9 @@ class ProjectsDao @Inject() (
   db: Database,
   membershipsDao: MembershipsDao,
   projectLibrariesDao: ProjectLibrariesDao,
-  projectBinariesDao: ProjectBinariesDao
+  projectBinariesDao: ProjectBinariesDao,
+  organizationsDao: OrganizationsDao,
+  recommendationsDao: RecommendationsDao
 ) {
 
   private[this] val BaseQuery = Query(s"""
@@ -116,7 +118,7 @@ class ProjectsDao @Inject() (
     validate(createdBy, form) match {
       case Nil => {
 
-        val org = OrganizationsDao.findByKey(Authorization.All, form.organization).getOrElse {
+        val org = organizationsDao.findByKey(Authorization.All, form.organization).getOrElse {
           sys.error("Could not find organization with key[${form.organization}]")
         }
 
@@ -190,8 +192,8 @@ class ProjectsDao @Inject() (
     }.foreach { projectBinariesDao.delete(deletedBy, _) }
 
     Pager.create { offset =>
-      RecommendationsDao.findAll(Authorization.All, projectId = Some(project.id), offset = offset)
-    }.foreach { RecommendationsDao.delete(deletedBy, _) }
+      recommendationsDao.findAll(Authorization.All, projectId = Some(project.id), offset = offset)
+    }.foreach { recommendationsDao.delete(deletedBy, _) }
 
     DbHelpers.delete(db, "projects", deletedBy.id, project.id)
     MainActor.ref ! MainActor.Messages.ProjectDeleted(project.id)

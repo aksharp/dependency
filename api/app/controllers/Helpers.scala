@@ -38,10 +38,10 @@ trait Helpers {
     }
   }
 
-  def withOrganization(user: UserReference, id: String)(
+  def withOrganization(organizationsDao: OrganizationsDao, user: UserReference, id: String)(
     f: Organization => Result
   ) = {
-    OrganizationsDao.findById(Authorization.User(user.id), id) match {
+    organizationsDao.findById(Authorization.User(user.id), id) match {
       case None => {
         Results.NotFound
       }

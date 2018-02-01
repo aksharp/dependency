@@ -11,6 +11,7 @@ import io.flow.error.v0.models.json._
 
 class Organizations @javax.inject.Inject() (
   usersDao: UsersDao,
+  organizationsDao: OrganizationsDao,
   val config: Config,
   val controllerComponents: ControllerComponents,
   val flowControllerComponents: FlowControllerComponents
@@ -26,7 +27,7 @@ class Organizations @javax.inject.Inject() (
   ) = Identified { request =>
     Ok(
       Json.toJson(
-        OrganizationsDao.findAll(
+        organizationsDao.findAll(
           authorization(request),
           id = id,
           ids = optionals(ids),
@@ -40,14 +41,14 @@ class Organizations @javax.inject.Inject() (
   }
 
   def getById(id: String) = Identified { request =>
-    withOrganization(request.user, id) { organization =>
+    withOrganization(organizationsDao, request.user, id) { organization =>
       Ok(Json.toJson(organization))
     }
   }
 
   def getUsersByUserId(userId: String) = Identified { request =>
     withUser(usersDao, userId) { user =>
-      Ok(Json.toJson(OrganizationsDao.upsertForUser(user)))
+      Ok(Json.toJson(organizationsDao.upsertForUser(user)))
     }
   }
 
@@ -57,7 +58,7 @@ class Organizations @javax.inject.Inject() (
         UnprocessableEntity(Json.toJson(Validation.invalidJson(e)))
       }
       case s: JsSuccess[OrganizationForm] => {
-        OrganizationsDao.create(request.user, s.get) match {
+        organizationsDao.create(request.user, s.get) match {
           case Left(errors) => UnprocessableEntity(Json.toJson(Validation.errors(errors)))
           case Right(organization) => Created(Json.toJson(organization))
         }
@@ -66,13 +67,13 @@ class Organizations @javax.inject.Inject() (
   }
 
   def putById(id: String) = Identified(parse.json) { request =>
-    withOrganization(request.user, id) { organization =>
+    withOrganization(organizationsDao, request.user, id) { organization =>
       request.body.validate[OrganizationForm] match {
         case e: JsError => {
           UnprocessableEntity(Json.toJson(Validation.invalidJson(e)))
         }
         case s: JsSuccess[OrganizationForm] => {
-          OrganizationsDao.update(request.user, organization, s.get) match {
+          organizationsDao.update(request.user, organization, s.get) match {
             case Left(errors) => UnprocessableEntity(Json.toJson(Validation.errors(errors)))
             case Right(updated) => Ok(Json.toJson(updated))
           }
@@ -82,8 +83,8 @@ class Organizations @javax.inject.Inject() (
   }
 
   def deleteById(id: String) = Identified { request =>
-    withOrganization(request.user, id) { organization =>
-      OrganizationsDao.delete(request.user, organization)
+    withOrganization(organizationsDao, request.user, id) { organization =>
+      organizationsDao.delete(request.user, organization)
       NoContent
     }
   }
