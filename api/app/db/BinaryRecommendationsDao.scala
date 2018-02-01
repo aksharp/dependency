@@ -20,7 +20,8 @@ case class BinaryRecommendation(
 class BinaryRecommendationsDao @Inject() (
   db: Database,
   binariesDao: BinariesDao,
-  binaryVersionsDao: BinaryVersionsDao
+  binaryVersionsDao: BinaryVersionsDao,
+  projectBinariesDao: ProjectBinariesDao
 ) {
 
   def forProject(project: Project): Seq[BinaryRecommendation] = {
@@ -28,7 +29,7 @@ class BinaryRecommendationsDao @Inject() (
     val auth = Authorization.Organization(project.organization.id)
 
     Pager.create { offset =>
-      ProjectBinariesDao.findAll(
+      projectBinariesDao.findAll(
         Authorization.Organization(project.organization.id),
         projectId = Some(project.id),
         hasBinary = Some(true),

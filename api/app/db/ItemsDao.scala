@@ -22,7 +22,10 @@ case class ItemForm(
 
 @Singleton
 class ItemsDao @Inject() (
-  db: Database
+  db: Database,
+  librariesDao: LibrariesDao,
+  projectsDao: ProjectsDao,
+  resolversDao: ResolversDao
 ) {
 
   private[this] val BaseQuery = Query(s"""
@@ -72,10 +75,10 @@ class ItemsDao @Inject() (
         Visibility.Public
       }
       case LibrarySummary(id, org, groupId, artifactId) => {
-        LibrariesDao.findById(Authorization.All, id).map(_.resolver.visibility).getOrElse(Visibility.Private)
+        librariesDao.findById(Authorization.All, id).map(_.resolver.visibility).getOrElse(Visibility.Private)
       }
       case ProjectSummary(id, org, name) => {
-        ProjectsDao.findById(Authorization.All, id).map(_.visibility).getOrElse(Visibility.Private)
+        projectsDao.findById(Authorization.All, id).map(_.visibility).getOrElse(Visibility.Private)
       }
       case ItemSummaryUndefinedType(name) => {
         Visibility.Private
@@ -84,7 +87,7 @@ class ItemsDao @Inject() (
   }
 
   private[this] def visibility(resolver: ResolverSummary): Visibility = {
-    ResolversDao.findById(Authorization.All, resolver.id).map(_.visibility).getOrElse(Visibility.Private)
+    resolversDao.findById(Authorization.All, resolver.id).map(_.visibility).getOrElse(Visibility.Private)
   }
 
   def replaceBinary(user: UserReference, binary: Binary): Item = {

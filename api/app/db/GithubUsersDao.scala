@@ -11,7 +11,8 @@ import play.api.db._
 
 @Singleton
 class GithubUsersDao @Inject() (
-  db: Database
+  db: Database,
+  usersDao: UsersDao
 ) {
 
   private[this] val BaseQuery = Query(s"""
@@ -54,7 +55,7 @@ class GithubUsersDao @Inject() (
       'user_id -> form.userId,
       'github_user_id -> form.githubUserId,
       'login -> form.login.trim,
-      'updated_by_user_id -> createdBy.getOrElse(UsersDao.anonymousUser).id
+      'updated_by_user_id -> createdBy.getOrElse(usersDao.anonymousUser).id
     ).execute()
 
     findById(id).getOrElse {

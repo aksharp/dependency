@@ -83,7 +83,7 @@ class BinariesDao @Inject() (
       binaryVersionsDao.findAll(Authorization.All, binaryId = Some(binary.id), offset = offset)
     }.foreach { binaryVersionsDao.delete(deletedBy, _) }
 
-    DbHelpers.delete("binaries", deletedBy.id, binary.id)
+    DbHelpers.delete(db, "binaries", deletedBy.id, binary.id)
     MainActor.ref ! MainActor.Messages.BinaryDeleted(binary.id)
   }
 

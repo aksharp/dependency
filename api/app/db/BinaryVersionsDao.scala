@@ -97,7 +97,7 @@ class BinaryVersionsDao @Inject() (
   }
 
   def delete(deletedBy: UserReference, bv: BinaryVersion) {
-    DbHelpers.delete("binary_versions", deletedBy.id, bv.id)
+    DbHelpers.delete(db, "binary_versions", deletedBy.id, bv.id)
     MainActor.ref ! MainActor.Messages.BinaryVersionDeleted(bv.id, bv.binary.id)
   }
 

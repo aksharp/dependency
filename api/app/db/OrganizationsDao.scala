@@ -1,15 +1,22 @@
 package db
 
+import javax.inject.{Inject, Singleton}
+
 import com.bryzek.dependency.v0.models.{MembershipForm, Organization, OrganizationForm, Role}
-import io.flow.postgresql.{Query, OrderBy, Pager}
+import io.flow.postgresql.{OrderBy, Pager, Query}
 import io.flow.play.util.{IdGenerator, Random, UrlKey}
 import io.flow.common.v0.models.{User, UserReference}
 import anorm._
 import play.api.db._
-
 import play.api.libs.json._
 
-object OrganizationsDao {
+@Singleton
+class OrganizationsDao @Inject() (
+  db: Database,
+  MembershipsDao: MembershipsDao,
+  OrganizationsDao: OrganizationsDao,
+  ProjectsDao: ProjectsDao
+) {
 
   val DefaultUserNameLength = 8
 
@@ -72,7 +79,7 @@ object OrganizationsDao {
   def create(createdBy: UserReference, form: OrganizationForm): Either[Seq[String], Organization] = {
     validate(form) match {
       case Nil => {
-        val id = DB.withTransaction { implicit c =>
+        val id = db.withTransaction { implicit c =>
           create(c, createdBy, form)
         }
         Right(
@@ -109,7 +116,7 @@ object OrganizationsDao {
   def update(createdBy: UserReference, organization: Organization, form: OrganizationForm): Either[Seq[String], Organization] = {
     validate(form, Some(organization)) match {
       case Nil => {
-        DB.withConnection { implicit c =>
+        db.withConnection { implicit c =>
           SQL(UpdateQuery).on(
             'id -> organization.id,
             'key -> form.key.trim,
@@ -140,14 +147,14 @@ object OrganizationsDao {
       MembershipsDao.delete(deletedBy, membership)
     }
 
-    DbHelpers.delete("organizations", deletedBy.id, organization.id)
+    DbHelpers.delete(db, "organizations", deletedBy.id, organization.id)
   }
 
   def upsertForUser(user: User): Organization = {
     findAll(Authorization.All, forUserId = Some(user.id), limit = 1).headOption.getOrElse {
       val key = urlKey.generate(defaultUserName(user))
 
-      val orgId = DB.withTransaction { implicit c =>
+      val orgId = db.withTransaction { implicit c =>
         val orgId = create(c, UserReference(id = user.id), OrganizationForm(
           key = key
         ))
@@ -208,7 +215,7 @@ object OrganizationsDao {
     limit: Long = 25,
     offset: Long = 0
   ): Seq[Organization] = {
-    DB.withConnection { implicit c =>
+    db.withConnection { implicit c =>
       Standards.query(
         BaseQuery,
         tableName = "organizations",
