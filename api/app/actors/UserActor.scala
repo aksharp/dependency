@@ -23,7 +23,8 @@ object UserActor {
 class UserActor @Inject()(
   usersDao: UsersDao,
   userIdentifiersDao: UserIdentifiersDao,
-  subscriptionsDao: SubscriptionsDao
+  subscriptionsDao: SubscriptionsDao,
+  organizationsDao: OrganizationsDao
 ) extends Actor with Util {
 
   lazy val SystemUser = usersDao.systemUser
@@ -37,7 +38,7 @@ class UserActor @Inject()(
 
     case m @ UserActor.Messages.Created => withErrorHandler(m.toString) {
       dataUser.foreach { user =>
-        OrganizationsDao.upsertForUser(user)
+        organizationsDao.upsertForUser(user)
 
         // This method will force create an identifier
         userIdentifiersDao.latestForUser(SystemUser, user)

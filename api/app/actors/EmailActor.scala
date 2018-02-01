@@ -84,7 +84,8 @@ class EmailActor @Inject()(
 class BatchEmailProcessor @Inject()(
   usersDao: UsersDao,
   lastEmailsDao: LastEmailsDao,
-  dailySummaryEmailMessage: DailySummaryEmailMessage
+  dailySummaryEmailMessage: DailySummaryEmailMessage,
+  userIdentifiersDao: UserIdentifiersDao
 ) {
 
   lazy val SystemUser = usersDao.systemUser
@@ -97,7 +98,7 @@ class BatchEmailProcessor @Inject()(
   ) {
     subscriptions.foreach { subscription =>
       usersDao.findById(subscription.user.id).foreach { user =>
-        Recipient.fromUser(user).map {
+        Recipient.fromUser(userIdentifiersDao, usersDao, user).map {
           dailySummaryEmailMessage.generate
         }.map { generator =>
           // Record before send in case of crash - prevent loop of

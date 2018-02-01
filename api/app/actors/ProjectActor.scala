@@ -160,7 +160,7 @@ class ProjectActor @javax.inject.Inject()(
 
         val summary = projectsDao.toSummary(project)
 
-        GithubDependencyProviderClient.instance(summary, project.user).dependencies(project).map { dependencies =>
+        GithubDependencyProviderClient.instance(wsClient, tokensDao, summary, project.user).dependencies(project).map { dependencies =>
           println(s" - project[${project.id}] name[${project.name}] dependencies: $dependencies")
 
           dependencies.binaries.map { binaries =>

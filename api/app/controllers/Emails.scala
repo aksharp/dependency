@@ -2,7 +2,7 @@ package controllers
 
 import com.bryzek.dependency.actors._
 import com.bryzek.dependency.api.lib.{Email, Recipient}
-import db.UsersDao
+import db.{UserIdentifiersDao, UsersDao}
 import io.flow.play.controllers.{FlowController, FlowControllerComponents}
 import io.flow.play.util.Config
 import play.api.mvc._
@@ -11,6 +11,7 @@ import play.api.mvc._
 class Emails @javax.inject.Inject() (
   usersDao: UsersDao,
   dailySummaryEmailMessage: DailySummaryEmailMessage,
+  userIdentifiersDao: UserIdentifiersDao,
   val config: Config,
   val controllerComponents: ControllerComponents,
   val flowControllerComponents: FlowControllerComponents
@@ -35,7 +36,7 @@ class Emails @javax.inject.Inject() (
         usersDao.findByEmail("mbryzek@alum.mit.edu") match {
           case None => Ok(s"No user with email address[$email] found")
           case Some(user) => {
-            val recipient = Recipient.fromUser(user).getOrElse {
+            val recipient = Recipient.fromUser(userIdentifiersDao, usersDao, user).getOrElse {
               Recipient(email = "noemail@test.flow.io", name = user.name, userId = user.id, identifier = "TESTID")
             }
             val generator = dailySummaryEmailMessage.generate(recipient)

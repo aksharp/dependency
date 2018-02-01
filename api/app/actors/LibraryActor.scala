@@ -42,12 +42,13 @@ class LibraryActor @Inject()(
     case m @ LibraryActor.Messages.Sync => withErrorHandler(m) {
       dataLibrary.foreach { lib =>
         syncsDao.withStartedAndCompleted(SystemUser, "library", lib.id) {
-          resolversDao.findById(Authorization.All, lib.resolver.id).map { resolver =>
+          resolversDao.findById(Authorization.All, lib.resolver.id).foreach { resolver =>
             DefaultLibraryArtifactProvider().resolve(
+              resolversDao = resolversDao,
               resolver = resolver,
               groupId = lib.groupId,
               artifactId = lib.artifactId
-            ).map { resolution =>
+            ).foreach { resolution =>
               resolution.versions.foreach { version =>
                 libraryVersionsDao.upsert(
                   createdBy = SystemUser,
