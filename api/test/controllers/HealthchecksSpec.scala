@@ -11,7 +11,7 @@ class HealthchecksSpec extends DependencySpec with MockDependencyClient {
 
   lazy val client = new Client(wsClient, s"http://localhost:$port")
 
-  "GET /_internal_/healthcheck" in new WithServer(port=port) {
+  "GET /_internal_/healthcheck" in  {
     await(
       client.healthchecks.getHealthcheck()
     ) must be(

@@ -7,11 +7,13 @@ import util.{DependencySpec, MockDependencyClient}
 
 class ProjectsSpec extends DependencySpec with MockDependencyClient {
 
+  import scala.concurrent.ExecutionContext.Implicits.global
+
   lazy val org = createOrganization()
   lazy val project1 = createProject(org)()
   lazy val project2 = createProject(org)()
 
-  "GET /projects by id" in new WithServer(port=port) {
+  "GET /projects by id" in  {
     await(
       identifiedClient().projects.get(id = Some(project1.id))
     ).map(_.id) must contain theSameElementsAs Seq(project1.id)
@@ -24,7 +26,7 @@ class ProjectsSpec extends DependencySpec with MockDependencyClient {
   }
 
   /*
-  "GET /projects by name" in new WithServer(port=port) {
+  "GET /projects by name" in  {
     await(
       client.projects.get(name = Some(project1.name))
     ).map(_.name) must beEqualTo(
@@ -44,7 +46,7 @@ class ProjectsSpec extends DependencySpec with MockDependencyClient {
     )
   }
 
-  "GET /projects/:id" in new WithServer(port=port) {
+  "GET /projects/:id" in  {
     await(client.projects.getById(project1.id)).id must beEqualTo(project1.id)
     await(client.projects.getById(project2.id)).id must beEqualTo(project2.id)
 
@@ -53,7 +55,7 @@ class ProjectsSpec extends DependencySpec with MockDependencyClient {
     }
   }
 
-  "POST /projects" in new WithServer(port=port) {
+  "POST /projects" in  {
     val form = createProjectForm(org)
     val project = await(client.projects.post(form))
     project.name must beEqualTo(form.name)
@@ -61,7 +63,7 @@ class ProjectsSpec extends DependencySpec with MockDependencyClient {
     project.uri must beEqualTo(form.uri)
   }
 
-  "POST /projects validates duplicate name" in new WithServer(port=port) {
+  "POST /projects validates duplicate name" in  {
     expectErrors(
       client.projects.post(createProjectForm(org).copy(name = project1.name))
     ).errors.map(_.message) must beEqualTo(
@@ -69,7 +71,7 @@ class ProjectsSpec extends DependencySpec with MockDependencyClient {
     )
   }
 
-  "PUT /projects/:id" in new WithServer(port=port) {
+  "PUT /projects/:id" in  {
     val form = createProjectForm(org)
     val project = createProject(org)(form)
     val newUri = "http://github.com/mbryzek/test"
@@ -77,7 +79,7 @@ class ProjectsSpec extends DependencySpec with MockDependencyClient {
     await(client.projects.getById(project.id)).uri must beEqualTo(newUri)
   }
 
-  "PATCH /projects/:id w/ no data leaves project unchanged" in new WithServer(port=port) {
+  "PATCH /projects/:id w/ no data leaves project unchanged" in  {
     val project = createProject(org)()
     await(client.projects.patchById(project.id, ProjectPatchForm()))
     val updated = await(client.projects.getById(project.id))
@@ -86,14 +88,14 @@ class ProjectsSpec extends DependencySpec with MockDependencyClient {
     updated.uri must beEqualTo(project.uri)
   }
 
-  "PATCH /projects/:id w/ name" in new WithServer(port=port) {
+  "PATCH /projects/:id w/ name" in  {
     val project = createProject(org)()
     val newName = project.name + "2"
     await(client.projects.patchById(project.id, ProjectPatchForm(name = Some(newName))))
     await(client.projects.getById(project.id)).name must beEqualTo(newName)
   }
 
-  "DELETE /projects" in new WithServer(port=port) {
+  "DELETE /projects" in  {
     val project = createProject(org)()
     await(
       client.projects.deleteById(project.id)

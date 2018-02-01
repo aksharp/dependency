@@ -2,6 +2,7 @@ package com.bryzek.dependency.api.lib
 
 import com.bryzek.dependency.v0.models.BinaryForm
 import org.specs2.mutable._
+import util.Factories
 
 class ProjectPluginsSbtScalaParserSpec extends Specification with Factories {
 

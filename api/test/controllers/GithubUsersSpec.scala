@@ -3,7 +3,6 @@ package controllers
 import com.bryzek.dependency.api.lib.MockGithubData
 import com.bryzek.dependency.v0.models.GithubAuthenticationForm
 import io.flow.github.v0.models.{OwnerType, User => GithubUser}
-import play.api.test._
 import util.{DependencySpec, MockDependencyClient}
 
 class GithubUsersSpec extends DependencySpec with MockDependencyClient {
@@ -25,7 +24,7 @@ class GithubUsersSpec extends DependencySpec with MockDependencyClient {
     )
   }
 
-  "POST /authentications/github with valid token" in new WithServer(port=port) {
+  "POST /authentications/github with valid token" in  {
     val githubUser = createLocalGithubUser()
     val code = "test"
 
@@ -41,7 +40,7 @@ class GithubUsersSpec extends DependencySpec with MockDependencyClient {
     user2.email must be(githubUser.email)
   }
 
-  "POST /authentications/github accepts account w/out email" in new WithServer(port=port) {
+  "POST /authentications/github accepts account w/out email" in  {
     val githubUser = createLocalGithubUser().copy(email = None)
     val code = "test"
 

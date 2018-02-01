@@ -2,6 +2,7 @@ package com.bryzek.dependency.api.lib
 
 import com.bryzek.dependency.v0.models.BinaryType
 import org.specs2.mutable._
+import util.Factories
 
 class DependencyHelperSpec extends Specification with Factories {
 

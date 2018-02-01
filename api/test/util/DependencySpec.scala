@@ -10,7 +10,7 @@ import io.flow.test.utils.FlowPlaySpec
 import org.scalatest.concurrent.Eventually._
 import org.scalatest.time.{Seconds, Span}
 
-trait DependencySpec extends FlowPlaySpec {
+trait DependencySpec extends FlowPlaySpec with Factories {
 
   val organizationsDao = init[OrganizationsDao]
   val binariesDao = init[BinariesDao]
