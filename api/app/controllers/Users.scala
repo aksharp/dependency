@@ -18,7 +18,8 @@ class Users @javax.inject.Inject()(
   val db: Database,
   val config: Config,
   val controllerComponents: ControllerComponents,
-  val flowControllerComponents: FlowControllerComponents
+  val flowControllerComponents: FlowControllerComponents,
+  @javax.inject.Named("main-actor") val mainActorRef: akka.actor.ActorRef
 ) extends FlowController with DbImplicits {
 
   import scala.concurrent.ExecutionContext.Implicits.global

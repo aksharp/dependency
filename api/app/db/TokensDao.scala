@@ -45,7 +45,8 @@ object InternalTokenForm {
 
 @Singleton
 class TokensDao @Inject() (
-  val db: Database
+  val db: Database,
+  @javax.inject.Named("main-actor") val mainActorRef: akka.actor.ActorRef
 ) extends DbImplicits {
 
   private[this] val BaseQuery = Query(s"""

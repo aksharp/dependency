@@ -1,21 +1,12 @@
 package com.bryzek.dependency.actors
 
-import db.{Authorization, BinaryVersionsDao, LibraryVersionsDao}
-import io.flow.play.util.Config
-import io.flow.play.actors.{ErrorHandler, Scheduler}
-import play.api.libs.concurrent.Akka
 import akka.actor._
-import play.api.Logger
-
+import io.flow.play.actors.{ErrorHandler, Scheduler}
 import play.api.libs.concurrent.InjectedActorSupport
+
 import scala.concurrent.ExecutionContext
-import scala.concurrent.duration._
 
 object MainActor {
-
-  def ref() = {
-    MainActorProvider.ref()
-  }
 
   object Messages {
 

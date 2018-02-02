@@ -15,8 +15,9 @@ import scala.util.{Failure, Success, Try}
 
 @Singleton
 class LibraryVersionsDao @Inject() (
-  db: Database
-) {
+  val db: Database,
+  @javax.inject.Named("main-actor") val mainActorRef: akka.actor.ActorRef
+) extends DbImplicits {
 
   private[this] val BaseQuery = Query(s"""
     select library_versions.id,
@@ -108,7 +109,7 @@ class LibraryVersionsDao @Inject() (
       'updated_by_user_id -> createdBy.id
     ).execute()
 
-    MainActor.ref ! MainActor.Messages.LibraryVersionCreated(id, libraryId)
+    mainActorRef ! MainActor.Messages.LibraryVersionCreated(id, libraryId)
 
     findByIdWithConnection(Authorization.All, id).getOrElse {
       sys.error("Failed to create version")
@@ -117,7 +118,7 @@ class LibraryVersionsDao @Inject() (
 
   def delete(deletedBy: UserReference, lv: LibraryVersion) {
     DbHelpers.delete(db, "library_versions", deletedBy.id, lv.id)
-    MainActor.ref ! MainActor.Messages.LibraryVersionDeleted(lv.id, lv.library.id)
+    mainActorRef ! MainActor.Messages.LibraryVersionDeleted(lv.id, lv.library.id)
   }
 
   def findByLibraryAndVersionAndCrossBuildVersion(

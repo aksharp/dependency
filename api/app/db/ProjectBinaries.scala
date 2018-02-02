@@ -18,7 +18,8 @@ case class ProjectBinaryForm(
 
 @Singleton
 class ProjectBinariesDao @Inject() (
-  val db: Database
+  val db: Database,
+  @javax.inject.Named("main-actor") val mainActorRef: akka.actor.ActorRef
 ) extends DbImplicits {
 
   private[this] val BaseQuery = Query(s"""
@@ -127,7 +128,7 @@ class ProjectBinariesDao @Inject() (
             'path -> form.path.trim,
             'updated_by_user_id -> createdBy.id
           ).execute()
-          MainActor.ref ! MainActor.Messages.ProjectBinaryCreated(form.projectId, id)
+          mainActorRef ! MainActor.Messages.ProjectBinaryCreated(form.projectId, id)
         }
 
         Right(
@@ -176,7 +177,7 @@ class ProjectBinariesDao @Inject() (
 
   def delete(deletedBy: UserReference, binary: ProjectBinary) {
     DbHelpers.delete(db, "project_binaries", deletedBy.id, binary.id)
-    MainActor.ref ! MainActor.Messages.ProjectBinaryDeleted(binary.project.id, binary.id, binary.version)
+    mainActorRef ! MainActor.Messages.ProjectBinaryDeleted(binary.project.id, binary.id, binary.version)
   }
 
   def findByProjectIdAndNameAndVersion(

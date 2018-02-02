@@ -22,7 +22,8 @@ case class ItemForm(
 
 @Singleton
 class ItemsDao @Inject() (
-  val db: Database
+  val db: Database,
+  @javax.inject.Named("main-actor") val mainActorRef: akka.actor.ActorRef
 ) extends DbImplicits {
 
   private[this] val BaseQuery = Query(s"""

@@ -13,7 +13,8 @@ import play.api.libs.json._
 
 @Singleton
 class ProjectsDao @Inject() (
-  val db: Database
+  val db: Database,
+  @javax.inject.Named("main-actor") val mainActorRef: akka.actor.ActorRef
 ) extends DbImplicits {
 
   private[this] val BaseQuery = Query(s"""
@@ -132,7 +133,7 @@ class ProjectsDao @Inject() (
           ).execute()
         }
 
-        MainActor.ref ! MainActor.Messages.ProjectCreated(id)
+        mainActorRef ! MainActor.Messages.ProjectCreated(id)
 
         Right(
           findById(Authorization.All, id).getOrElse {
@@ -165,7 +166,7 @@ class ProjectsDao @Inject() (
           ).execute()
         }
 
-        MainActor.ref ! MainActor.Messages.ProjectUpdated(project.id)
+        mainActorRef ! MainActor.Messages.ProjectUpdated(project.id)
 
         Right(
           findById(Authorization.All, project.id).getOrElse {
@@ -191,7 +192,7 @@ class ProjectsDao @Inject() (
     }.foreach { recommendationsDao.delete(deletedBy, _) }
 
     DbHelpers.delete(db, "projects", deletedBy.id, project.id)
-    MainActor.ref ! MainActor.Messages.ProjectDeleted(project.id)
+    mainActorRef ! MainActor.Messages.ProjectDeleted(project.id)
   }
 
   def findByOrganizationKeyAndName(auth: Authorization, organizationKey: String, name: String): Option[Project] = {

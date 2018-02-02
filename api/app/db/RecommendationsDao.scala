@@ -10,7 +10,8 @@ import play.api.db._
 
 @Singleton
 class RecommendationsDao @Inject() (
-  val db: Database
+  val db: Database,
+  @javax.inject.Named("main-actor") val mainActorRef: akka.actor.ActorRef
 ) extends DbImplicits {
 
   private[this] case class RecommendationForm(

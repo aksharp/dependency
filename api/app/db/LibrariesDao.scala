@@ -13,7 +13,8 @@ import play.api.libs.json._
 
 @Singleton
 class LibrariesDao @Inject() (
-  val db: Database
+  val db: Database,
+  @javax.inject.Named("main-actor") val mainActorRef: akka.actor.ActorRef
 ) extends DbImplicits {
 
   private[this] val BaseQuery = Query(s"""
@@ -109,7 +110,7 @@ class LibrariesDao @Inject() (
           }
         }
 
-        MainActor.ref ! MainActor.Messages.LibraryCreated(id)
+        mainActorRef ! MainActor.Messages.LibraryCreated(id)
 
         Right(
           findById(Authorization.All, id).getOrElse {
@@ -131,7 +132,7 @@ class LibrariesDao @Inject() (
     }
 
     DbHelpers.delete(db, "libraries", deletedBy.id, library.id)
-    MainActor.ref ! MainActor.Messages.LibraryDeleted(library.id)
+    mainActorRef ! MainActor.Messages.LibraryDeleted(library.id)
   }
 
   def findByGroupIdAndArtifactId(

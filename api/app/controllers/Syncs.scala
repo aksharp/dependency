@@ -15,7 +15,8 @@ class Syncs @javax.inject.Inject() (
   val db: Database,
   val config: Config,
   val controllerComponents: ControllerComponents,
-  val flowControllerComponents: FlowControllerComponents
+  val flowControllerComponents: FlowControllerComponents,
+  @javax.inject.Named("main-actor") val mainActorRef: akka.actor.ActorRef
 ) extends FlowController  with Helpers with DbImplicits {
 
   def get(
@@ -38,21 +39,21 @@ class Syncs @javax.inject.Inject() (
 
   def postBinariesById(id: String) = Identified { request =>
     withBinary(binariesDao, request.user, id) { binary =>
-      MainActor.ref ! MainActor.Messages.BinarySync(binary.id)
+      mainActorRef ! MainActor.Messages.BinarySync(binary.id)
       NoContent
     }
   }
 
   def postLibrariesById(id: String) = Identified { request =>
     withLibrary(librariesDao, request.user, id) { library =>
-      MainActor.ref ! MainActor.Messages.LibrarySync(library.id)
+      mainActorRef ! MainActor.Messages.LibrarySync(library.id)
       NoContent
     }
   }
 
   def postProjectsById(id: String) = Identified { request =>
     withProject(projectsDao, request.user, id) { project =>
-      MainActor.ref ! MainActor.Messages.ProjectSync(id)
+      mainActorRef ! MainActor.Messages.ProjectSync(id)
       NoContent
     }
   }

@@ -16,7 +16,8 @@ import play.api.libs.json._
 
 @Singleton
 class ResolversDao @Inject() (
-  val db: Database
+  val db: Database,
+  @javax.inject.Named("main-actor") val mainActorRef: akka.actor.ActorRef
 ) extends DbImplicits {
 
   val GithubOauthResolverTag = "github_oauth"
@@ -134,7 +135,7 @@ class ResolversDao @Inject() (
           ).execute()
         }
 
-        MainActor.ref ! MainActor.Messages.ResolverCreated(id)
+        mainActorRef ! MainActor.Messages.ResolverCreated(id)
 
         Right(
           findById(Authorization.All, id).getOrElse {
@@ -157,7 +158,7 @@ class ResolversDao @Inject() (
       librariesDao.delete(usersDao.systemUser, library)
     }
 
-    MainActor.ref ! MainActor.Messages.ResolverDeleted(resolver.id)
+    mainActorRef ! MainActor.Messages.ResolverDeleted(resolver.id)
     DbHelpers.delete(db, "resolvers", deletedBy.id, resolver.id)
   }
 

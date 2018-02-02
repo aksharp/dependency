@@ -18,7 +18,8 @@ case class BinaryRecommendation(
 
 @Singleton
 class BinaryRecommendationsDao @Inject() (
-  val db: Database
+  val db: Database,
+  @javax.inject.Named("main-actor") val mainActorRef: akka.actor.ActorRef
 ) extends DbImplicits {
 
   def forProject(project: Project): Seq[BinaryRecommendation] = {

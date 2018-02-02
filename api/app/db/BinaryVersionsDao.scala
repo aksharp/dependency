@@ -15,8 +15,9 @@ import scala.util.{Failure, Success, Try}
 
 @Singleton
 class BinaryVersionsDao @Inject() (
-  db: Database
-) {
+  val db: Database,
+  @javax.inject.Named("main-actor") val mainActorRef: akka.actor.ActorRef
+) extends DbImplicits {
 
   private[this] val BaseQuery = Query(s"""
     select binary_versions.id,
@@ -89,7 +90,7 @@ class BinaryVersionsDao @Inject() (
       'updated_by_user_id -> createdBy.id
     ).execute()
 
-    MainActor.ref ! MainActor.Messages.BinaryVersionCreated(id, binaryId)
+    mainActorRef ! MainActor.Messages.BinaryVersionCreated(id, binaryId)
 
     findByIdWithConnection(Authorization.All, id).getOrElse {
       sys.error("Failed to create version")
@@ -98,7 +99,7 @@ class BinaryVersionsDao @Inject() (
 
   def delete(deletedBy: UserReference, bv: BinaryVersion) {
     DbHelpers.delete(db, "binary_versions", deletedBy.id, bv.id)
-    MainActor.ref ! MainActor.Messages.BinaryVersionDeleted(bv.id, bv.binary.id)
+    mainActorRef ! MainActor.Messages.BinaryVersionDeleted(bv.id, bv.binary.id)
   }
 
   def findByBinaryAndVersion(

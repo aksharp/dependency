@@ -2,6 +2,7 @@ package db
 
 import javax.inject.{Inject, Singleton}
 
+import akka.actor.ActorRef
 import com.bryzek.dependency.actors.MainActor
 import com.bryzek.dependency.v0.models.{Binary, BinaryForm, SyncEvent}
 import io.flow.common.v0.models.UserReference
@@ -11,7 +12,8 @@ import play.api.db._
 
 @Singleton
 class BinariesDao @Inject() (
-  val db: Database
+  val db: Database,
+  @javax.inject.Named("main-actor") val mainActorRef: akka.actor.ActorRef
 ) extends DbImplicits {
 
   private[this] val BaseQuery = Query(s"""
@@ -65,7 +67,7 @@ class BinariesDao @Inject() (
           ).execute()
         }
 
-        MainActor.ref ! MainActor.Messages.BinaryCreated(id)
+        mainActorRef ! MainActor.Messages.BinaryCreated(id)
 
         Right(
           findById(Authorization.All, id).getOrElse {
@@ -83,7 +85,7 @@ class BinariesDao @Inject() (
     }.foreach { binaryVersionsDao.delete(deletedBy, _) }
 
     DbHelpers.delete(db, "binaries", deletedBy.id, binary.id)
-    MainActor.ref ! MainActor.Messages.BinaryDeleted(binary.id)
+    mainActorRef ! MainActor.Messages.BinaryDeleted(binary.id)
   }
 
   def findByName(auth: Authorization, name: String): Option[Binary] = {
@@ -145,5 +147,6 @@ class BinariesDao @Inject() (
         )
     }
   }
+
 
 }

@@ -21,7 +21,8 @@ case class ProjectLibraryForm(
 
 @Singleton
 class ProjectLibrariesDao @Inject() (
-  val db: Database
+  val db: Database,
+  @javax.inject.Named("main-actor") val mainActorRef: akka.actor.ActorRef
 ) extends DbImplicits {
 
   private[this] val BaseQuery = Query(s"""
@@ -139,7 +140,7 @@ class ProjectLibrariesDao @Inject() (
             'path -> form.path.trim,
             'updated_by_user_id -> createdBy.id
           ).execute()
-          MainActor.ref ! MainActor.Messages.ProjectLibraryCreated(form.projectId, id)
+          mainActorRef ! MainActor.Messages.ProjectLibraryCreated(form.projectId, id)
         }
 
         Right(
@@ -188,7 +189,7 @@ class ProjectLibrariesDao @Inject() (
 
   def delete(deletedBy: UserReference, library: ProjectLibrary) {
     DbHelpers.delete(db, "project_libraries", deletedBy.id, library.id)
-    MainActor.ref ! MainActor.Messages.ProjectLibraryDeleted(library.project.id, library.id, library.version)
+    mainActorRef ! MainActor.Messages.ProjectLibraryDeleted(library.project.id, library.id, library.version)
   }
 
   def findByProjectIdAndGroupIdAndArtifactIdAndVersion(

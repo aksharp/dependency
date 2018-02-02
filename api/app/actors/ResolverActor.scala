@@ -24,7 +24,8 @@ object ResolverActor {
 }
 
 class ResolverActor @Inject() (
-  val db: Database
+  val db: Database,
+  @javax.inject.Named("main-actor") val mainActorRef: akka.actor.ActorRef
 ) extends Actor with Util with DbImplicits {
 
   lazy val SystemUser = usersDao.systemUser

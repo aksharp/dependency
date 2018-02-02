@@ -32,7 +32,8 @@ object EmailActor {
 class EmailActor @Inject()(
   val db: Database,
   batchEmailProcessor: BatchEmailProcessor,
-  dailySummaryEmailMessage: DailySummaryEmailMessage
+  dailySummaryEmailMessage: DailySummaryEmailMessage,
+  @javax.inject.Named("main-actor") val mainActorRef: akka.actor.ActorRef
 ) extends Actor with Util with DbImplicits {
 
   private[this] def currentHourEst(): Int = {

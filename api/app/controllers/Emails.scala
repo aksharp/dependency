@@ -14,7 +14,8 @@ class Emails @javax.inject.Inject() (
   dailySummaryEmailMessage: DailySummaryEmailMessage,
   val config: Config,
   val controllerComponents: ControllerComponents,
-  val flowControllerComponents: FlowControllerComponents
+  val flowControllerComponents: FlowControllerComponents,
+  @javax.inject.Named("main-actor") val mainActorRef: akka.actor.ActorRef
 ) extends FlowController with DbImplicits {
 
   private[this] val TestEmailAddressName = "com.bryzek.dependency.api.test.email"

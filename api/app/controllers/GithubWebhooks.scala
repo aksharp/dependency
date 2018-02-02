@@ -14,7 +14,8 @@ class GithubWebhooks @javax.inject.Inject() (
   val db: Database,
   val config: Config,
   val controllerComponents: ControllerComponents,
-  val flowControllerComponents: FlowControllerComponents
+  val flowControllerComponents: FlowControllerComponents,
+  @javax.inject.Named("main-actor") val mainActorRef: akka.actor.ActorRef
 ) extends FlowController with DbImplicits {
 
   def postByProjectId(projectId: String) = Action { request =>
@@ -24,7 +25,7 @@ class GithubWebhooks @javax.inject.Inject() (
       }
       case Some(project) => {
         play.api.Logger.info(s"Received github webook for project[${project.id}] name[${project.name}]")
-        MainActor.ref ! MainActor.Messages.ProjectSync(project.id)
+        mainActorRef ! MainActor.Messages.ProjectSync(project.id)
 
         // Find any libaries with the exact name of this project and
         // opportunistically trigger a sync of that library a few
@@ -40,7 +41,7 @@ class GithubWebhooks @javax.inject.Inject() (
           )
         }.foreach { library =>
           Seq(30, 60, 120, 180).foreach { seconds =>
-            MainActor.ref ! MainActor.Messages.LibrarySyncFuture(library.id, seconds)
+            mainActorRef ! MainActor.Messages.LibrarySyncFuture(library.id, seconds)
           }
         }
 

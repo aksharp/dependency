@@ -17,7 +17,8 @@ class Tokens @javax.inject.Inject()(
   val tokenClient: io.flow.token.v0.interfaces.Client,
   val config: Config,
   val controllerComponents: ControllerComponents,
-  val flowControllerComponents: FlowControllerComponents
+  val flowControllerComponents: FlowControllerComponents,
+  @javax.inject.Named("main-actor") val mainActorRef: akka.actor.ActorRef
 ) extends FlowController with DbImplicits {
 
   import scala.concurrent.ExecutionContext.Implicits.global

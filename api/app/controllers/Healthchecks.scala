@@ -12,13 +12,12 @@ import play.api.mvc._
 class Healthchecks @Inject()(
   val config: Config,
   val controllerComponents: ControllerComponents,
-  val flowControllerComponents: FlowControllerComponents
+  val flowControllerComponents: FlowControllerComponents,
 ) extends FlowController {
 
   private val HealthyJson = Json.toJson(Healthcheck(status = "healthy"))
 
   def getHealthcheck() = Action { request =>
-    com.bryzek.dependency.actors.MainActor.ref
     Ok(HealthyJson)
   }
 

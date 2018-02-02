@@ -57,7 +57,8 @@ class ProjectActor @javax.inject.Inject()(
   @com.google.inject.assistedinject.Assisted projectId: String,
   system: ActorSystem,
   wsClient: WSClient,
-  val db: Database
+  val db: Database,
+  @javax.inject.Named("main-actor") val mainActorRef: akka.actor.ActorRef
 ) extends Actor with ErrorHandler with DbImplicits {
 
   lazy val SystemUser = usersDao.systemUser
