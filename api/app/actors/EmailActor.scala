@@ -134,10 +134,10 @@ trait GeneratedEmailMessage {
   */
 
 class DailySummaryEmailMessage @Inject()(
-  LastEmailsDao: LastEmailsDao,
-  RecommendationsDao: RecommendationsDao,
-  config: Config
-) {
+  val db: Database,
+  config: Config,
+  @javax.inject.Named("main-actor") val mainActorRef: akka.actor.ActorRef
+) extends DbImplicits {
 
   def generate(r: Recipient): GeneratedEmailMessage =
     new GeneratedEmailMessage {
@@ -151,8 +151,8 @@ class DailySummaryEmailMessage @Inject()(
   def subject() = "Daily Summary"
 
   def body(recipient: Recipient) = {
-    val lastEmail = LastEmailsDao.findByUserIdAndPublication(recipient.userId, Publication.DailySummary)
-    val recommendations = RecommendationsDao.findAll(
+    val lastEmail = lastEmailsDao.findByUserIdAndPublication(recipient.userId, Publication.DailySummary)
+    val recommendations = recommendationsDao.findAll(
       Authorization.User(recipient.userId),
       limit = MaxRecommendations
     )
