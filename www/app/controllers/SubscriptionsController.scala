@@ -1,18 +1,15 @@
 package controllers
 
 import com.bryzek.dependency.v0.models.{Publication, SubscriptionForm}
-import com.bryzek.dependency.www.lib.{DependencyClientProvider, Section, UiData}
+import com.bryzek.dependency.www.lib.{DependencyClientProvider, UiData}
 import io.flow.common.v0.models.User
 import io.flow.dependency.controllers.helpers.DependencyUiControllerHelper
 import io.flow.play.controllers.{FlowController, FlowControllerComponents}
 import io.flow.play.util.Config
-
-import scala.concurrent.Future
-import play.api._
 import play.api.i18n._
 import play.api.mvc._
-import play.api.data._
-import play.api.data.Forms._
+
+import scala.concurrent.Future
 
 object Subscriptions {
 

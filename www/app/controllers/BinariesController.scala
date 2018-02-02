@@ -6,11 +6,9 @@ import com.bryzek.dependency.www.lib.{Config, DependencyClientProvider}
 import io.flow.dependency.controllers.helpers.DependencyUiControllerHelper
 import io.flow.play.controllers.{FlowController, FlowControllerComponents, IdentifiedRequest}
 import io.flow.play.util.{Config, PaginatedCollection, Pagination}
+import play.api.mvc._
 
 import scala.concurrent.Future
-import play.api._
-import play.api.i18n.{I18nSupport, MessagesApi}
-import play.api.mvc._
 
 class BinariesController @javax.inject.Inject()(
   tokenClient: io.flow.token.v0.interfaces.Client,
@@ -18,7 +16,7 @@ class BinariesController @javax.inject.Inject()(
   val config: Config,
   val controllerComponents: ControllerComponents,
   val flowControllerComponents: FlowControllerComponents
-) extends FlowController with DependencyUiControllerHelper with I18nSupport {
+) extends FlowController with DependencyUiControllerHelper {
 
   import scala.concurrent.ExecutionContext.Implicits.global
 

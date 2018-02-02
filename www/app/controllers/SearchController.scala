@@ -4,8 +4,6 @@ import com.bryzek.dependency.www.lib.DependencyClientProvider
 import io.flow.dependency.controllers.helpers.DependencyUiControllerHelper
 import io.flow.play.controllers.{FlowController, FlowControllerComponents}
 import io.flow.play.util.{Config, PaginatedCollection, Pagination}
-import play.api._
-import play.api.i18n.MessagesApi
 import play.api.mvc._
 
 class SearchController @javax.inject.Inject() (

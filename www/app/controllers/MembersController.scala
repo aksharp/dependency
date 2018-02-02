@@ -3,17 +3,14 @@ package controllers
 import com.bryzek.dependency.v0.errors.UnitResponse
 import com.bryzek.dependency.v0.models.{Membership, MembershipForm, Role}
 import com.bryzek.dependency.www.lib.DependencyClientProvider
-import io.flow.common.v0.models.User
 import io.flow.dependency.controllers.helpers.DependencyUiControllerHelper
 import io.flow.play.controllers.{FlowController, FlowControllerComponents, IdentifiedRequest}
 import io.flow.play.util.{Config, PaginatedCollection, Pagination}
+import play.api.data.Forms._
+import play.api.data._
+import play.api.mvc._
 
 import scala.concurrent.Future
-import play.api._
-import play.api.i18n.MessagesApi
-import play.api.mvc._
-import play.api.data._
-import play.api.data.Forms._
 
 class MembersController @javax.inject.Inject()(
   val dependencyClientProvider: DependencyClientProvider,

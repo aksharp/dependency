@@ -1,11 +1,10 @@
 package controllers
 
-import com.bryzek.dependency.www.lib.{DependencyClientProvider, UiData}
 import com.bryzek.dependency.v0.models.GithubAuthenticationForm
+import com.bryzek.dependency.www.lib.{DependencyClientProvider, UiData}
 import io.flow.dependency.controllers.helpers.DependencyUiControllerHelper
 import io.flow.play.controllers.{FlowController, FlowControllerComponents}
 import io.flow.play.util.Config
-import play.api._
 import play.api.i18n._
 import play.api.mvc._
 

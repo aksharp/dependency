@@ -1,8 +1,7 @@
 package controllers
 
 import com.bryzek.dependency.www.lib.UiData
-import play.api._
-import play.api.i18n.{MessagesApi, I18nSupport}
+import play.api.i18n.{I18nSupport, MessagesApi}
 import play.api.mvc.{Action, Controller}
 
 class LogoutController @javax.inject.Inject() (

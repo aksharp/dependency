@@ -1,6 +1,5 @@
 package com.bryzek.dependency.api.lib
 
-import org.specs2.mutable._
 import util.DependencySpec
 
 class RemoteVersionsSpec extends DependencySpec {
