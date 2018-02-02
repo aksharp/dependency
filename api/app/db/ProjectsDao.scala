@@ -3,7 +3,7 @@ package db
 import javax.inject.{Inject, Singleton}
 
 import com.bryzek.dependency.actors.MainActor
-import com.bryzek.dependency.v0.models.{Binary, BinaryForm, Library, LibraryForm, OrganizationSummary, Project, ProjectForm, ProjectSummary, Scms, Visibility}
+import com.bryzek.dependency.v0.models._
 import com.bryzek.dependency.api.lib.GithubUtil
 import io.flow.postgresql.{OrderBy, Pager, Query}
 import io.flow.common.v0.models.UserReference
@@ -17,7 +17,6 @@ class ProjectsDao @Inject() (
   membershipsDao: MembershipsDao,
   projectLibrariesDao: ProjectLibrariesDao,
   projectBinariesDao: ProjectBinariesDao,
-  organizationsDao: OrganizationsDao,
   recommendationsDao: RecommendationsDao
 ) {
 
@@ -114,11 +113,12 @@ class ProjectsDao @Inject() (
     nameErrors ++ visibilityErrors ++ uriErrors ++ organizationErrors
   }
 
-  def create(createdBy: UserReference, form: ProjectForm): Either[Seq[String], Project] = {
+  def create(createdBy: UserReference, form: ProjectForm,
+    findOrgByKey: (Authorization, String) => Option[Organization]): Either[Seq[String], Project] = {
     validate(createdBy, form) match {
       case Nil => {
 
-        val org = organizationsDao.findByKey(Authorization.All, form.organization).getOrElse {
+        val org = findOrgByKey(Authorization.All, form.organization).getOrElse {
           sys.error("Could not find organization with key[${form.organization}]")
         }
 

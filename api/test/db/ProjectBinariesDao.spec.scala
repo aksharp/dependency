@@ -16,28 +16,32 @@ class ProjectBinariesDaoSpec extends DependencySpec {
     "catch empty name" in {
       projectBinariesDao.validate(
         systemUser,
-        createProjectBinaryForm(project).copy(name = BinaryType.UNDEFINED("   "))
+        createProjectBinaryForm(project).copy(name = BinaryType.UNDEFINED("   ")),
+        projectsDao.findById
       ) must be(Seq("Name cannot be empty"))
     }
 
     "catch empty version" in {
       projectBinariesDao.validate(
         systemUser,
-        createProjectBinaryForm(project).copy(version = "   ")
+        createProjectBinaryForm(project).copy(version = "   "),
+        projectsDao.findById
       ) must be(Seq("Version cannot be empty"))
     }
 
     "catch invalid project" in {
       projectBinariesDao.validate(
         systemUser,
-        createProjectBinaryForm(project).copy(projectId = UUID.randomUUID.toString())
+        createProjectBinaryForm(project).copy(projectId = UUID.randomUUID.toString()),
+        projectsDao.findById
       ) must be(Seq("Project not found"))
     }
 
     "catch project we cannot access" in {
       projectBinariesDao.validate(
         createUser(),
-        createProjectBinaryForm(project)
+        createProjectBinaryForm(project),
+        projectsDao.findById
       ) must be(Seq("You are not authorized to edit this project"))
     }
 
@@ -60,9 +64,9 @@ class ProjectBinariesDaoSpec extends DependencySpec {
   "upsert" in {
     val form = createProjectBinaryForm(project)
 
-    val one = create(projectBinariesDao.upsert(systemUser, form))
-    create(projectBinariesDao.upsert(systemUser, form)).id must be(one.id)
-    create(projectBinariesDao.upsert(systemUser, form)).id must be(one.id)
+    val one = create(projectBinariesDao.upsert(systemUser, form, projectsDao.findById))
+    create(projectBinariesDao.upsert(systemUser, form, projectsDao.findById)).id must be(one.id)
+    create(projectBinariesDao.upsert(systemUser, form, projectsDao.findById)).id must be(one.id)
   }
 
   "setBinary" in {

@@ -195,7 +195,7 @@ class OrganizationsDao @Inject() (
     )
   }
 
-  implicit def findByKey(auth: Authorization, key: String): Option[Organization] = {
+  def findByKey(auth: Authorization, key: String): Option[Organization] = {
     findAll(auth, key = Some(key), limit = 1).headOption
   }
 

@@ -174,7 +174,7 @@ trait DependencySpec extends FlowPlaySpec with Factories {
       sys.error("Could not find user that created org")
     }
 
-    create(projectsDao.create(user, form))
+    create(projectsDao.create(user, form, organizationsDao.findByKey))
   }
 
   def createProjectForm(
@@ -231,7 +231,8 @@ trait DependencySpec extends FlowPlaySpec with Factories {
         project = project,
         name = binary.name,
         version = binaryVersion.version
-      )
+      ),
+      projectsDao.findById
     ))
 
     projectBinariesDao.setBinary(systemUser, projectBinary, binary)
@@ -495,7 +496,7 @@ trait DependencySpec extends FlowPlaySpec with Factories {
   ) (
     implicit form: ProjectBinaryForm = createProjectBinaryForm(project)
   ): ProjectBinary = {
-    create(projectBinariesDao.create(systemUser, form))
+    create(projectBinariesDao.create(systemUser, form, projectsDao.findById))
   }
 
   def createProjectBinaryForm(

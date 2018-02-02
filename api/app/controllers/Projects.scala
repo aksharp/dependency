@@ -2,7 +2,7 @@ package controllers
 
 import com.bryzek.dependency.v0.models.json._
 import com.bryzek.dependency.v0.models.{ProjectForm, ProjectPatchForm}
-import db.{Authorization, ProjectsDao}
+import db.{Authorization, OrganizationsDao, ProjectsDao}
 import io.flow.play.controllers.{FlowController, FlowControllerComponents}
 import io.flow.play.util.{Config, Validation}
 import play.api.libs.json._
@@ -12,6 +12,7 @@ import io.flow.error.v0.models.json._
 @javax.inject.Singleton
 class Projects @javax.inject.Inject() (
   projectsDao: ProjectsDao,
+  organizationsDao: OrganizationsDao,
   val config: Config,
   val controllerComponents: ControllerComponents,
   val flowControllerComponents: FlowControllerComponents
@@ -64,7 +65,7 @@ class Projects @javax.inject.Inject() (
         UnprocessableEntity(Json.toJson(Validation.invalidJson(e)))
       }
       case s: JsSuccess[ProjectForm] => {
-        projectsDao.create(request.user, s.get) match {
+        projectsDao.create(request.user, s.get, organizationsDao.findByKey) match {
           case Left(errors) => UnprocessableEntity(Json.toJson(Validation.errors(errors)))
           case Right(project) => Created(Json.toJson(project))
         }
