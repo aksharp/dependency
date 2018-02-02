@@ -20,24 +20,57 @@ object EmailActor {
 
   }
 
-  val PreferredHourToSendEst: Int = {
-    val config = play.api.Play.current.injector.instanceOf[Config]
-    val value = config.requiredString("io.flow.dependency.api.email.daily.summary.hour.est").toInt
-    assert(value >= 0 && value < 23)
-    value
-  }
 
 }
 
 class EmailActor @Inject()(
   val db: Database,
-  batchEmailProcessor: BatchEmailProcessor,
+  config: Config,
   dailySummaryEmailMessage: DailySummaryEmailMessage,
   @javax.inject.Named("main-actor") val mainActorRef: akka.actor.ActorRef
 ) extends Actor with Util with DbImplicits {
 
   private[this] def currentHourEst(): Int = {
     (new DateTime()).toDateTime(DateTimeZone.forID("America/New_York")).getHourOfDay
+  }
+
+  private val preferredHourToSendEst: Int = {
+    val value = config.requiredString("io.flow.dependency.api.email.daily.summary.hour.est").toInt
+    assert(value >= 0 && value < 23)
+    value
+  }
+
+  def process(
+    publication: Publication,
+    subscriptions: Iterator[Subscription],
+  )(
+    generator: Recipient => GeneratedEmailMessage
+  )(
+    implicit usersDao: UsersDao, userIdentifiersDao: UserIdentifiersDao, lastEmailsDao: LastEmailsDao
+  ) {
+    subscriptions.foreach { subscription =>
+      usersDao.findById(subscription.user.id).foreach { user =>
+        Recipient.fromUser(userIdentifiersDao, usersDao, user).map {
+          dailySummaryEmailMessage.generate
+        }.map { generator =>
+          // Record before send in case of crash - prevent loop of
+          // emails.
+          lastEmailsDao.record(
+            usersDao.systemUser,
+            LastEmailForm(
+              userId = user.id,
+              publication = publication
+            )
+          )
+
+          Email.sendHtml(
+            recipient = generator.recipient,
+            subject = generator.subject(),
+            body = generator.body()
+          )
+        }
+      }
+    }
   }
 
   def receive = {
@@ -58,11 +91,11 @@ class EmailActor @Inject()(
     case m@EmailActor.Messages.ProcessDailySummary => withErrorHandler(m) {
       val hoursForPreferredTime = 2
       val hours = currentHourEst match {
-        case EmailActor.PreferredHourToSendEst => hoursForPreferredTime
+        case `preferredHourToSendEst` => hoursForPreferredTime
         case _ => 24 + hoursForPreferredTime
       }
 
-      batchEmailProcessor.process(
+      process(
         Publication.DailySummary,
         Pager.create { offset =>
           subscriptionsDao.findAll(
@@ -79,46 +112,6 @@ class EmailActor @Inject()(
 
   }
 
-}
-
-class BatchEmailProcessor @Inject()(
-  val db: Database,
-  dailySummaryEmailMessage: DailySummaryEmailMessage,
-  @javax.inject.Named("main-actor") val mainActorRef: akka.actor.ActorRef
-) extends DbImplicits {
-
-  lazy val SystemUser = usersDao.systemUser
-
-  def process(
-    publication: Publication,
-    subscriptions: Iterator[Subscription],
-  )(
-    generator: Recipient => GeneratedEmailMessage
-  ) {
-    subscriptions.foreach { subscription =>
-      usersDao.findById(subscription.user.id).foreach { user =>
-        Recipient.fromUser(userIdentifiersDao, usersDao, user).map {
-          dailySummaryEmailMessage.generate
-        }.map { generator =>
-          // Record before send in case of crash - prevent loop of
-          // emails.
-          lastEmailsDao.record(
-            SystemUser,
-            LastEmailForm(
-              userId = user.id,
-              publication = publication
-            )
-          )
-
-          Email.sendHtml(
-            recipient = generator.recipient,
-            subject = generator.subject(),
-            body = generator.body()
-          )
-        }
-      }
-    }
-  }
 }
 
 trait GeneratedEmailMessage {
