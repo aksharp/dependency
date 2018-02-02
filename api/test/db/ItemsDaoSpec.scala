@@ -11,9 +11,9 @@ class ItemsDaoSpec extends  DependencySpec {
 
   "replace" in {
     val form = createItemForm(org)()
-    val item1 = itemsDao.replace(systemUser, form, librariesDao)
+    val item1 = itemsDao.replace(systemUser, form)
 
-    val item2 = itemsDao.replace(systemUser, form, librariesDao)
+    val item2 = itemsDao.replace(systemUser, form)
     item1.id must not be(item2.id)
     item1.label must be(item2.label)
   }
@@ -57,7 +57,7 @@ class ItemsDaoSpec extends  DependencySpec {
 
   "supports binaries" in {
     val binary = createBinary(org)()
-    val itemBinary = itemsDao.replaceBinary(systemUser, binary, librariesDao)
+    val itemBinary = itemsDao.replaceBinary(systemUser, binary)
 
     val actual = itemsDao.findByObjectId(Authorization.All, binary.id).getOrElse {
       sys.error("Failed to create binary")
@@ -78,7 +78,7 @@ class ItemsDaoSpec extends  DependencySpec {
   "supports libraries" in {
     val library = createLibrary(org)()
 
-    val itemLibrary = itemsDao.replaceLibrary(systemUser, library, librariesDao)
+    val itemLibrary = itemsDao.replaceLibrary(systemUser, library)
     val actual = itemsDao.findByObjectId(Authorization.All, library.id).getOrElse {
       sys.error("Failed to create library")
     }
@@ -99,7 +99,7 @@ class ItemsDaoSpec extends  DependencySpec {
   "supports projects" in {
     val project = createProject(org)
 
-    val itemProject = itemsDao.replaceProject(systemUser, project, librariesDao)
+    val itemProject = itemsDao.replaceProject(systemUser, project)
     val actual = itemsDao.findByObjectId(Authorization.All, project.id).getOrElse {
       sys.error("Failed to create project")
     }
@@ -120,7 +120,7 @@ class ItemsDaoSpec extends  DependencySpec {
     val user = createUser()
     val org = createOrganization(user = user)
     val project = createProject(org)(createProjectForm(org).copy(visibility = Visibility.Public))
-    val item = itemsDao.replaceProject(systemUser, project, librariesDao)
+    val item = itemsDao.replaceProject(systemUser, project)
 
     itemsDao.findAll(Authorization.PublicOnly, objectId = Some(project.id)).map(_.id) must be(Seq(item.id))
     itemsDao.findAll(Authorization.All, objectId = Some(project.id)).map(_.id) must be(Seq(item.id))
@@ -133,7 +133,7 @@ class ItemsDaoSpec extends  DependencySpec {
     val user = createUser()
     val org = createOrganization(user = user)
     val project = createProject(org)(createProjectForm(org).copy(visibility = Visibility.Private))
-    val item = itemsDao.replaceProject(systemUser, project, librariesDao)
+    val item = itemsDao.replaceProject(systemUser, project)
 
     itemsDao.findAll(Authorization.PublicOnly, objectId = Some(project.id)) must be(Nil)
     itemsDao.findAll(Authorization.All, objectId = Some(project.id)).map(_.id) must be(Seq(item.id))

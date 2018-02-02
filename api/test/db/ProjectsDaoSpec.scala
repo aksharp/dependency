@@ -47,25 +47,25 @@ class ProjectsDaoSpec extends DependencySpec {
   "create" must {
     "validates SCMS" in {
       val form = createProjectForm(org).copy(scms = Scms.UNDEFINED("other"))
-      projectsDao.create(systemUser, form, organizationsDao.findByKey) must be(Left(Seq("Scms not found")))
+      projectsDao.create(systemUser, form) must be(Left(Seq("Scms not found")))
     }
 
     "validates SCMS URI" in {
       val form = createProjectForm(org).copy(scms = Scms.Github, uri = "http://github.com/mbryzek")
-      projectsDao.create(systemUser, form, organizationsDao.findByKey) must be(
+      projectsDao.create(systemUser, form) must be(
         Left(Seq("Invalid uri path[http://github.com/mbryzek] missing project name"))
       )
     }
 
     "validates empty name" in {
       val form = createProjectForm(org).copy(name = "   ")
-      projectsDao.create(systemUser, form, organizationsDao.findByKey) must be(Left(Seq("Name cannot be empty")))
+      projectsDao.create(systemUser, form) must be(Left(Seq("Name cannot be empty")))
     }
 
     "validates duplicate names" in {
       val project = createProject(org)
       val form = createProjectForm(org).copy(name = project.name.toString.toUpperCase)
-      projectsDao.create(systemUser, form, organizationsDao.findByKey) must be(Left(Seq("Project with this name already exists")))
+      projectsDao.create(systemUser, form) must be(Left(Seq("Project with this name already exists")))
       projectsDao.validate(systemUser, form, existing = Some(project)) must be(Nil)
 
       val org2 = createOrganization()
@@ -75,7 +75,7 @@ class ProjectsDaoSpec extends DependencySpec {
 
     "validates empty uri" in {
       val form = createProjectForm(org).copy(uri = "   ")
-      projectsDao.create(systemUser, form, organizationsDao.findByKey) must be(Left(Seq("Uri cannot be empty")))
+      projectsDao.create(systemUser, form) must be(Left(Seq("Uri cannot be empty")))
     }
 
   }

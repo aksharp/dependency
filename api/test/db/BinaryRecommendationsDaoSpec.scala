@@ -36,8 +36,7 @@ class BinaryRecommendationsDaoSpec extends DependencySpec {
           name = binaryVersion.binary.name,
           version = binaryVersion.version,
           path = "test.sbt"
-        ),
-        projectsDao.findById
+        )
       )
     )
     projectBinariesDao.setBinary(systemUser, projectBinary, binaryVersion.binary)

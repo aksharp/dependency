@@ -64,9 +64,9 @@ class ProjectBinariesDaoSpec extends DependencySpec {
   "upsert" in {
     val form = createProjectBinaryForm(project)
 
-    val one = create(projectBinariesDao.upsert(systemUser, form, projectsDao.findById))
-    create(projectBinariesDao.upsert(systemUser, form, projectsDao.findById)).id must be(one.id)
-    create(projectBinariesDao.upsert(systemUser, form, projectsDao.findById)).id must be(one.id)
+    val one = create(projectBinariesDao.upsert(systemUser, form))
+    create(projectBinariesDao.upsert(systemUser, form)).id must be(one.id)
+    create(projectBinariesDao.upsert(systemUser, form)).id must be(one.id)
   }
 
   "setBinary" in {
