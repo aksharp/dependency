@@ -27,5 +27,6 @@ trait DbImplicits {
   lazy implicit val userIdentifiersDao: UserIdentifiersDao = new UserIdentifiersDao(db)
   lazy implicit val githubUsersDao: GithubUsersDao = new GithubUsersDao(db, mainActorRef)
   lazy implicit val membershipsDao: MembershipsDao = new MembershipsDao(db)
+  lazy implicit val lastEmailsDao: LastEmailsDao = new LastEmailsDao(db)
 
 }

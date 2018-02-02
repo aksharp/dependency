@@ -87,19 +87,19 @@ class UsersSpec extends DependencySpec with MockDependencyClient {
   "POST /users validates duplicate email" in  {
     expectErrors(
       anonClient.users.post(UserForm(email = Some(user1.email.get)))
-    ).errors.flatMap(_.messages) must contain theSameElementsAs Seq("Email is already registered")
+    ).genericErrors.flatMap(_.messages) must contain theSameElementsAs Seq("Email is already registered")
   }
 
   "POST /users validates empty email" in  {
     expectErrors(
       anonClient.users.post(UserForm(email = Some("   ")))
-    ).errors.flatMap(_.messages) must contain theSameElementsAs Seq("Email address cannot be empty")
+    ).genericErrors.flatMap(_.messages) must contain theSameElementsAs Seq("Email address cannot be empty")
   }
 
   "POST /users validates email address format" in  {
     expectErrors(
       anonClient.users.post(UserForm(email = Some("mbfoo.com")))
-    ).errors.flatMap(_.messages) must contain theSameElementsAs Seq("Please enter a valid email address")
+    ).genericErrors.flatMap(_.messages) must contain theSameElementsAs Seq("Please enter a valid email address")
   }
 
 }

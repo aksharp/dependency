@@ -82,11 +82,10 @@ class EmailActor @Inject()(
 }
 
 class BatchEmailProcessor @Inject()(
-  usersDao: UsersDao,
-  lastEmailsDao: LastEmailsDao,
+  val db: Database,
   dailySummaryEmailMessage: DailySummaryEmailMessage,
-  userIdentifiersDao: UserIdentifiersDao
-) {
+  @javax.inject.Named("main-actor") val mainActorRef: akka.actor.ActorRef
+) extends DbImplicits {
 
   lazy val SystemUser = usersDao.systemUser
 
