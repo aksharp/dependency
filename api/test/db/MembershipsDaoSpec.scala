@@ -1,17 +1,11 @@
 package db
 
-import com.bryzek.dependency.v0.models.{Membership, OrganizationSummary, Role}
-import org.scalatest._
-import play.api.test._
-import play.api.test.Helpers._
-import org.scalatestplus.play._
 import java.util.UUID
 
+import com.bryzek.dependency.v0.models.Role
 import util.DependencySpec
 
-class MembershipsDaoSpec extends  DependencySpec {
-
-  import scala.concurrent.ExecutionContext.Implicits.global
+class MembershipsDaoSpec extends DependencySpec {
 
   lazy val org = createOrganization()
   lazy val user = createUser()
@@ -109,4 +103,8 @@ class MembershipsDaoSpec extends  DependencySpec {
       membershipsDao.findAll(Authorization.All, id = Some(membership.id), organizationId = Some(UUID.randomUUID.toString)) must be(Nil)
     }
   }
+}
+
+object MembershipsDaoSpec {
+
 }

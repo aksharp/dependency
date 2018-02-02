@@ -1,18 +1,11 @@
 package db
 
-import com.bryzek.dependency.v0.models.Publication
-import io.flow.common.v0.models.User
-import play.api.test._
-import play.api.test.Helpers._
-import org.scalatest._
-import org.scalatestplus.play._
 import java.util.UUID
 
+import com.bryzek.dependency.v0.models.Publication
 import util.DependencySpec
 
 class LastEmailsDaoSpec extends  DependencySpec {
-
-  import scala.concurrent.ExecutionContext.Implicits.global
 
   "delete" in {
     val lastEmail = createLastEmail()
@@ -40,3 +33,4 @@ class LastEmailsDaoSpec extends  DependencySpec {
   }
 
 }
+

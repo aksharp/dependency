@@ -1,18 +1,11 @@
 package db
 
-import com.bryzek.dependency.v0.models.{BinaryType, SyncEvent}
-import org.scalatest._
-import play.api.test._
-import play.api.test.Helpers._
-import org.scalatestplus.play._
 import java.util.UUID
 
-import io.flow.test.utils.FlowPlaySpec
+import com.bryzek.dependency.v0.models.{BinaryType, SyncEvent}
 import util.DependencySpec
 
 class BinariesDaoSpec extends DependencySpec {
-
-  import scala.concurrent.ExecutionContext.Implicits.global
 
   lazy val org = createOrganization()
 

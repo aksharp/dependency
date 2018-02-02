@@ -1,18 +1,11 @@
 package db
 
-import com.bryzek.dependency.v0.models.{VersionForm, Visibility}
-import org.scalatest._
-import play.api.db._
-import play.api.test._
-import play.api.test.Helpers._
-import org.scalatestplus.play._
 import java.util.UUID
 
+import com.bryzek.dependency.v0.models.{VersionForm, Visibility}
 import util.DependencySpec
 
-class LibraryVersionsDaoSpec extends  DependencySpec {
-
-  import scala.concurrent.ExecutionContext.Implicits.global
+class LibraryVersionsDaoSpec extends DependencySpec {
 
   lazy val org = createOrganization()
 
@@ -23,7 +16,7 @@ class LibraryVersionsDaoSpec extends  DependencySpec {
     val version3 = libraryVersionsDao.upsert(systemUser, library.id, VersionForm("1.1", None))
 
     version1.id must be(version2.id)
-    version2.id must not be(version3.id)
+    version2.id must not be (version3.id)
   }
 
   "upsert with crossBuildVersion" in {
@@ -49,10 +42,10 @@ class LibraryVersionsDaoSpec extends  DependencySpec {
     version4.version must be("1.1")
     version4.crossBuildVersion must be(Some("2.9.3"))
 
-    version0.id must not be(version1.id)
+    version0.id must not be (version1.id)
     version1.id must be(version2.id)
-    version2.id must not be(version3.id)
-    version3.id must not be(version4.id)
+    version2.id must not be (version3.id)
+    version3.id must not be (version4.id)
   }
 
   "findById" in {
@@ -84,7 +77,7 @@ class LibraryVersionsDaoSpec extends  DependencySpec {
     val version2 = libraryVersionsDao.upsert(systemUser, library.id, VersionForm("1.0", None))
     val version3 = libraryVersionsDao.upsert(systemUser, library.id, VersionForm("1.0", None))
 
-    version1.id must not be(version2.id)
+    version1.id must not be (version2.id)
     version2.id must be(version3.id)
   }
 
@@ -130,6 +123,6 @@ class LibraryVersionsDaoSpec extends  DependencySpec {
       libraryVersionsDao.findAll(Authorization.User(createUser().id), limit = None, id = Some(libraryVersion.id)) must be(Nil)
     }
 
- }
+  }
 
 }

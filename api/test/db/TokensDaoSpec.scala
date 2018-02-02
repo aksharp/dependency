@@ -1,23 +1,17 @@
 package db
 
-import org.scalatest._
-import play.api.test._
-import play.api.test.Helpers._
-import org.scalatestplus.play._
 import java.util.UUID
 
 import util.DependencySpec
 
-class TokensDaoSpec extends  DependencySpec {
-
-  import scala.concurrent.ExecutionContext.Implicits.global
+class TokensDaoSpec extends DependencySpec {
 
   "setLatestByTag" in {
     val form = InternalTokenForm.UserCreated(createTokenForm())
     val token1 = create(tokensDao.create(systemUser, form))
 
     val token2 = tokensDao.setLatestByTag(systemUser, form)
-    token1.id must not be(token2.id)
+    token1.id must not be (token2.id)
   }
 
   "findById" in {

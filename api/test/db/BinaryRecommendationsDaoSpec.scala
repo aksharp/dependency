@@ -1,15 +1,9 @@
 package db
 
-import com.bryzek.dependency.v0.models.{Binary, BinaryForm, BinaryVersion, Organization, Project}
-import play.api.test._
-import play.api.test.Helpers._
-import org.scalatest._
-import org.scalatestplus.play._
+import com.bryzek.dependency.v0.models.{Binary, BinaryVersion, Organization, Project}
 import util.DependencySpec
 
 class BinaryRecommendationsDaoSpec extends DependencySpec {
-
-  import scala.concurrent.ExecutionContext.Implicits.global
 
   def createBinaryWithMultipleVersions(
     org: Organization

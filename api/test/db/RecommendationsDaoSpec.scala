@@ -1,15 +1,14 @@
 package db
 
 import com.bryzek.dependency.v0.models.{Organization, Recommendation}
-import org.scalatestplus.play._
 import util.DependencySpec
 
-class RecommendationsDaoSpec extends  DependencySpec {
+class RecommendationsDaoSpec extends DependencySpec {
 
   def createRecommendation(
     org: Organization
   ): Recommendation = {
-    val (_,  libraryVersions) = createLibraryWithMultipleVersions(org)
+    val (_, libraryVersions) = createLibraryWithMultipleVersions(org)
     val project = createProject(org)
     addLibraryVersion(project, libraryVersions.head)
     recommendationsDao.sync(systemUser, project)
@@ -34,7 +33,7 @@ class RecommendationsDaoSpec extends  DependencySpec {
 
 
   "ignores earlier versions of library" in {
-    val (_,  libraryVersions) = createLibraryWithMultipleVersions(org)
+    val (_, libraryVersions) = createLibraryWithMultipleVersions(org)
     val project = createProject(org)()
     addLibraryVersion(project, libraryVersions.last)
     recommendationsDao.sync(systemUser, project)
@@ -68,7 +67,7 @@ class RecommendationsDaoSpec extends  DependencySpec {
   }
 
   "Prefers latest production release even when more recent beta release is available" in {
-    val (library,  libraryVersions) = createLibraryWithMultipleVersions(org)(
+    val (library, libraryVersions) = createLibraryWithMultipleVersions(org)(
       versions = Seq("1.0.0", "1.0.2-RC1", "1.0.1")
     )
     val project = createProject(org)()

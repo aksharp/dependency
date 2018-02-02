@@ -1,17 +1,11 @@
 package db
 
-import com.bryzek.dependency.v0.models.{BinarySummary, LibrarySummary, OrganizationSummary, ProjectSummary, Visibility}
-import org.scalatest._
-import play.api.test._
-import play.api.test.Helpers._
-import org.scalatestplus.play._
 import java.util.UUID
 
+import com.bryzek.dependency.v0.models._
 import util.DependencySpec
 
 class ItemsDaoSpec extends  DependencySpec {
-
-  import scala.concurrent.ExecutionContext.Implicits.global
 
   lazy val org = createOrganization()
 

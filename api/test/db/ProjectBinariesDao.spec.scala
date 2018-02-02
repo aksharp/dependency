@@ -1,17 +1,11 @@
 package db
 
-import com.bryzek.dependency.v0.models.{BinaryType, SyncEvent}
-import org.scalatest._
-import play.api.test._
-import play.api.test.Helpers._
-import org.scalatestplus.play._
 import java.util.UUID
 
+import com.bryzek.dependency.v0.models.{BinaryType, SyncEvent}
 import util.DependencySpec
 
-class ProjectBinariesDaoSpec extends  DependencySpec {
-
-  import scala.concurrent.ExecutionContext.Implicits.global
+class ProjectBinariesDaoSpec extends DependencySpec {
 
   lazy val org = createOrganization()
   lazy val project = createProject(org)
@@ -89,7 +83,7 @@ class ProjectBinariesDaoSpec extends  DependencySpec {
 
     projectBinariesDao.setIds(systemUser, projectBinary.project.id, Nil)
     projectBinariesDao.findById(Authorization.All, projectBinary.id).flatMap(_.binary) must be(None)
-}
+  }
 
   "delete" in {
     val projectBinary = createProjectBinary(project)

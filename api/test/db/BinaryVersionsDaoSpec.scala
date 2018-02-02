@@ -1,17 +1,10 @@
 package db
 
-import org.scalatest._
-import play.api.db._
-import play.api.test._
-import play.api.test.Helpers._
-import org.scalatestplus.play._
 import java.util.UUID
 
 import util.DependencySpec
 
 class BinaryVersionsDaoSpec extends DependencySpec {
-
-  import scala.concurrent.ExecutionContext.Implicits.global
 
   lazy val org = createOrganization()
 

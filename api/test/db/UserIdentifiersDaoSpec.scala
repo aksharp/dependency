@@ -1,18 +1,12 @@
 package db
 
-import com.bryzek.dependency.v0.models.UserIdentifier
-import io.flow.common.v0.models.User
-import org.scalatest._
-import play.api.test._
-import play.api.test.Helpers._
-import org.scalatestplus.play._
 import java.util.UUID
 
+import com.bryzek.dependency.v0.models.UserIdentifier
+import io.flow.common.v0.models.User
 import util.DependencySpec
 
-class UserIdentifiersDaoSpec extends  DependencySpec {
-
-  import scala.concurrent.ExecutionContext.Implicits.global
+class UserIdentifiersDaoSpec extends DependencySpec {
 
   def createUserIdentifier(): (User, UserIdentifier) = {
     val user = createUser()
@@ -25,7 +19,7 @@ class UserIdentifiersDaoSpec extends  DependencySpec {
     val identifier1 = userIdentifiersDao.createForUser(systemUser, user)
     val identifier2 = userIdentifiersDao.createForUser(systemUser, user)
 
-    identifier1.value must not be(identifier2.value)
+    identifier1.value must not be (identifier2.value)
     identifier1.user.id must be(user.id)
     identifier2.user.id must be(user.id)
     identifier1.value.length must be(60)

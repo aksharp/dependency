@@ -1,29 +1,22 @@
 package db
 
-import com.bryzek.dependency.v0.models.{LibraryForm, LibraryVersion, Project, VersionForm}
-import play.api.test._
-import play.api.test.Helpers._
-import org.scalatest._
-import org.scalatestplus.play._
 import util.DependencySpec
 
 class LibraryRecommendationsDaoSpec extends  DependencySpec {
 
-  import scala.concurrent.ExecutionContext.Implicits.global
-
   lazy val org = createOrganization()
 
   def verify(actual: Seq[LibraryRecommendation], expected: Seq[LibraryRecommendation]) {
-    (actual == expected) match {
+    actual == expected match {
       case true => {}
       case false => {
-        (actual.size == expected.size) match {
+        actual.size == expected.size match {
           case false => {
             sys.error(s"Expected[${expected.size}] recommendations but got [${actual.size}]")
           }
           case true => {
-            (actual zip expected).map { case (a, b) =>
-              (a == b) match {
+            (actual zip expected).foreach { case (a, b) =>
+              a == b match {
                 case true => {}
                 case false => {
                   sys.error(s"Expected[${b.from} => ${b.to.version}] but got[${a.from} => ${a.to.version}]. For latest version, expected[${b.latest.version}] but got[${a.latest.version}]")

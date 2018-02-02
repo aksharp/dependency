@@ -1,17 +1,11 @@
 package db
 
-import com.bryzek.dependency.v0.models.{SyncEvent, Visibility}
-import org.scalatest._
-import play.api.test._
-import play.api.test.Helpers._
-import org.scalatestplus.play._
 import java.util.UUID
 
+import com.bryzek.dependency.v0.models.Visibility
 import util.DependencySpec
 
 class LibrariesDaoSpec extends  DependencySpec {
-
-  import scala.concurrent.ExecutionContext.Implicits.global
 
   lazy val org = createOrganization()
 

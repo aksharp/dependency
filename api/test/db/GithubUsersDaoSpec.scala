@@ -1,18 +1,10 @@
 package db
 
-import com.bryzek.dependency.v0.models.UserForm
-import io.flow.common.v0.models.Name
-import org.scalatest._
-import play.api.test._
-import play.api.test.Helpers._
-import org.scalatestplus.play._
 import java.util.UUID
 
 import util.DependencySpec
 
 class GithubUsersDaoSpec extends  DependencySpec {
-
-  import scala.concurrent.ExecutionContext.Implicits.global
 
   "upsertById" in {
     val form = createGithubUserForm()

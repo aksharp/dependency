@@ -1,17 +1,11 @@
 package db
 
-import com.bryzek.dependency.v0.models.{UsernamePassword, Visibility}
-import org.scalatest._
-import play.api.test._
-import play.api.test.Helpers._
-import org.scalatestplus.play._
 import java.util.UUID
 
+import com.bryzek.dependency.v0.models.{UsernamePassword, Visibility}
 import util.DependencySpec
 
-class ResolversDaoSpec extends  DependencySpec {
-
-  import scala.concurrent.ExecutionContext.Implicits.global
+class ResolversDaoSpec extends DependencySpec {
 
   private[this] lazy val org = createOrganization()
 
@@ -33,7 +27,7 @@ class ResolversDaoSpec extends  DependencySpec {
 
     val resolver3 = createResolver(org)
 
-    resolver2.id must not be(resolver3.id)
+    resolver2.id must not be (resolver3.id)
   }
 
   "findById" in {

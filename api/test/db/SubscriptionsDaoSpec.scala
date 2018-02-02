@@ -1,15 +1,11 @@
 package db
 
-import com.bryzek.dependency.v0.models.Publication
-import org.scalatest._
-import play.api.test._
-import play.api.test.Helpers._
-import org.scalatestplus.play._
 import java.util.UUID
 
+import com.bryzek.dependency.v0.models.Publication
 import util.DependencySpec
 
-class SubscriptionsDaoSpec extends  DependencySpec {
+class SubscriptionsDaoSpec extends DependencySpec {
 
   "upsert" in {
     val form = createSubscriptionForm()
@@ -19,7 +15,7 @@ class SubscriptionsDaoSpec extends  DependencySpec {
     val subscription = subscriptionsDao.findByUserIdAndPublication(form.userId, form.publication).get
 
     val otherSubscription = createSubscription()
-    subscription.id must not be(otherSubscription.id)
+    subscription.id must not be (otherSubscription.id)
   }
 
   "findById" in {
@@ -76,7 +72,7 @@ class SubscriptionsDaoSpec extends  DependencySpec {
     ).map(_.id) must be(Seq(subscription.id))
 
     createLastEmail(createLastEmailForm(user = user, publication = Publication.DailySummary))
-    
+
     subscriptionsDao.findAll(
       id = Some(subscription.id),
       minHoursSinceLastEmail = Some(1)

@@ -1,18 +1,11 @@
 package db
 
-import com.bryzek.dependency.v0.models.UserForm
-import io.flow.common.v0.models.Name
-import org.scalatest._
-import play.api.test._
-import play.api.test.Helpers._
-import org.scalatestplus.play._
 import java.util.UUID
 
+import io.flow.common.v0.models.Name
 import util.DependencySpec
 
-class UsersDaoSpec extends  DependencySpec {
-
-  import scala.concurrent.ExecutionContext.Implicits.global
+class UsersDaoSpec extends DependencySpec {
 
   "Special users" must {
     "anonymous user exists" in {
@@ -28,13 +21,13 @@ class UsersDaoSpec extends  DependencySpec {
     }
 
     "system and anonymous users are different" in {
-      usersDao.AnonymousEmailAddress must not be(
+      usersDao.AnonymousEmailAddress must not be (
         usersDao.SystemEmailAddress
-      )
+        )
 
-      usersDao.anonymousUser.id must not be(
+      usersDao.anonymousUser.id must not be (
         usersDao.systemUser.id
-      )
+        )
     }
 
   }

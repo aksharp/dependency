@@ -1,18 +1,12 @@
 package db
 
-import com.bryzek.dependency.v0.models.Role
-import io.flow.common.v0.models.Name
-import org.scalatest._
-import play.api.test._
-import play.api.test.Helpers._
-import org.scalatestplus.play._
 import java.util.UUID
 
+import com.bryzek.dependency.v0.models.Role
+import io.flow.common.v0.models.Name
 import util.DependencySpec
 
-class OrganizationsDaoSpec extends  DependencySpec {
-
-  import scala.concurrent.ExecutionContext.Implicits.global
+class OrganizationsDaoSpec extends DependencySpec {
 
   "defaultUserName" in {
     val user = makeUser()
