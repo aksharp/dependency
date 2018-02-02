@@ -21,8 +21,7 @@ case class ProjectBinaryForm(
 @Singleton
 class ProjectBinariesDao @Inject() (
   db: Database,
-  membershipsDao: MembershipsDao,
-  projectsDao: ProjectsDao
+  membershipsDao: MembershipsDao
 ) {
 
   private[this] val BaseQuery = Query(s"""
@@ -63,7 +62,8 @@ class ProjectBinariesDao @Inject() (
 
   private[db] def validate(
     user: UserReference,
-    form: ProjectBinaryForm
+    form: ProjectBinaryForm,
+    findProjectById: ( Authorization, String) => Option[Project]
   ): Seq[String] = {
     val nameErrors = if (form.name.toString.trim.isEmpty) {
       Seq("Name cannot be empty")
@@ -77,7 +77,7 @@ class ProjectBinariesDao @Inject() (
       Nil
     }
 
-    val projectErrors = projectsDao.findById(Authorization.All, form.projectId) match {
+    val projectErrors = findProjectById(Authorization.All, form.projectId) match {
       case None => Seq("Project not found")
       case Some(project) => {
         membershipsDao.isMemberByOrgId(project.organization.id, user) match {
@@ -103,12 +103,13 @@ class ProjectBinariesDao @Inject() (
     projectErrors ++ nameErrors ++ versionErrors ++ existsErrors
   }
 
-  def upsert(createdBy: UserReference, form: ProjectBinaryForm): Either[Seq[String], ProjectBinary] = {
+  def upsert(createdBy: UserReference, form: ProjectBinaryForm,
+    findProjectById: ( Authorization, String) => Option[Project]): Either[Seq[String], ProjectBinary] = {
     findByProjectIdAndNameAndVersion(
       Authorization.All, form.projectId, form.name.toString, form.version
     ) match {
       case None => {
-        create(createdBy, form)
+        create(createdBy, form, findProjectById)
       }
       case Some(lib) => {
         Right(lib)
@@ -116,8 +117,9 @@ class ProjectBinariesDao @Inject() (
     }
   }
 
-  def create(createdBy: UserReference, form: ProjectBinaryForm): Either[Seq[String], ProjectBinary] = {
-    validate(createdBy, form) match {
+  def create(createdBy: UserReference, form: ProjectBinaryForm,
+    findProjectById: ( Authorization, String) => Option[Project]): Either[Seq[String], ProjectBinary] = {
+    validate(createdBy, form, findProjectById) match {
       case Nil => {
         val id = io.flow.play.util.IdGenerator("prb").randomId()
 

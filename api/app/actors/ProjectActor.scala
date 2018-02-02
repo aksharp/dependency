@@ -165,7 +165,7 @@ class ProjectActor @javax.inject.Inject()(
 
           dependencies.binaries.map { binaries =>
             val projectBinaries = binaries.map { form =>
-              projectBinariesDao.upsert(project.user, form) match {
+              projectBinariesDao.upsert(project.user, form, projectsDao.findById) match {
                 case Left(errors) => {
                   Logger.error(s"Project[${project.name}] id[${project.id}] Error storing binary[$form]: " + errors.mkString(", "))
                   None
