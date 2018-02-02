@@ -87,8 +87,7 @@ class ItemsDao @Inject() (
     resolversDao.findById(Authorization.All, resolver.id).map(_.visibility).getOrElse(Visibility.Private)
   }
 
-  def replaceBinary(user: UserReference, binary: Binary)
-    (implicit librariesDao: LibrariesDao): Item = {
+  def replaceBinary(user: UserReference, binary: Binary): Item = {
     val label = binary.name.toString
     println(s"replaceBinary label: id[${binary.id}] label: $label")
     replace(
