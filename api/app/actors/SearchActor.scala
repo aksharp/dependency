@@ -35,21 +35,21 @@ class SearchActor @Inject()(
       println(s"SearchActor.Messages.SyncBinary($id)")
       binariesDao.findById(Authorization.All, id) match {
         case None => itemsDao.deleteByObjectId(Authorization.All, SystemUser, id)
-        case Some(binary) => itemsDao.replaceBinary(SystemUser, binary)
+        case Some(binary) => itemsDao.replaceBinary(SystemUser, binary, librariesDao)
       }
     }
 
     case m @ SearchActor.Messages.SyncLibrary(id) => withErrorHandler(m) {
       librariesDao.findById(Authorization.All, id) match {
         case None => itemsDao.deleteByObjectId(Authorization.All, SystemUser, id)
-        case Some(library) => itemsDao.replaceLibrary(SystemUser, library)
+        case Some(library) => itemsDao.replaceLibrary(SystemUser, library, librariesDao)
       }
     }
 
     case m @ SearchActor.Messages.SyncProject(id) => withErrorHandler(m) {
       projectsDao.findById(Authorization.All, id) match {
         case None => itemsDao.deleteByObjectId(Authorization.All, SystemUser, id)
-        case Some(project) => itemsDao.replaceProject(SystemUser, project)
+        case Some(project) => itemsDao.replaceProject(SystemUser, project, librariesDao)
       }
     }
 

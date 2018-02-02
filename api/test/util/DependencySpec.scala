@@ -400,7 +400,7 @@ trait DependencySpec extends FlowPlaySpec with Factories {
   ) (
     implicit form: ItemForm = createItemForm(org)
   ): Item = {
-    itemsDao.replace(systemUser, form)
+    itemsDao.replace(systemUser, form, librariesDao)
   }
 
   def createItemSummary(
