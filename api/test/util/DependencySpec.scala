@@ -343,7 +343,7 @@ trait DependencySpec extends FlowPlaySpec with Factories {
   def createMembership(
     form: MembershipForm = createMembershipForm()
   ): Membership = {
-    create(membershipsDao.create(systemUser, form))
+    create(membershipsDao.create(systemUser, form, organizationsDao.findByKey))
   }
 
   def createMembershipForm(
