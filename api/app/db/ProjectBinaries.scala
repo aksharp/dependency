@@ -3,8 +3,8 @@ package db
 import javax.inject.{Inject, Singleton}
 
 import anorm._
-import com.bryzek.dependency.actors.MainActor
-import com.bryzek.dependency.v0.models._
+import io.flow.dependency.actors.MainActor
+import io.flow.dependency.v0.models._
 import io.flow.common.v0.models.UserReference
 import io.flow.postgresql.{OrderBy, Pager, Query}
 import play.api.db._
@@ -248,7 +248,7 @@ class ProjectBinariesDao @Inject() (
         bind("sync_event_completed", isSynced.map(_ => SyncEvent.Completed.toString)).
         nullBoolean("project_binaries.binary_id", hasBinary).
         as(
-          com.bryzek.dependency.v0.anorm.parsers.ProjectBinary.parser().*
+          io.flow.dependency.v0.anorm.parsers.ProjectBinary.parser().*
         )
     }
   }

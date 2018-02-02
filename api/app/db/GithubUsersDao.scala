@@ -3,7 +3,7 @@ package db
 import javax.inject.{Inject, Singleton}
 
 import io.flow.postgresql.{OrderBy, Query}
-import com.bryzek.dependency.v0.models.{GithubUser, GithubUserForm}
+import io.flow.dependency.v0.models.{GithubUser, GithubUserForm}
 import io.flow.common.v0.models.UserReference
 import anorm._
 import play.api.db._
@@ -92,7 +92,7 @@ class GithubUsersDao @Inject() (
         limit(limit).
         offset(offset).
         as(
-          com.bryzek.dependency.v0.anorm.parsers.GithubUser.parser().*
+          io.flow.dependency.v0.anorm.parsers.GithubUser.parser().*
         )
     }
   }

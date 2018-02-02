@@ -2,7 +2,7 @@ package db
 
 import java.util.UUID
 
-import com.bryzek.dependency.v0.models.Role
+import io.flow.dependency.v0.models.Role
 import io.flow.common.v0.models.Name
 import util.DependencySpec
 

@@ -1,8 +1,8 @@
 package controllers
 
-import com.bryzek.dependency.v0.errors.UnitResponse
-import com.bryzek.dependency.v0.models.{Resolver, ResolverForm, UsernamePassword, Visibility}
-import com.bryzek.dependency.www.lib.DependencyClientProvider
+import io.flow.dependency.v0.errors.UnitResponse
+import io.flow.dependency.v0.models.{Resolver, ResolverForm, UsernamePassword, Visibility}
+import io.flow.dependency.www.lib.DependencyClientProvider
 import io.flow.dependency.controllers.helpers.DependencyUiControllerHelper
 import io.flow.play.controllers.{FlowController, FlowControllerComponents, IdentifiedRequest}
 import io.flow.play.util.{Config, PaginatedCollection, Pagination}
@@ -21,7 +21,7 @@ class ResolversController @javax.inject.Inject() (
 
   import scala.concurrent.ExecutionContext.Implicits.global
 
-  override def section = Some(com.bryzek.dependency.www.lib.Section.Resolvers)
+  override def section = Some(io.flow.dependency.www.lib.Section.Resolvers)
 
   def index(page: Int = 0) = Identified.async { implicit request =>
     for {
@@ -85,8 +85,8 @@ class ResolversController @javax.inject.Inject() (
           ).map { resolver =>
             Redirect(routes.ResolversController.show(resolver.id)).flashing("success" -> "Resolver created")
           }.recover {
-            case response: com.bryzek.dependency.v0.errors.ErrorsResponse => {
-              Ok(views.html.resolvers.create(uiData(request), boundForm, orgs, response.errors.flatMap(_.messages)))
+            case response: io.flow.dependency.v0.errors.GenericErrorsResponse => {
+              Ok(views.html.resolvers.create(uiData(request), boundForm, orgs, response.genericErrors.flatMap(_.messages)))
             }
           }
         }

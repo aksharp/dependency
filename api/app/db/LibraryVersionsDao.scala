@@ -2,9 +2,9 @@ package db
 
 import javax.inject.{Inject, Singleton}
 
-import com.bryzek.dependency.actors.MainActor
-import com.bryzek.dependency.api.lib.Version
-import com.bryzek.dependency.v0.models.{Library, LibraryVersion, VersionForm}
+import io.flow.dependency.actors.MainActor
+import io.flow.dependency.api.lib.Version
+import io.flow.dependency.v0.models.{Library, LibraryVersion, VersionForm}
 import io.flow.postgresql.{OrderBy, Query}
 import io.flow.common.v0.models.UserReference
 import anorm._
@@ -236,7 +236,7 @@ class LibraryVersionsDao @Inject() (
       ).
       bind("greater_than_version", greaterThanVersion).
       as(
-        com.bryzek.dependency.v0.anorm.parsers.LibraryVersion.parser().*
+        io.flow.dependency.v0.anorm.parsers.LibraryVersion.parser().*
       )
   }
 

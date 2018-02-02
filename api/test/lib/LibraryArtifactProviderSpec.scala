@@ -1,8 +1,8 @@
-package com.bryzek.dependency.api.lib
+package io.flow.dependency.api.lib
 
 import java.util.UUID
 
-import com.bryzek.dependency.v0.models.{Library, OrganizationSummary}
+import io.flow.dependency.v0.models.{Library, OrganizationSummary}
 import util.DependencySpec
 
 class LibraryArtifactProviderSpec extends DependencySpec {

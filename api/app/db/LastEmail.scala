@@ -2,10 +2,10 @@ package db
 
 import javax.inject.{Inject, Singleton}
 
-import com.bryzek.dependency.v0.models.Reference
+import io.flow.dependency.v0.models.Reference
 import io.flow.common.v0.models.UserReference
 import io.flow.postgresql.{OrderBy, Query}
-import com.bryzek.dependency.v0.models.Publication
+import io.flow.dependency.v0.models.Publication
 import org.joda.time.DateTime
 import anorm._
 import play.api.db._
@@ -108,8 +108,8 @@ class LastEmailsDao @Inject() (
 
   private[this] val parser: RowParser[LastEmail] = {
     SqlParser.str("id") ~
-    com.bryzek.dependency.v0.anorm.parsers.Reference.parser("user_id") ~
-    com.bryzek.dependency.v0.anorm.parsers.Publication.parser() ~
+    io.flow.dependency.v0.anorm.parsers.Reference.parser("user_id") ~
+    io.flow.dependency.v0.anorm.parsers.Publication.parser() ~
     SqlParser.get[DateTime]("created_at") map {
       case id ~ user ~ publication ~ createdAt => {
         LastEmail(

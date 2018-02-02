@@ -1,6 +1,6 @@
 package controllers
 
-import com.bryzek.dependency.www.lib.DependencyClientProvider
+import io.flow.dependency.www.lib.DependencyClientProvider
 import io.flow.dependency.controllers.helpers.DependencyUiControllerHelper
 import io.flow.play.controllers.{FlowController, FlowControllerComponents}
 import io.flow.play.util.{Config, PaginatedCollection, Pagination}
@@ -17,7 +17,7 @@ class ApplicationController @javax.inject.Inject()(
 
   import scala.concurrent.ExecutionContext.Implicits.global
 
-  override def section = Some(com.bryzek.dependency.www.lib.Section.Dashboard)
+  override def section = Some(io.flow.dependency.www.lib.Section.Dashboard)
 
   def redirect = Action { request =>
     Redirect(request.path + "/")

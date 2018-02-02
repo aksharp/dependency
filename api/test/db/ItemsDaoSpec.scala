@@ -2,7 +2,7 @@ package db
 
 import java.util.UUID
 
-import com.bryzek.dependency.v0.models._
+import io.flow.dependency.v0.models._
 import util.DependencySpec
 
 class ItemsDaoSpec extends  DependencySpec {

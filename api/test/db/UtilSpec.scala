@@ -1,6 +1,6 @@
 package db
 
-import com.bryzek.dependency.v0.models.{CredentialsUndefinedType, UsernamePassword}
+import io.flow.dependency.v0.models.{CredentialsUndefinedType, UsernamePassword}
 import util.DependencySpec
 
 class UtilSpec extends DependencySpec {

@@ -1,7 +1,7 @@
 package controllers
 
-import com.bryzek.dependency.v0.models.LibraryVersion
-import com.bryzek.dependency.v0.models.json._
+import io.flow.dependency.v0.models.LibraryVersion
+import io.flow.dependency.v0.models.json._
 import db.{Authorization, DbImplicits, LibraryVersionsDao}
 import io.flow.common.v0.models.UserReference
 import io.flow.play.controllers.{FlowController, FlowControllerComponents}

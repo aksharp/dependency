@@ -1,7 +1,7 @@
 package controllers
 
-import com.bryzek.dependency.v0.models.json._
-import com.bryzek.dependency.v0.models.{ProjectForm, ProjectPatchForm}
+import io.flow.dependency.v0.models.json._
+import io.flow.dependency.v0.models.{ProjectForm, ProjectPatchForm}
 import db.{Authorization, DbImplicits, OrganizationsDao, ProjectsDao}
 import io.flow.play.controllers.{FlowController, FlowControllerComponents}
 import io.flow.play.util.{Config, Validation}

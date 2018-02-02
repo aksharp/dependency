@@ -1,4 +1,4 @@
-package com.bryzek.dependency.www.lib
+package io.flow.dependency.www.lib
 
 import io.flow.play.clients.DefaultTokenClient
 import io.flow.token.v0.interfaces.{Client => TokenClient}

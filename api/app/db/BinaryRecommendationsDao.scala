@@ -2,8 +2,8 @@ package db
 
 import javax.inject.{Inject, Singleton}
 
-import com.bryzek.dependency.api.lib.Recommendations
-import com.bryzek.dependency.v0.models.{Binary, BinaryVersion, Project, ProjectBinary, VersionForm}
+import io.flow.dependency.api.lib.Recommendations
+import io.flow.dependency.v0.models.{Binary, BinaryVersion, Project, ProjectBinary, VersionForm}
 import io.flow.postgresql.Pager
 import anorm._
 import play.api.db._

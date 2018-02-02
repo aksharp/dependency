@@ -2,7 +2,7 @@ package db
 
 import javax.inject.{Inject, Singleton}
 
-import com.bryzek.dependency.v0.models.{Token, TokenForm}
+import io.flow.dependency.v0.models.{Token, TokenForm}
 import io.flow.common.v0.models.UserReference
 import io.flow.play.util.Random
 import io.flow.postgresql.{OrderBy, Query}
@@ -254,7 +254,7 @@ class TokensDao @Inject() (
       optionalText("tokens.tag", tag, valueFunctions = Seq(Query.Function.Lower, Query.Function.Trim)).
       orderBy(orderBy.sql).
       as(
-        com.bryzek.dependency.v0.anorm.parsers.Token.parser().*
+        io.flow.dependency.v0.anorm.parsers.Token.parser().*
       )
   }
 

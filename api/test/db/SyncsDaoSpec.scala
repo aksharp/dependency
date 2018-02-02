@@ -2,7 +2,7 @@ package db
 
 import java.util.UUID
 
-import com.bryzek.dependency.v0.models.SyncEvent
+import io.flow.dependency.v0.models.SyncEvent
 import util.DependencySpec
 
 class SyncsDaoSpec extends DependencySpec {

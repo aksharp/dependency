@@ -1,6 +1,6 @@
 package controllers
 
-import com.bryzek.dependency.v0.Client
+import io.flow.dependency.v0.Client
 import io.flow.healthcheck.v0.models.Healthcheck
 import play.api.test._
 import util.{DependencySpec, MockDependencyClient}

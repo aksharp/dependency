@@ -1,7 +1,7 @@
 package controllers
 
-import com.bryzek.dependency.v0.models.json._
-import com.bryzek.dependency.v0.models.{Publication, Subscription, SubscriptionForm}
+import io.flow.dependency.v0.models.json._
+import io.flow.dependency.v0.models.{Publication, Subscription, SubscriptionForm}
 import db.DbImplicits
 import io.flow.common.v0.models.UserReference
 import io.flow.error.v0.models.json._

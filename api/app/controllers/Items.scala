@@ -1,7 +1,7 @@
 package controllers
 
 import db.{DbImplicits, ItemsDao}
-import com.bryzek.dependency.v0.models.json._
+import io.flow.dependency.v0.models.json._
 import io.flow.play.controllers.{FlowController, FlowControllerComponents}
 import io.flow.play.util.Config
 import play.api.db.Database

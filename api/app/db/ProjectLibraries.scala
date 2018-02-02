@@ -2,9 +2,9 @@ package db
 
 import javax.inject.{Inject, Singleton}
 
-import com.bryzek.dependency.actors.MainActor
-import com.bryzek.dependency.api.lib.Version
-import com.bryzek.dependency.v0.models.{Library, ProjectLibrary, SyncEvent, VersionForm}
+import io.flow.dependency.actors.MainActor
+import io.flow.dependency.api.lib.Version
+import io.flow.dependency.v0.models.{Library, ProjectLibrary, SyncEvent, VersionForm}
 import io.flow.postgresql.{OrderBy, Pager, Query}
 import io.flow.common.v0.models.UserReference
 import anorm._
@@ -281,7 +281,7 @@ class ProjectLibrariesDao @Inject() (
         bind("sync_event_completed", isSynced.map(_ => SyncEvent.Completed.toString)).
         nullBoolean("project_libraries.library_id", hasLibrary).
         as(
-          com.bryzek.dependency.v0.anorm.parsers.ProjectLibrary.parser().*
+          io.flow.dependency.v0.anorm.parsers.ProjectLibrary.parser().*
         )
     }
   }

@@ -2,7 +2,7 @@ package db
 
 import javax.inject.{Inject, Singleton}
 
-import com.bryzek.dependency.v0.models.{Project, Recommendation, RecommendationType}
+import io.flow.dependency.v0.models.{Project, Recommendation, RecommendationType}
 import io.flow.common.v0.models.UserReference
 import io.flow.postgresql.{OrderBy, Pager, Query}
 import anorm._
@@ -203,7 +203,7 @@ class RecommendationsDao @Inject() (
         optionalText("recommendations.from_version", fromVersion).
         equals("recommendations.object_id", objectId).
         as(
-          com.bryzek.dependency.v0.anorm.parsers.Recommendation.parser().*
+          io.flow.dependency.v0.anorm.parsers.Recommendation.parser().*
         )
     }
   }

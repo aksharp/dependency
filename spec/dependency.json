@@ -4,6 +4,7 @@
   "imports": [
     { "uri": "http://www.apidoc.me/flow/common/latest/service.json" },
     { "uri": "http://www.apidoc.me/flow/error/latest/service.json" },
+    { "uri": "http://www.apidoc.me/flow/healthcheck/latest/service.json" },
     { "uri": "http://www.apidoc.me/flow/github/0.0.3/service.json" }
   ],
 
@@ -441,14 +442,14 @@
 
   "resources": {
 
-    "io.flow.common.v0.models.healthcheck": {
+    "io.flow.healthcheck.v0.models.healthcheck": {
       "path": "/_internal_",
       "operations": [
         {
           "method": "GET",
 	  "path": "/healthcheck",
           "responses": {
-            "200": { "type": "io.flow.common.v0.models.healthcheck" }
+            "200": { "type": "io.flow.healthcheck.v0.models.healthcheck" }
           }
         }
       ]

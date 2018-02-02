@@ -1,7 +1,7 @@
-package com.bryzek.dependency.actors
+package io.flow.dependency.actors
 
-import com.bryzek.dependency.api.lib._
-import com.bryzek.dependency.v0.models._
+import io.flow.dependency.api.lib._
+import io.flow.dependency.v0.models._
 import io.flow.postgresql.Pager
 import io.flow.play.actors.ErrorHandler
 import io.flow.play.util.Config

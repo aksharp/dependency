@@ -3,8 +3,8 @@ package controllers
 import db.{Authorization, DbImplicits, InternalTokenForm, TokensDao}
 import io.flow.play.util.{Config, Validation}
 import io.flow.common.v0.models.UserReference
-import com.bryzek.dependency.v0.models.{Token, TokenForm}
-import com.bryzek.dependency.v0.models.json._
+import io.flow.dependency.v0.models.{Token, TokenForm}
+import io.flow.dependency.v0.models.json._
 import io.flow.common.v0.models.json._
 import io.flow.play.controllers.{FlowController, FlowControllerComponents}
 import play.api.mvc._

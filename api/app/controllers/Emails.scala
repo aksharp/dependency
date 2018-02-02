@@ -1,7 +1,7 @@
 package controllers
 
-import com.bryzek.dependency.actors._
-import com.bryzek.dependency.api.lib.{Email, Recipient}
+import io.flow.dependency.actors._
+import io.flow.dependency.api.lib.{Email, Recipient}
 import db.{DbImplicits, UserIdentifiersDao, UsersDao}
 import io.flow.play.controllers.{FlowController, FlowControllerComponents}
 import io.flow.play.util.Config
@@ -18,7 +18,7 @@ class Emails @javax.inject.Inject() (
   @javax.inject.Named("main-actor") val mainActorRef: akka.actor.ActorRef
 ) extends FlowController with DbImplicits {
 
-  private[this] val TestEmailAddressName = "com.bryzek.dependency.api.test.email"
+  private[this] val TestEmailAddressName = "io.flow.dependency.api.test.email"
   private[this] lazy val TestEmailAddress = config.optionalString(TestEmailAddressName)
 
   def user(

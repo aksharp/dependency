@@ -3,7 +3,7 @@ package db
 import javax.inject.{Inject, Singleton}
 
 import anorm._
-import com.bryzek.dependency.v0.models.{Organization, OrganizationForm, Role}
+import io.flow.dependency.v0.models.{Organization, OrganizationForm, Role}
 import io.flow.common.v0.models.{User, UserReference}
 import io.flow.play.util.{IdGenerator, Random, UrlKey}
 import io.flow.postgresql.{OrderBy, Pager, Query}
@@ -241,7 +241,7 @@ class OrganizationsDao @Inject() (
           }
         ).bind("for_user_id", forUserId).
         as(
-          com.bryzek.dependency.v0.anorm.parsers.Organization.parser().*
+          io.flow.dependency.v0.anorm.parsers.Organization.parser().*
         )
     }
   }

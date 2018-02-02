@@ -1,8 +1,8 @@
 package controllers
 
-import com.bryzek.dependency.api.lib.Github
-import com.bryzek.dependency.v0.models.GithubAuthenticationForm
-import com.bryzek.dependency.v0.models.json._
+import io.flow.dependency.api.lib.Github
+import io.flow.dependency.v0.models.GithubAuthenticationForm
+import io.flow.dependency.v0.models.json._
 import db.DbImplicits
 import io.flow.common.v0.models.json._
 import io.flow.error.v0.models.json._

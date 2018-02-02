@@ -1,8 +1,8 @@
 package io.flow.dependency.controllers.helpers
 
-import com.bryzek.dependency.v0.Client
-import com.bryzek.dependency.v0.models.Organization
-import com.bryzek.dependency.www.lib.{DependencyClientProvider, Section, UiData}
+import io.flow.dependency.v0.Client
+import io.flow.dependency.v0.models.Organization
+import io.flow.dependency.www.lib.{DependencyClientProvider, Section, UiData}
 import controllers.routes
 import io.flow.common.v0.models.UserReference
 import io.flow.play.controllers.{AnonymousRequest, IdentifiedRequest}

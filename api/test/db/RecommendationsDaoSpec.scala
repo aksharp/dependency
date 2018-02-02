@@ -1,6 +1,6 @@
 package db
 
-import com.bryzek.dependency.v0.models.{Organization, Recommendation}
+import io.flow.dependency.v0.models.{Organization, Recommendation}
 import util.DependencySpec
 
 class RecommendationsDaoSpec extends DependencySpec {

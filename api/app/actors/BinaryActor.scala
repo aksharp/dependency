@@ -1,10 +1,10 @@
-package com.bryzek.dependency.actors
+package io.flow.dependency.actors
 
 import javax.inject.Inject
 
 import akka.actor.Actor
-import com.bryzek.dependency.api.lib.DefaultBinaryVersionProvider
-import com.bryzek.dependency.v0.models.Binary
+import io.flow.dependency.api.lib.DefaultBinaryVersionProvider
+import io.flow.dependency.v0.models.Binary
 import db._
 import io.flow.postgresql.Pager
 import play.api.db.Database

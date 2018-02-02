@@ -1,8 +1,8 @@
-package com.bryzek.dependency.actors
+package io.flow.dependency.actors
 
 import javax.inject.Inject
 
-import com.bryzek.dependency.v0.models.{Publication, SubscriptionForm}
+import io.flow.dependency.v0.models.{Publication, SubscriptionForm}
 import io.flow.common.v0.models.User
 import db._
 import akka.actor.Actor

@@ -2,11 +2,11 @@ package db
 
 import javax.inject.{Inject, Singleton}
 
-import com.bryzek.dependency.actors.MainActor
-import com.bryzek.dependency.api.lib.Validation
-import com.bryzek.dependency.v0.models.{Credentials, Resolver, ResolverForm, ResolverSummary}
-import com.bryzek.dependency.v0.models.{OrganizationSummary, Visibility}
-import com.bryzek.dependency.v0.models.json._
+import io.flow.dependency.actors.MainActor
+import io.flow.dependency.api.lib.Validation
+import io.flow.dependency.v0.models.{Credentials, Resolver, ResolverForm, ResolverSummary}
+import io.flow.dependency.v0.models.{OrganizationSummary, Visibility}
+import io.flow.dependency.v0.models.json._
 import io.flow.common.v0.models.UserReference
 import io.flow.postgresql.{Pager, Query}
 import anorm._
@@ -248,14 +248,14 @@ class ResolversDao @Inject() (
     }
   }
 
-  private[this] def parser(): RowParser[com.bryzek.dependency.v0.models.Resolver] = {
+  private[this] def parser(): RowParser[io.flow.dependency.v0.models.Resolver] = {
     SqlParser.str("id") ~
-    com.bryzek.dependency.v0.anorm.parsers.Visibility.parser("visibility") ~
-    com.bryzek.dependency.v0.anorm.parsers.OrganizationSummary.parserWithPrefix("organization").? ~
+    io.flow.dependency.v0.anorm.parsers.Visibility.parser("visibility") ~
+    io.flow.dependency.v0.anorm.parsers.OrganizationSummary.parserWithPrefix("organization").? ~
     SqlParser.str("uri") ~
     SqlParser.str("credentials").? map {
       case id ~ visibility ~ organization ~ uri ~ credentials => {
-        com.bryzek.dependency.v0.models.Resolver(
+        io.flow.dependency.v0.models.Resolver(
           id = id,
           visibility = visibility,
           organization = organization,

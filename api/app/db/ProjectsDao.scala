@@ -2,9 +2,9 @@ package db
 
 import javax.inject.{Inject, Singleton}
 
-import com.bryzek.dependency.actors.MainActor
-import com.bryzek.dependency.v0.models._
-import com.bryzek.dependency.api.lib.GithubUtil
+import io.flow.dependency.actors.MainActor
+import io.flow.dependency.v0.models._
+import io.flow.dependency.api.lib.GithubUtil
 import io.flow.postgresql.{OrderBy, Pager, Query}
 import io.flow.common.v0.models.UserReference
 import anorm._
@@ -264,7 +264,7 @@ class ProjectsDao @Inject() (
           binaryId.map { v => FilterProjectBinaries.format("project_binaries.binary_id = {binary_id}") }
         ).bind("binary_id", binaryId).
         as(
-          com.bryzek.dependency.v0.anorm.parsers.Project.parser().*
+          io.flow.dependency.v0.anorm.parsers.Project.parser().*
         )
     }
   }

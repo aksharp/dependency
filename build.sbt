@@ -29,7 +29,7 @@ lazy val api = project
   .enablePlugins(NewRelic)
   .settings(commonSettings: _*)
   .settings(
-    routesImport += "com.bryzek.dependency.v0.Bindables._",
+    routesImport += "io.flow.dependency.v0.Bindables._",
     routesGenerator := InjectedRoutesGenerator,
     libraryDependencies ++= Seq(
       jdbc,
@@ -50,7 +50,7 @@ lazy val www = project
   .enablePlugins(NewRelic)
   .settings(commonSettings: _*)
   .settings(
-    routesImport += "com.bryzek.dependency.v0.Bindables._",
+    routesImport += "io.flow.dependency.v0.Bindables._",
     routesGenerator := InjectedRoutesGenerator,
     libraryDependencies ++= Seq(
       ws,

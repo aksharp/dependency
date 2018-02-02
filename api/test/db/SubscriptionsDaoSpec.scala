@@ -2,7 +2,7 @@ package db
 
 import java.util.UUID
 
-import com.bryzek.dependency.v0.models.Publication
+import io.flow.dependency.v0.models.Publication
 import util.DependencySpec
 
 class SubscriptionsDaoSpec extends DependencySpec {

@@ -2,9 +2,9 @@ package db
 
 import javax.inject.{Inject, Singleton}
 
-import com.bryzek.dependency.actors.MainActor
-import com.bryzek.dependency.api.lib.Version
-import com.bryzek.dependency.v0.models.{Binary, BinaryType, BinaryVersion}
+import io.flow.dependency.actors.MainActor
+import io.flow.dependency.api.lib.Version
+import io.flow.dependency.v0.models.{Binary, BinaryType, BinaryVersion}
 import io.flow.postgresql.{OrderBy, Query}
 import io.flow.common.v0.models.UserReference
 import anorm._
@@ -200,7 +200,7 @@ class BinaryVersionsDao @Inject() (
       limit(limit).
       offset(offset).
       as(
-        com.bryzek.dependency.v0.anorm.parsers.BinaryVersion.parser().*
+        io.flow.dependency.v0.anorm.parsers.BinaryVersion.parser().*
       )
   }
 

@@ -2,9 +2,9 @@ package db
 
 import javax.inject.{Inject, Singleton}
 
-import com.bryzek.dependency.v0.models.{Binary, BinarySummary, Item, ItemSummary, ItemSummaryUndefinedType, Library, LibrarySummary}
-import com.bryzek.dependency.v0.models.{OrganizationSummary, Project, ProjectSummary, ResolverSummary, Visibility}
-import com.bryzek.dependency.v0.models.json._
+import io.flow.dependency.v0.models.{Binary, BinarySummary, Item, ItemSummary, ItemSummaryUndefinedType, Library, LibrarySummary}
+import io.flow.dependency.v0.models.{OrganizationSummary, Project, ProjectSummary, ResolverSummary, Visibility}
+import io.flow.dependency.v0.models.json._
 import io.flow.common.v0.models.UserReference
 import io.flow.postgresql.{OrderBy, Query}
 import anorm._
@@ -233,15 +233,15 @@ class ItemsDao @Inject() (
     }
   }
 
-  private[this] def parser(): RowParser[com.bryzek.dependency.v0.models.Item] = {
+  private[this] def parser(): RowParser[io.flow.dependency.v0.models.Item] = {
     SqlParser.str("id") ~
-    com.bryzek.dependency.v0.anorm.parsers.OrganizationSummary.parserWithPrefix("organization") ~
-    com.bryzek.dependency.v0.anorm.parsers.Visibility.parser("visibility") ~
+    io.flow.dependency.v0.anorm.parsers.OrganizationSummary.parserWithPrefix("organization") ~
+    io.flow.dependency.v0.anorm.parsers.Visibility.parser("visibility") ~
     SqlParser.str("summary") ~
     SqlParser.str("label") ~
     SqlParser.str("description").? map {
       case id ~ organization ~ visibility ~ summary ~ label ~ description => {
-        com.bryzek.dependency.v0.models.Item(
+        io.flow.dependency.v0.models.Item(
           id = id,
           organization = organization,
           visibility = visibility,

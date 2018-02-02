@@ -1,7 +1,7 @@
 package controllers
 
-import com.bryzek.dependency.v0.models.GithubAuthenticationForm
-import com.bryzek.dependency.www.lib.{DependencyClientProvider, UiData}
+import io.flow.dependency.v0.models.GithubAuthenticationForm
+import io.flow.dependency.www.lib.{DependencyClientProvider, UiData}
 import io.flow.dependency.controllers.helpers.DependencyUiControllerHelper
 import io.flow.play.controllers.{FlowController, FlowControllerComponents}
 import io.flow.play.util.Config
@@ -45,8 +45,8 @@ class LoginController @javax.inject.Inject()(
         "user_id" -> user.id.toString
       }
     }.recover {
-      case response: com.bryzek.dependency.v0.errors.ErrorsResponse => {
-        Ok(views.html.login.index(UiData(requestPath = request.path), returnUrl, response.errors.flatMap(_.messages)))
+      case response: io.flow.dependency.v0.errors.GenericErrorsResponse => {
+        Ok(views.html.login.index(UiData(requestPath = request.path), returnUrl, response.genericErrors.flatMap(_.messages)))
       }
     }
   }

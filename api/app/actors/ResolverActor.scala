@@ -1,8 +1,8 @@
-package com.bryzek.dependency.actors
+package io.flow.dependency.actors
 
 import javax.inject.Inject
 
-import com.bryzek.dependency.v0.models.{Resolver, Visibility}
+import io.flow.dependency.v0.models.{Resolver, Visibility}
 import io.flow.postgresql.Pager
 import db._
 import akka.actor.Actor

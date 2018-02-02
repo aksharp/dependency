@@ -1,11 +1,11 @@
-package com.bryzek.dependency.actors
+package io.flow.dependency.actors
 
 import javax.inject.Inject
 
 import akka.actor.Actor
-import com.bryzek.dependency.api.lib.{Email, Recipient}
-import com.bryzek.dependency.lib.Urls
-import com.bryzek.dependency.v0.models.{Publication, Subscription}
+import io.flow.dependency.api.lib.{Email, Recipient}
+import io.flow.dependency.lib.Urls
+import io.flow.dependency.v0.models.{Publication, Subscription}
 import db._
 import io.flow.play.util.Config
 import io.flow.postgresql.Pager
@@ -22,7 +22,7 @@ object EmailActor {
 
   val PreferredHourToSendEst: Int = {
     val config = play.api.Play.current.injector.instanceOf[Config]
-    val value = config.requiredString("com.bryzek.dependency.api.email.daily.summary.hour.est").toInt
+    val value = config.requiredString("io.flow.dependency.api.email.daily.summary.hour.est").toInt
     assert(value >= 0 && value < 23)
     value
   }

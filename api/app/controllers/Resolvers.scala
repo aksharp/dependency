@@ -1,7 +1,7 @@
 package controllers
 
-import com.bryzek.dependency.v0.models.json._
-import com.bryzek.dependency.v0.models.{ResolverForm, Visibility}
+import io.flow.dependency.v0.models.json._
+import io.flow.dependency.v0.models.{ResolverForm, Visibility}
 import db.{Authorization, DbImplicits, ResolversDao}
 import io.flow.error.v0.models.json._
 import io.flow.play.controllers.{FlowController, FlowControllerComponents}

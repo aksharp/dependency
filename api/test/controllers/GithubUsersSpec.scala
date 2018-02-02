@@ -1,7 +1,7 @@
 package controllers
 
-import com.bryzek.dependency.api.lib.MockGithubData
-import com.bryzek.dependency.v0.models.GithubAuthenticationForm
+import io.flow.dependency.api.lib.MockGithubData
+import io.flow.dependency.v0.models.GithubAuthenticationForm
 import io.flow.github.v0.models.{OwnerType, User => GithubUser}
 import util.{DependencySpec, MockDependencyClient}
 

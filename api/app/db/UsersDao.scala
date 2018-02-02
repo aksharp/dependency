@@ -2,8 +2,8 @@ package db
 
 import javax.inject.{Inject, Singleton}
 
-import com.bryzek.dependency.v0.models.UserForm
-import com.bryzek.dependency.actors.MainActor
+import io.flow.dependency.v0.models.UserForm
+import io.flow.dependency.actors.MainActor
 import io.flow.postgresql.{OrderBy, Query}
 import io.flow.common.v0.models.{Name, User, UserReference}
 import anorm._

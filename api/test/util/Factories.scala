@@ -2,7 +2,7 @@ package util
 
 import java.util.UUID
 
-import com.bryzek.dependency.v0.models.{OrganizationSummary, ProjectSummary, ResolverSummary, Visibility}
+import io.flow.dependency.v0.models.{OrganizationSummary, ProjectSummary, ResolverSummary, Visibility}
 
 trait Factories {
 

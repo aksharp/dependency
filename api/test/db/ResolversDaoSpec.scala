@@ -2,7 +2,7 @@ package db
 
 import java.util.UUID
 
-import com.bryzek.dependency.v0.models.{UsernamePassword, Visibility}
+import io.flow.dependency.v0.models.{UsernamePassword, Visibility}
 import util.DependencySpec
 
 class ResolversDaoSpec extends DependencySpec {

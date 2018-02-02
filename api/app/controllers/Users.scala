@@ -1,7 +1,7 @@
 package controllers
 
-import com.bryzek.dependency.v0.models.UserForm
-import com.bryzek.dependency.v0.models.json._
+import io.flow.dependency.v0.models.UserForm
+import io.flow.dependency.v0.models.json._
 import db.DbImplicits
 import io.flow.common.v0.models.User
 import io.flow.common.v0.models.json._

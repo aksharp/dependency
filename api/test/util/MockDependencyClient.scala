@@ -1,19 +1,19 @@
 package util
 
-import com.bryzek.dependency.v0.Client
+import io.flow.dependency.v0.Client
 import io.flow.common.v0.models.UserReference
 import io.flow.play.util.{AuthHeaders, FlowSession}
 import io.flow.test.utils.{FlowMockClient, FlowPlaySpec}
 
 trait MockDependencyClient extends FlowMockClient[
-  com.bryzek.dependency.v0.Client,
-  com.bryzek.dependency.v0.errors.ErrorsResponse,
-  com.bryzek.dependency.v0.errors.UnitResponse
+  io.flow.dependency.v0.Client,
+  io.flow.dependency.v0.errors.ErrorsResponse,
+  io.flow.dependency.v0.errors.UnitResponse
   ]{
   self: FlowPlaySpec =>
 
   override def createAnonymousClient(baseUrl: String): Client =
-    new com.bryzek.dependency.v0.Client(
+    new io.flow.dependency.v0.Client(
       ws = wsClient,
       baseUrl = baseUrl
     )
@@ -24,7 +24,7 @@ trait MockDependencyClient extends FlowMockClient[
       case Some(o) => AuthHeaders.organization(user, o, session = session)
     }
 
-    new com.bryzek.dependency.v0.Client(
+    new io.flow.dependency.v0.Client(
       ws = wsClient,
       baseUrl = baseUrl,
       defaultHeaders = authHeaders.headers(auth)

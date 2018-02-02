@@ -1,8 +1,8 @@
 package controllers
 
-import com.bryzek.dependency.actors.MainActor
-import com.bryzek.dependency.v0.models.SyncEvent
-import com.bryzek.dependency.v0.models.json._
+import io.flow.dependency.actors.MainActor
+import io.flow.dependency.v0.models.SyncEvent
+import io.flow.dependency.v0.models.json._
 import db._
 import io.flow.play.controllers.{FlowController, FlowControllerComponents}
 import io.flow.play.util.Config

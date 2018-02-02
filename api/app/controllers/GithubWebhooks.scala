@@ -1,6 +1,6 @@
 package controllers
 
-import com.bryzek.dependency.actors.MainActor
+import io.flow.dependency.actors.MainActor
 import db.{Authorization, DbImplicits, LibrariesDao, ProjectsDao}
 import io.flow.play.controllers.{FlowController, FlowControllerComponents}
 import io.flow.play.util.Config

@@ -1,6 +1,6 @@
 package controllers
 
-import com.bryzek.dependency.api.lib.Github
+import io.flow.dependency.api.lib.Github
 import db._
 import io.flow.error.v0.models.json._
 import io.flow.play.controllers.{FlowController, FlowControllerComponents}

@@ -2,7 +2,7 @@ package db
 
 import javax.inject.{Inject, Singleton}
 
-import com.bryzek.dependency.v0.models.UserIdentifier
+import io.flow.dependency.v0.models.UserIdentifier
 import io.flow.common.v0.models.{User, UserReference}
 import io.flow.postgresql.{OrderBy, Query}
 import io.flow.play.util.UrlKey
@@ -139,7 +139,7 @@ class UserIdentifiersDao @Inject() (
       equals("user_identifiers.user_id", userId).
       optionalText("user_identifiers.value", value).
       as(
-        com.bryzek.dependency.v0.anorm.parsers.UserIdentifier.parser().*
+        io.flow.dependency.v0.anorm.parsers.UserIdentifier.parser().*
       )
   }
 

@@ -1,8 +1,8 @@
 package controllers
 
-import com.bryzek.dependency.v0.errors.UnitResponse
-import com.bryzek.dependency.v0.models.OrganizationForm
-import com.bryzek.dependency.www.lib.DependencyClientProvider
+import io.flow.dependency.v0.errors.UnitResponse
+import io.flow.dependency.v0.models.OrganizationForm
+import io.flow.dependency.www.lib.DependencyClientProvider
 import io.flow.dependency.controllers.helpers.DependencyUiControllerHelper
 import io.flow.play.controllers.{FlowController, FlowControllerComponents}
 import io.flow.play.util.{Config, PaginatedCollection, Pagination}
@@ -84,8 +84,8 @@ class OrganizationsController @javax.inject.Inject() (
         dependencyClient(request).organizations.post(uiForm.organizationForm).map { organization =>
           Redirect(routes.OrganizationsController.show(organization.key)).flashing("success" -> "Organization created")
         }.recover {
-          case response: com.bryzek.dependency.v0.errors.ErrorsResponse => {
-            Ok(views.html.organizations.create(uiData(request), boundForm, response.errors.flatMap(_.messages)))
+          case response: io.flow.dependency.v0.errors.GenericErrorsResponse => {
+            Ok(views.html.organizations.create(uiData(request), boundForm, response.genericErrors.flatMap(_.messages)))
           }
         }
       }
@@ -123,8 +123,8 @@ class OrganizationsController @javax.inject.Inject() (
           dependencyClient(request).organizations.putById(organization.id, uiForm.organizationForm).map { updated =>
             Redirect(routes.OrganizationsController.show(updated.key)).flashing("success" -> "Organization updated")
           }.recover {
-            case response: com.bryzek.dependency.v0.errors.ErrorsResponse => {
-              Ok(views.html.organizations.edit(uiData(request), organization, boundForm, response.errors.flatMap(_.messages)))
+            case response: io.flow.dependency.v0.errors.GenericErrorsResponse => {
+              Ok(views.html.organizations.edit(uiData(request), organization, boundForm, response.genericErrors.flatMap(_.messages)))
             }
           }
         }

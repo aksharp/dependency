@@ -2,7 +2,7 @@ package db
 
 import javax.inject.{Inject, Singleton}
 
-import com.bryzek.dependency.v0.models.{Publication, Subscription, SubscriptionForm}
+import io.flow.dependency.v0.models.{Publication, Subscription, SubscriptionForm}
 import io.flow.common.v0.models.UserReference
 import io.flow.postgresql.{OrderBy, Query}
 import anorm._
@@ -134,7 +134,7 @@ class SubscriptionsDao @Inject() (
           }
         ).bind("identifier", identifier).
         as(
-          com.bryzek.dependency.v0.anorm.parsers.Subscription.parser().*
+          io.flow.dependency.v0.anorm.parsers.Subscription.parser().*
         )
     }
   }

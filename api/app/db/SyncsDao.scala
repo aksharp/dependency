@@ -2,7 +2,7 @@ package db
 
 import javax.inject.{Inject, Singleton}
 
-import com.bryzek.dependency.v0.models.{Sync, SyncEvent}
+import io.flow.dependency.v0.models.{Sync, SyncEvent}
 import io.flow.common.v0.models.UserReference
 import io.flow.postgresql.{OrderBy, Query}
 import anorm._
@@ -118,7 +118,7 @@ class SyncsDao @Inject() (
         equals("syncs.object_id", objectId).
         optionalText("syncs.event", event).
         as(
-          com.bryzek.dependency.v0.anorm.parsers.Sync.parser().*
+          io.flow.dependency.v0.anorm.parsers.Sync.parser().*
         )
     }
   }

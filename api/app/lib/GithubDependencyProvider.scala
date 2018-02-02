@@ -1,6 +1,6 @@
-package com.bryzek.dependency.api.lib
+package io.flow.dependency.api.lib
 
-import com.bryzek.dependency.v0.models.{BinaryType, Project, ProjectSummary}
+import io.flow.dependency.v0.models.{BinaryType, Project, ProjectSummary}
 import db.{ProjectBinaryForm, TokensDao}
 import io.flow.common.v0.models.UserReference
 import io.flow.github.v0.models.{Contents, Encoding}

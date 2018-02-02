@@ -1,8 +1,8 @@
 package controllers
 
-import com.bryzek.dependency.v0.errors.UnitResponse
-import com.bryzek.dependency.v0.models.{Membership, MembershipForm, Role}
-import com.bryzek.dependency.www.lib.DependencyClientProvider
+import io.flow.dependency.v0.errors.UnitResponse
+import io.flow.dependency.v0.models.{Membership, MembershipForm, Role}
+import io.flow.dependency.www.lib.DependencyClientProvider
 import io.flow.dependency.controllers.helpers.DependencyUiControllerHelper
 import io.flow.play.controllers.{FlowController, FlowControllerComponents, IdentifiedRequest}
 import io.flow.play.util.{Config, PaginatedCollection, Pagination}
@@ -21,7 +21,7 @@ class MembersController @javax.inject.Inject()(
 
   import scala.concurrent.ExecutionContext.Implicits.global
 
-  override def section = Some(com.bryzek.dependency.www.lib.Section.Members)
+  override def section = Some(io.flow.dependency.www.lib.Section.Members)
 
   def index(orgKey: String, page: Int = 0) = Identified.async { implicit request =>
     withOrganization(request, orgKey) { org =>
@@ -86,9 +86,9 @@ class MembersController @javax.inject.Inject()(
                   ).map { membership =>
                     Redirect(routes.MembersController.index(org.key)).flashing("success" -> s"User added as ${membership.role}")
                   }.recover {
-                    case response: com.bryzek.dependency.v0.errors.ErrorsResponse => {
+                    case response: io.flow.dependency.v0.errors.GenericErrorsResponse => {
                       Ok(views.html.members.create(
-                        uiData(request).copy(organization = Some(org.key)), org, boundForm, response.errors.flatMap(_.messages))
+                        uiData(request).copy(organization = Some(org.key)), org, boundForm, response.genericErrors.flatMap(_.messages))
                       )
                     }
                   }
@@ -138,8 +138,9 @@ class MembersController @javax.inject.Inject()(
         ).map { membership =>
           Redirect(routes.MembersController.index(membership.organization.key)).flashing("success" -> s"User added as ${membership.role}")
         }.recover {
-          case response: com.bryzek.dependency.v0.errors.ErrorsResponse => {
-            Redirect(routes.MembersController.index(membership.organization.key)).flashing("warning" -> response.errors.map(_.messages).mkString(", "))
+          case response: io.flow.dependency.v0.errors.GenericErrorsResponse => {
+
+            Redirect(routes.MembersController.index(membership.organization.key)).flashing("warning" -> response.genericErrors.flatMap(_.messages).mkString(", "))
           }
         }
       }

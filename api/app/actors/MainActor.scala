@@ -1,4 +1,4 @@
-package com.bryzek.dependency.actors
+package io.flow.dependency.actors
 
 import akka.actor._
 import io.flow.play.actors.{ErrorHandler, Scheduler}
@@ -70,23 +70,23 @@ class MainActor @javax.inject.Inject() (
 
   implicit val mainActorExecutionContext: ExecutionContext = system.dispatchers.lookup("main-actor-context")
 
-  scheduleRecurring(system, "com.bryzek.dependency.api.binary.seconds") {
+  scheduleRecurring(system, "io.flow.dependency.api.binary.seconds") {
     periodicActor ! PeriodicActor.Messages.SyncBinaries
   }
 
-  scheduleRecurring(system, "com.bryzek.dependency.api.library.seconds") {
+  scheduleRecurring(system, "io.flow.dependency.api.library.seconds") {
     periodicActor !  PeriodicActor.Messages.SyncLibraries
   }
 
-  scheduleRecurring(system, "com.bryzek.dependency.api.project.seconds") {
+  scheduleRecurring(system, "io.flow.dependency.api.project.seconds") {
     periodicActor !  PeriodicActor.Messages.SyncProjects
   }
 
-  scheduleRecurring(system, "com.bryzek.dependency.api.purge.seconds") {
+  scheduleRecurring(system, "io.flow.dependency.api.purge.seconds") {
     periodicActor !  PeriodicActor.Messages.Purge
   }
 
-  scheduleRecurring(system, "com.bryzek.dependency.api.email.seconds") {
+  scheduleRecurring(system, "io.flow.dependency.api.email.seconds") {
     emailActor ! EmailActor.Messages.ProcessDailySummary
   }
 

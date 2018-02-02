@@ -1,8 +1,8 @@
 package controllers
 
-import com.bryzek.dependency.v0.errors.UnitResponse
-import com.bryzek.dependency.v0.models.{Token, TokenForm}
-import com.bryzek.dependency.www.lib.DependencyClientProvider
+import io.flow.dependency.v0.errors.UnitResponse
+import io.flow.dependency.v0.models.{Token, TokenForm}
+import io.flow.dependency.www.lib.DependencyClientProvider
 import io.flow.dependency.controllers.helpers.DependencyUiControllerHelper
 import io.flow.play.controllers.{FlowController, FlowControllerComponents, IdentifiedRequest}
 import io.flow.play.util.{Config, PaginatedCollection, Pagination}
@@ -64,8 +64,8 @@ class TokensController @javax.inject.Inject()(
         ).map { token =>
           Redirect(routes.TokensController.show(token.id)).flashing("success" -> "Token created")
         }.recover {
-          case r: com.bryzek.dependency.v0.errors.ErrorsResponse => {
-            Ok(views.html.tokens.create(uiData(request), form, r.errors.flatMap(_.messages)))
+          case r: io.flow.dependency.v0.errors.GenericErrorsResponse => {
+            Ok(views.html.tokens.create(uiData(request), form, r.genericErrors.flatMap(_.messages)))
           }
         }
       }

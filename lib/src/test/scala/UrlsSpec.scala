@@ -1,6 +1,6 @@
-package com.bryzek.dependency.lib
+package io.flow.dependency.lib
 
-import com.bryzek.dependency.v0.models.{ItemSummaryUndefinedType, RecommendationType}
+import io.flow.dependency.v0.models.{ItemSummaryUndefinedType, RecommendationType}
 import io.flow.play.util.Config
 import io.flow.test.utils.FlowPlaySpec
 

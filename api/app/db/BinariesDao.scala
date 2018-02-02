@@ -3,8 +3,8 @@ package db
 import javax.inject.{Inject, Singleton}
 
 import akka.actor.ActorRef
-import com.bryzek.dependency.actors.MainActor
-import com.bryzek.dependency.v0.models.{Binary, BinaryForm, SyncEvent}
+import io.flow.dependency.actors.MainActor
+import io.flow.dependency.v0.models.{Binary, BinaryForm, SyncEvent}
 import io.flow.common.v0.models.UserReference
 import io.flow.postgresql.{OrderBy, Pager, Query}
 import anorm._
@@ -143,7 +143,7 @@ class BinariesDao @Inject() (
         limit(limit).
         offset(offset).
         as(
-          com.bryzek.dependency.v0.anorm.parsers.Binary.parser().*
+          io.flow.dependency.v0.anorm.parsers.Binary.parser().*
         )
     }
   }

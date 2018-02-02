@@ -2,7 +2,7 @@ package controllers
 
 import java.util.UUID
 
-import com.bryzek.dependency.v0.models.UserForm
+import io.flow.dependency.v0.models.UserForm
 import io.flow.common.v0.models.Name
 import play.api.test._
 import util.{DependencySpec, MockDependencyClient}
