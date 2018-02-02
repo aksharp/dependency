@@ -1,13 +1,10 @@
 package db
 
-import javax.inject.{Inject, Singleton}
-
-import io.flow.dependency.v0.models.{Binary, BinarySummary, Item, ItemSummary, ItemSummaryUndefinedType, Library, LibrarySummary}
-import io.flow.dependency.v0.models.{OrganizationSummary, Project, ProjectSummary, ResolverSummary, Visibility}
-import io.flow.dependency.v0.models.json._
-import io.flow.common.v0.models.UserReference
-import io.flow.postgresql.{OrderBy, Query}
 import anorm._
+import io.flow.common.v0.models.UserReference
+import io.flow.dependency.v0.models.json._
+import io.flow.dependency.v0.models._
+import io.flow.postgresql.{OrderBy, Query}
 import play.api.db._
 import play.api.libs.json._
 
@@ -20,10 +17,9 @@ case class ItemForm(
   contents: String
 )
 
-@Singleton
-class ItemsDao @Inject() (
+class ItemsDao (
   val db: Database,
-  @javax.inject.Named("main-actor") val mainActorRef: akka.actor.ActorRef
+  val mainActorRef: akka.actor.ActorRef
 ) extends DbImplicits {
 
   private[this] val BaseQuery = Query(s"""

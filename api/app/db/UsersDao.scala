@@ -1,19 +1,16 @@
 package db
 
-import javax.inject.{Inject, Singleton}
-
-import io.flow.dependency.v0.models.UserForm
-import io.flow.dependency.actors.MainActor
-import io.flow.postgresql.{OrderBy, Query}
-import io.flow.common.v0.models.{Name, User, UserReference}
 import anorm._
+import io.flow.common.v0.models.{User, UserReference}
+import io.flow.dependency.actors.MainActor
+import io.flow.dependency.v0.models.UserForm
+import io.flow.postgresql.{OrderBy, Query}
 import play.api.db._
 
 
-@Singleton
-class UsersDao @Inject() (
+class UsersDao (
   val db: Database,
-  @javax.inject.Named("main-actor") val mainActorRef: akka.actor.ActorRef
+  val mainActorRef: akka.actor.ActorRef
 ) extends DbImplicits {
 
   private[db] val SystemEmailAddress = "system@bryzek.com"

@@ -14,10 +14,9 @@ import play.api.db._
 import play.api.libs.json._
 
 
-@Singleton
-class ResolversDao @Inject() (
+class ResolversDao(
   val db: Database,
-  @javax.inject.Named("main-actor") val mainActorRef: akka.actor.ActorRef
+  val mainActorRef: akka.actor.ActorRef
 ) extends DbImplicits {
 
   val GithubOauthResolverTag = "github_oauth"

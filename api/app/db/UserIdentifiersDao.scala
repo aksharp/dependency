@@ -1,18 +1,13 @@
 package db
 
-import javax.inject.{Inject, Singleton}
-
-import io.flow.dependency.v0.models.UserIdentifier
-import io.flow.common.v0.models.{User, UserReference}
-import io.flow.postgresql.{OrderBy, Query}
-import io.flow.play.util.UrlKey
 import anorm._
+import io.flow.common.v0.models.{User, UserReference}
+import io.flow.dependency.v0.models.UserIdentifier
+import io.flow.postgresql.{OrderBy, Query}
 import play.api.db._
-import play.api.libs.json._
 
 
-@Singleton
-class UserIdentifiersDao @Inject() (
+class UserIdentifiersDao (
   db: Database
 ) {
 

@@ -1,18 +1,15 @@
 package db
 
-import javax.inject.{Inject, Singleton}
-
 import anorm._
-import io.flow.dependency.v0.models.{Organization, OrganizationForm, Role}
 import io.flow.common.v0.models.{User, UserReference}
+import io.flow.dependency.v0.models.{Organization, OrganizationForm, Role}
 import io.flow.play.util.{IdGenerator, Random, UrlKey}
 import io.flow.postgresql.{OrderBy, Pager, Query}
 import play.api.db._
 
-@Singleton
-class OrganizationsDao @Inject() (
+class OrganizationsDao(
   val db: Database,
-  @javax.inject.Named("main-actor") val mainActorRef: akka.actor.ActorRef
+  val mainActorRef: akka.actor.ActorRef
 ) extends DbImplicits {
 
   val DefaultUserNameLength = 8

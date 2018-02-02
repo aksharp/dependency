@@ -1,16 +1,12 @@
 package db
 
-import javax.inject.{Inject, Singleton}
-
-import io.flow.dependency.v0.models.{Membership, MembershipForm, Organization, OrganizationSummary, Role}
-import io.flow.postgresql.{OrderBy, Query}
-import io.flow.common.v0.models.UserReference
 import anorm._
+import io.flow.common.v0.models.UserReference
+import io.flow.dependency.v0.models.{Membership, MembershipForm, Organization, Role}
+import io.flow.postgresql.{OrderBy, Query}
 import play.api.db._
-import play.api.libs.json._
 
-@Singleton
-class MembershipsDao @Inject() (
+class MembershipsDao (
   db: Database
 ) {
 

@@ -1,19 +1,15 @@
 package db
 
-import javax.inject.{Inject, Singleton}
-
-import io.flow.dependency.v0.models.{Publication, Subscription, SubscriptionForm}
-import io.flow.common.v0.models.UserReference
-import io.flow.postgresql.{OrderBy, Query}
 import anorm._
+import io.flow.common.v0.models.UserReference
+import io.flow.dependency.v0.models.{Publication, Subscription, SubscriptionForm}
+import io.flow.postgresql.{OrderBy, Query}
 import play.api.db._
-import play.api.libs.json._
 
 
-@Singleton
-class SubscriptionsDao @Inject() (
+class SubscriptionsDao (
   val db: Database,
-  @javax.inject.Named("main-actor") val mainActorRef: akka.actor.ActorRef
+  val mainActorRef: akka.actor.ActorRef
 ) extends DbImplicits {
 
   private[this] val BaseQuery = Query(s"""

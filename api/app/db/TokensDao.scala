@@ -1,14 +1,11 @@
 package db
 
-import javax.inject.{Inject, Singleton}
-
-import io.flow.dependency.v0.models.{Token, TokenForm}
+import anorm._
 import io.flow.common.v0.models.UserReference
+import io.flow.dependency.v0.models.{Token, TokenForm}
 import io.flow.play.util.Random
 import io.flow.postgresql.{OrderBy, Query}
-import anorm._
 import play.api.db._
-import play.api.libs.json._
 
 sealed trait InternalTokenForm {
 
@@ -43,10 +40,9 @@ object InternalTokenForm {
 
 
 
-@Singleton
-class TokensDao @Inject() (
+class TokensDao (
   val db: Database,
-  @javax.inject.Named("main-actor") val mainActorRef: akka.actor.ActorRef
+  val mainActorRef: akka.actor.ActorRef
 ) extends DbImplicits {
 
   private[this] val BaseQuery = Query(s"""

@@ -1,15 +1,10 @@
 package db
 
-import javax.inject.{Inject, Singleton}
-
-import io.flow.dependency.v0.models.{Sync, SyncEvent}
-import io.flow.common.v0.models.UserReference
-import io.flow.postgresql.{OrderBy, Query}
 import anorm._
+import io.flow.common.v0.models.UserReference
+import io.flow.dependency.v0.models.{Sync, SyncEvent}
+import io.flow.postgresql.{OrderBy, Query}
 import play.api.db._
-import play.api.libs.json._
-
-import scala.util.{Failure, Success, Try}
 
 case class SyncForm(
   `type`: String,
@@ -18,8 +13,7 @@ case class SyncForm(
 )
 
 
-@Singleton
-class SyncsDao @Inject() (
+class SyncsDao (
   db: Database
 ) {
 

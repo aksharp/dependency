@@ -1,15 +1,11 @@
 package db
 
-import javax.inject.{Inject, Singleton}
-
-import io.flow.dependency.v0.models.Reference
-import io.flow.common.v0.models.UserReference
-import io.flow.postgresql.{OrderBy, Query}
-import io.flow.dependency.v0.models.Publication
-import org.joda.time.DateTime
 import anorm._
+import io.flow.common.v0.models.UserReference
+import io.flow.dependency.v0.models.{Publication, Reference}
+import io.flow.postgresql.{OrderBy, Query}
+import org.joda.time.DateTime
 import play.api.db._
-import play.api.libs.json._
 
 case class LastEmailForm(
   userId: String,
@@ -23,8 +19,7 @@ case class LastEmail(
   createdAt: DateTime
 )
 
-@Singleton
-class LastEmailsDao @Inject() (
+class LastEmailsDao (
   db: Database
 )  {
 

@@ -1,19 +1,15 @@
 package db
 
-import javax.inject.{Inject, Singleton}
-
-import akka.actor.ActorRef
+import anorm._
+import io.flow.common.v0.models.UserReference
 import io.flow.dependency.actors.MainActor
 import io.flow.dependency.v0.models.{Binary, BinaryForm, SyncEvent}
-import io.flow.common.v0.models.UserReference
 import io.flow.postgresql.{OrderBy, Pager, Query}
-import anorm._
 import play.api.db._
 
-@Singleton
-class BinariesDao @Inject() (
+class BinariesDao (
   val db: Database,
-  @javax.inject.Named("main-actor") val mainActorRef: akka.actor.ActorRef
+  val mainActorRef: akka.actor.ActorRef
 ) extends DbImplicits {
 
   private[this] val BaseQuery = Query(s"""

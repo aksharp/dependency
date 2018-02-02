@@ -1,7 +1,5 @@
 package db
 
-import javax.inject.{Inject, Singleton}
-
 import io.flow.postgresql.{OrderBy, Query}
 import io.flow.dependency.v0.models.{GithubUser, GithubUserForm}
 import io.flow.common.v0.models.UserReference
@@ -9,10 +7,9 @@ import anorm._
 import play.api.db._
 
 
-@Singleton
-class GithubUsersDao @Inject() (
+class GithubUsersDao (
   val db: Database,
-  @javax.inject.Named("main-actor") val mainActorRef: akka.actor.ActorRef
+  val mainActorRef: akka.actor.ActorRef
 ) extends DbImplicits {
 
   private[this] val BaseQuery = Query(s"""

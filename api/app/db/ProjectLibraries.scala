@@ -1,15 +1,11 @@
 package db
 
-import javax.inject.{Inject, Singleton}
-
+import anorm._
+import io.flow.common.v0.models.UserReference
 import io.flow.dependency.actors.MainActor
-import io.flow.dependency.api.lib.Version
 import io.flow.dependency.v0.models.{Library, ProjectLibrary, SyncEvent, VersionForm}
 import io.flow.postgresql.{OrderBy, Pager, Query}
-import io.flow.common.v0.models.UserReference
-import anorm._
 import play.api.db._
-import play.api.libs.json._
 
 case class ProjectLibraryForm(
   projectId: String,
@@ -19,10 +15,9 @@ case class ProjectLibraryForm(
   path: String
 )
 
-@Singleton
-class ProjectLibrariesDao @Inject() (
+class ProjectLibrariesDao (
   val db: Database,
-  @javax.inject.Named("main-actor") val mainActorRef: akka.actor.ActorRef
+  val mainActorRef: akka.actor.ActorRef
 ) extends DbImplicits {
 
   private[this] val BaseQuery = Query(s"""

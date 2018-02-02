@@ -1,17 +1,14 @@
 package db
 
-import javax.inject.{Inject, Singleton}
-
-import io.flow.dependency.v0.models.{Project, Recommendation, RecommendationType}
-import io.flow.common.v0.models.UserReference
-import io.flow.postgresql.{OrderBy, Pager, Query}
 import anorm._
+import io.flow.common.v0.models.UserReference
+import io.flow.dependency.v0.models.{Project, Recommendation, RecommendationType}
+import io.flow.postgresql.{OrderBy, Pager, Query}
 import play.api.db._
 
-@Singleton
-class RecommendationsDao @Inject() (
+class RecommendationsDao (
   val db: Database,
-  @javax.inject.Named("main-actor") val mainActorRef: akka.actor.ActorRef
+  val mainActorRef: akka.actor.ActorRef
 ) extends DbImplicits {
 
   private[this] case class RecommendationForm(

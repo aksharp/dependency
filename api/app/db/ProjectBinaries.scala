@@ -16,10 +16,9 @@ case class ProjectBinaryForm(
   path: String
 )
 
-@Singleton
-class ProjectBinariesDao @Inject() (
+class ProjectBinariesDao (
   val db: Database,
-  @javax.inject.Named("main-actor") val mainActorRef: akka.actor.ActorRef
+  val mainActorRef: akka.actor.ActorRef
 ) extends DbImplicits {
 
   private[this] val BaseQuery = Query(s"""

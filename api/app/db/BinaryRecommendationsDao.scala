@@ -1,13 +1,9 @@
 package db
 
-import javax.inject.{Inject, Singleton}
-
 import io.flow.dependency.api.lib.Recommendations
-import io.flow.dependency.v0.models.{Binary, BinaryVersion, Project, ProjectBinary, VersionForm}
+import io.flow.dependency.v0.models._
 import io.flow.postgresql.Pager
-import anorm._
 import play.api.db._
-import play.api.libs.json._
 
 case class BinaryRecommendation(
   binary: Binary,
@@ -16,10 +12,9 @@ case class BinaryRecommendation(
   latest: BinaryVersion
 )
 
-@Singleton
-class BinaryRecommendationsDao @Inject() (
+class BinaryRecommendationsDao (
   val db: Database,
-  @javax.inject.Named("main-actor") val mainActorRef: akka.actor.ActorRef
+  val mainActorRef: akka.actor.ActorRef
 ) extends DbImplicits {
 
   def forProject(project: Project): Seq[BinaryRecommendation] = {
