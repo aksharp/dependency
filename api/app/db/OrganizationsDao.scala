@@ -13,9 +13,8 @@ import play.api.libs.json._
 @Singleton
 class OrganizationsDao @Inject() (
   db: Database,
-  MembershipsDao: MembershipsDao,
-  OrganizationsDao: OrganizationsDao,
-  ProjectsDao: ProjectsDao
+  membershipsDao: MembershipsDao,
+  projectsDao: ProjectsDao
 ) {
 
   val DefaultUserNameLength = 8
@@ -61,7 +60,7 @@ class OrganizationsDao @Inject() (
     } else {
       urlKey.validate(form.key.trim) match {
         case Nil => {
-          OrganizationsDao.findByKey(Authorization.All, form.key) match {
+          findByKey(Authorization.All, form.key) match {
             case None => Seq.empty
             case Some(p) => {
               Some(p.id) == existing.map(_.id) match {
@@ -102,7 +101,7 @@ class OrganizationsDao @Inject() (
       'updated_by_user_id -> createdBy.id
     ).execute()
 
-    MembershipsDao.create(
+    membershipsDao.create(
       c,
       createdBy,
       id,
@@ -136,15 +135,15 @@ class OrganizationsDao @Inject() (
 
   def delete(deletedBy: UserReference, organization: Organization) {
     Pager.create { offset =>
-      ProjectsDao.findAll(Authorization.All, organizationId = Some(organization.id), offset = offset)
+      projectsDao.findAll(Authorization.All, organizationId = Some(organization.id), offset = offset)
     }.foreach { project =>
-      ProjectsDao.delete(deletedBy, project)
+      projectsDao.delete(deletedBy, project)
     }
 
     Pager.create { offset =>
-      MembershipsDao.findAll(Authorization.All, organizationId = Some(organization.id), offset = offset)
+      membershipsDao.findAll(Authorization.All, organizationId = Some(organization.id), offset = offset)
     }.foreach { membership =>
-      MembershipsDao.delete(deletedBy, membership)
+      membershipsDao.delete(deletedBy, membership)
     }
 
     DbHelpers.delete(db, "organizations", deletedBy.id, organization.id)
@@ -196,7 +195,7 @@ class OrganizationsDao @Inject() (
     )
   }
 
-  def findByKey(auth: Authorization, key: String): Option[Organization] = {
+  implicit def findByKey(auth: Authorization, key: String): Option[Organization] = {
     findAll(auth, key = Some(key), limit = 1).headOption
   }
 

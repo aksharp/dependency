@@ -1,8 +1,8 @@
 package controllers
 
 import com.bryzek.dependency.v0.models.json._
-import com.bryzek.dependency.v0.models.{Membership, MembershipForm, Role}
-import db.{Authorization, MembershipsDao}
+import com.bryzek.dependency.v0.models.{Membership, MembershipForm, Organization, Role}
+import db.{Authorization, MembershipsDao, OrganizationsDao}
 import io.flow.common.v0.models.UserReference
 import io.flow.play.controllers.{FlowController, FlowControllerComponents}
 import io.flow.play.util.{Config, Validation}
@@ -13,6 +13,7 @@ import io.flow.error.v0.models.json._
 @javax.inject.Singleton
 class Memberships @javax.inject.Inject() (
   membershipsDao: MembershipsDao,
+  organizationsDao: OrganizationsDao,
   val config: Config,
   val controllerComponents: ControllerComponents,
   val flowControllerComponents: FlowControllerComponents
@@ -55,7 +56,7 @@ class Memberships @javax.inject.Inject() (
         UnprocessableEntity(Json.toJson(Validation.invalidJson(e)))
       }
       case s: JsSuccess[MembershipForm] => {
-        membershipsDao.create(request.user, s.get) match {
+        membershipsDao.create(request.user, s.get, organizationsDao.findByKey) match {
           case Left(errors) => UnprocessableEntity(Json.toJson(Validation.errors(errors)))
           case Right(membership) => Created(Json.toJson(membership))
         }

@@ -12,8 +12,7 @@ import play.api.db._
 class RecommendationsDao @Inject() (
   db: Database,
   libraryRecommendationsDao: LibraryRecommendationsDao,
-  binaryRecommendationsDao: BinaryRecommendationsDao,
-  recommendationsDao: RecommendationsDao
+  binaryRecommendationsDao: BinaryRecommendationsDao
 ) {
 
   private[this] case class RecommendationForm(
@@ -77,7 +76,7 @@ class RecommendationsDao @Inject() (
     val newRecords = libraries ++ binaries
 
     val existing = Pager.create { offset =>
-      recommendationsDao.findAll(Authorization.All, projectId = Some(project.id), limit = 1000, offset = offset)
+      findAll(Authorization.All, projectId = Some(project.id), limit = 1000, offset = offset)
     }.toSeq
 
     val toAdd = newRecords.filter { rec => !existing.map(toForm).contains(rec) }

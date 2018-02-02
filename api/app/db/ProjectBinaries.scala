@@ -22,7 +22,6 @@ case class ProjectBinaryForm(
 class ProjectBinariesDao @Inject() (
   db: Database,
   membershipsDao: MembershipsDao,
-  projectBinariesDao: ProjectBinariesDao,
   projectsDao: ProjectsDao
 ) {
 
@@ -89,7 +88,7 @@ class ProjectBinariesDao @Inject() (
     }
 
     val existsErrors = if (nameErrors.isEmpty && versionErrors.isEmpty) {
-      projectBinariesDao.findByProjectIdAndNameAndVersion(
+      findByProjectIdAndNameAndVersion(
         Authorization.All, form.projectId, form.name.toString, form.version
       ) match {
         case None => Nil
@@ -105,7 +104,7 @@ class ProjectBinariesDao @Inject() (
   }
 
   def upsert(createdBy: UserReference, form: ProjectBinaryForm): Either[Seq[String], ProjectBinary] = {
-    projectBinariesDao.findByProjectIdAndNameAndVersion(
+    findByProjectIdAndNameAndVersion(
       Authorization.All, form.projectId, form.name.toString, form.version
     ) match {
       case None => {

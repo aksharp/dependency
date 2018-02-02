@@ -11,8 +11,7 @@ import play.api.libs.json._
 
 @Singleton
 class MembershipsDao @Inject() (
-  db: Database,
-  organizationsDao: OrganizationsDao
+  db: Database
 ) {
 
   val DefaultUserNameLength = 8
@@ -76,20 +75,22 @@ class MembershipsDao @Inject() (
     roleErrors ++ organizationErrors
   }
 
-  def create(createdBy: UserReference, form: MembershipForm): Either[Seq[String], Membership] = {
+
+  @annotation.implicitNotFound(msg = "please include OrganizationsDao to include findByKey implicit method")
+  def create(createdBy: UserReference, form: MembershipForm, findOrgByKey: (Authorization,  String) =>  Option[Organization]): Either[Seq[String], Membership] = {
     validate(createdBy, form) match {
       case Nil => {
         val id = findByOrganizationAndUserId(Authorization.All, form.organization, form.userId) match {
           case None => {
             db.withConnection { implicit c =>
-              create(c, createdBy, form)
+              create(findOrgByKey)(c, createdBy, form)
             }
           }
           case Some(existing) => {
             // the role is changing. Replace record
             db.withTransaction { implicit c =>
               DbHelpers.delete(c, "memberships", createdBy.id, existing.id)
-              create(c, createdBy, form)
+              create(findOrgByKey)(c, createdBy, form)
             }
           }
         }
@@ -103,8 +104,9 @@ class MembershipsDao @Inject() (
     }
   }
 
-  private[db] def create(implicit c: java.sql.Connection, createdBy: UserReference, form: MembershipForm): String = {
-    val org = organizationsDao.findByKey(Authorization.All, form.organization).getOrElse {
+  private[db] def create(findOrgByKey: (Authorization,  String) =>  Option[Organization])
+    (implicit c: java.sql.Connection, createdBy: UserReference, form: MembershipForm): String = {
+    val org = findOrgByKey(Authorization.All, form.organization).getOrElse {
       sys.error("Could not find organization with key[${form.organization}]")
     }
 

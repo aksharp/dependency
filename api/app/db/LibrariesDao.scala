@@ -14,7 +14,6 @@ import play.api.libs.json._
 @Singleton
 class LibrariesDao @Inject() (
   db: Database,
-  librariesDao: LibrariesDao,
   libraryVersionsDao: LibraryVersionsDao
 ) {
 
@@ -59,7 +58,7 @@ class LibrariesDao @Inject() (
     }
 
     val existsErrors = if (groupIdErrors.isEmpty && artifactIdErrors.isEmpty) {
-      librariesDao.findByGroupIdAndArtifactId(Authorization.All, form.groupId, form.artifactId) match {
+      findByGroupIdAndArtifactId(Authorization.All, form.groupId, form.artifactId) match {
         case None => Nil
         case Some(lib) => {
           if (Some(lib.id) == existing.map(_.id)) {
@@ -77,7 +76,7 @@ class LibrariesDao @Inject() (
   }
 
   def upsert(createdBy: UserReference, form: LibraryForm): Either[Seq[String], Library] = {
-    librariesDao.findByGroupIdAndArtifactId(Authorization.All, form.groupId, form.artifactId) match {
+    findByGroupIdAndArtifactId(Authorization.All, form.groupId, form.artifactId) match {
       case None => {
         create(createdBy, form)
       }
