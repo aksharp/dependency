@@ -2,20 +2,21 @@ package controllers
 
 import com.bryzek.dependency.v0.models.json._
 import com.bryzek.dependency.v0.models.{ResolverForm, Visibility}
-import db.{Authorization, ResolversDao}
+import db.{Authorization, DbImplicits, ResolversDao}
 import io.flow.error.v0.models.json._
 import io.flow.play.controllers.{FlowController, FlowControllerComponents}
 import io.flow.play.util.{Config, Validation}
+import play.api.db.Database
 import play.api.libs.json._
 import play.api.mvc._
 
 @javax.inject.Singleton
 class Resolvers @javax.inject.Inject() (
-  resolversDao: ResolversDao,
+  val db: Database,
   val config: Config,
   val controllerComponents: ControllerComponents,
   val flowControllerComponents: FlowControllerComponents
-) extends FlowController with Helpers {
+) extends FlowController with Helpers with DbImplicits {
 
   def get(
     id: Option[String],

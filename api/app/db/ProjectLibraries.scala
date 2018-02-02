@@ -21,10 +21,8 @@ case class ProjectLibraryForm(
 
 @Singleton
 class ProjectLibrariesDao @Inject() (
-  db: Database,
-  membershipsDao: MembershipsDao,
-  projectsDao: ProjectsDao
-) {
+  val db: Database
+) extends DbImplicits {
 
   private[this] val BaseQuery = Query(s"""
     select project_libraries.id,

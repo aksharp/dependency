@@ -3,22 +3,20 @@ package controllers
 import com.bryzek.dependency.actors.MainActor
 import com.bryzek.dependency.v0.models.SyncEvent
 import com.bryzek.dependency.v0.models.json._
-import db.{BinariesDao, LibrariesDao, ProjectsDao, SyncsDao}
+import db._
 import io.flow.play.controllers.{FlowController, FlowControllerComponents}
 import io.flow.play.util.Config
+import play.api.db.Database
 import play.api.libs.json._
 import play.api.mvc._
 
 @javax.inject.Singleton
 class Syncs @javax.inject.Inject() (
-  syncsDao: SyncsDao,
-  binariesDao: BinariesDao,
-  librariesDao: LibrariesDao,
-  projectsDao: ProjectsDao,
+  val db: Database,
   val config: Config,
   val controllerComponents: ControllerComponents,
   val flowControllerComponents: FlowControllerComponents
-) extends FlowController  with Helpers {
+) extends FlowController  with Helpers with DbImplicits {
 
   def get(
     objectId: Option[String],

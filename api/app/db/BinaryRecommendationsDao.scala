@@ -18,11 +18,8 @@ case class BinaryRecommendation(
 
 @Singleton
 class BinaryRecommendationsDao @Inject() (
-  db: Database,
-  binariesDao: BinariesDao,
-  binaryVersionsDao: BinaryVersionsDao,
-  projectBinariesDao: ProjectBinariesDao
-) {
+  val db: Database
+) extends DbImplicits {
 
   def forProject(project: Project): Seq[BinaryRecommendation] = {
     var recommendations = scala.collection.mutable.ListBuffer[BinaryRecommendation]()

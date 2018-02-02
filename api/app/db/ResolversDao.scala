@@ -16,14 +16,8 @@ import play.api.libs.json._
 
 @Singleton
 class ResolversDao @Inject() (
-  db: Database,
-  librariesDao: LibrariesDao,
-  membershipsDao: MembershipsDao,
-  organizationsDao: OrganizationsDao,
-  usersDao: UsersDao
-) {
-
-  lazy val SystemUser = usersDao.systemUser
+  val db: Database
+) extends DbImplicits {
 
   val GithubOauthResolverTag = "github_oauth"
 
@@ -160,7 +154,7 @@ class ResolversDao @Inject() (
         offset = offset
       )
     }.foreach { library =>
-      librariesDao.delete(SystemUser, library)
+      librariesDao.delete(usersDao.systemUser, library)
     }
 
     MainActor.ref ! MainActor.Messages.ResolverDeleted(resolver.id)

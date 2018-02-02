@@ -7,6 +7,7 @@ import com.bryzek.dependency.api.lib.DefaultBinaryVersionProvider
 import com.bryzek.dependency.v0.models.Binary
 import db._
 import io.flow.postgresql.Pager
+import play.api.db.Database
 
 object BinaryActor {
 
@@ -19,14 +20,8 @@ object BinaryActor {
 }
 
 class BinaryActor @Inject()(
-  binariesDao: BinariesDao,
-  syncsDao: SyncsDao,
-  binaryVersionsDao: BinaryVersionsDao,
-  usersDao: UsersDao,
-  itemsDao: ItemsDao,
-  projectBinariesDao: ProjectBinariesDao
-
-) extends Actor with Util {
+  val db: Database
+) extends Actor with Util with DbImplicits {
 
   lazy val SystemUser = usersDao.systemUser
   var dataBinary: Option[Binary] = None

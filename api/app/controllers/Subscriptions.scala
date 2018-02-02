@@ -1,26 +1,26 @@
 package controllers
 
-import db.{SubscriptionsDao, UsersDao}
+import com.bryzek.dependency.v0.models.json._
+import com.bryzek.dependency.v0.models.{Publication, Subscription, SubscriptionForm}
+import db.DbImplicits
+import io.flow.common.v0.models.UserReference
+import io.flow.error.v0.models.json._
 import io.flow.play.controllers.{FlowController, FlowControllerComponents}
 import io.flow.play.util.{Config, Validation}
-import io.flow.common.v0.models.UserReference
-import com.bryzek.dependency.v0.models.{Publication, Subscription, SubscriptionForm}
-import com.bryzek.dependency.v0.models.json._
-import io.flow.error.v0.models.json._
 import play.api.Logger
-import play.api.mvc._
+import play.api.db.Database
 import play.api.libs.json._
+import play.api.mvc._
 
 import scala.concurrent.{ExecutionContext, Future}
 
 @javax.inject.Singleton
 class Subscriptions @javax.inject.Inject() (
-  usersDao: UsersDao,
-  SubscriptionsDao: SubscriptionsDao,
+  val db: Database,
   val config: Config,
   val controllerComponents: ControllerComponents,
   val flowControllerComponents: FlowControllerComponents
-) extends FlowController {
+) extends FlowController with DbImplicits {
 
   /**
    * If we find an 'identifier' query string parameter, use that to
@@ -62,7 +62,7 @@ class Subscriptions @javax.inject.Inject() (
   ) = Identified { request =>
     Ok(
       Json.toJson(
-        SubscriptionsDao.findAll(
+        subscriptionsDao.findAll(
           id = id,
           ids = optionals(ids),
           userId = userId,
@@ -88,10 +88,10 @@ class Subscriptions @javax.inject.Inject() (
       }
       case s: JsSuccess[SubscriptionForm] => {
         val form = s.get
-        SubscriptionsDao.upsertByUserIdAndPublication(request.user, form) match {
+        subscriptionsDao.upsertByUserIdAndPublication(request.user, form) match {
           case Left(errors) => UnprocessableEntity(Json.toJson(Validation.errors(errors)))
           case Right(subscription) => {
-            val sub = SubscriptionsDao.findByUserIdAndPublication(form.userId, form.publication).getOrElse {
+            val sub = subscriptionsDao.findByUserIdAndPublication(form.userId, form.publication).getOrElse {
               sys.error("Failed to upsert subscription")
             }
             Created(Json.toJson(sub))
@@ -103,7 +103,7 @@ class Subscriptions @javax.inject.Inject() (
 
   def deleteById(id: String, identifier: Option[String]) = Identified { request =>
     withSubscription(id) { subscription =>
-      SubscriptionsDao.delete(request.user, subscription)
+      subscriptionsDao.delete(request.user, subscription)
       NoContent
     }
   }
@@ -111,7 +111,7 @@ class Subscriptions @javax.inject.Inject() (
   def withSubscription(id: String)(
     f: Subscription => Result
   ): Result = {
-    SubscriptionsDao.findById(id) match {
+    subscriptionsDao.findById(id) match {
       case None => {
         NotFound
       }

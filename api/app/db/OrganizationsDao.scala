@@ -2,20 +2,17 @@ package db
 
 import javax.inject.{Inject, Singleton}
 
-import com.bryzek.dependency.v0.models.{MembershipForm, Organization, OrganizationForm, Role}
-import io.flow.postgresql.{OrderBy, Pager, Query}
-import io.flow.play.util.{IdGenerator, Random, UrlKey}
-import io.flow.common.v0.models.{User, UserReference}
 import anorm._
+import com.bryzek.dependency.v0.models.{Organization, OrganizationForm, Role}
+import io.flow.common.v0.models.{User, UserReference}
+import io.flow.play.util.{IdGenerator, Random, UrlKey}
+import io.flow.postgresql.{OrderBy, Pager, Query}
 import play.api.db._
-import play.api.libs.json._
 
 @Singleton
 class OrganizationsDao @Inject() (
-  db: Database,
-  membershipsDao: MembershipsDao,
-  projectsDao: ProjectsDao
-) {
+  val db: Database
+) extends DbImplicits {
 
   val DefaultUserNameLength = 8
 
@@ -79,7 +76,7 @@ class OrganizationsDao @Inject() (
     validate(form) match {
       case Nil => {
         val id = db.withTransaction { implicit c =>
-          create(c, createdBy, form)
+          createWithConnection(createdBy, form)
         }
         Right(
           findById(Authorization.All, id).getOrElse {
@@ -91,7 +88,8 @@ class OrganizationsDao @Inject() (
     }
   }
 
-  private[this] def create(implicit c: java.sql.Connection, createdBy: UserReference, form: OrganizationForm): String = {
+  private[this] def createWithConnection(createdBy: UserReference, form: OrganizationForm)
+    (implicit c: java.sql.Connection): String = {
     val id = IdGenerator("org").randomId()
 
     SQL(InsertQuery).on(
@@ -154,7 +152,7 @@ class OrganizationsDao @Inject() (
       val key = urlKey.generate(defaultUserName(user))
 
       val orgId = db.withTransaction { implicit c =>
-        val orgId = create(c, UserReference(id = user.id), OrganizationForm(
+        val orgId = createWithConnection(UserReference(id = user.id), OrganizationForm(
           key = key
         ))
 

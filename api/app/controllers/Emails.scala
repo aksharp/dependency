@@ -2,20 +2,20 @@ package controllers
 
 import com.bryzek.dependency.actors._
 import com.bryzek.dependency.api.lib.{Email, Recipient}
-import db.{UserIdentifiersDao, UsersDao}
+import db.{DbImplicits, UserIdentifiersDao, UsersDao}
 import io.flow.play.controllers.{FlowController, FlowControllerComponents}
 import io.flow.play.util.Config
+import play.api.db.Database
 import play.api.mvc._
 
 @javax.inject.Singleton
 class Emails @javax.inject.Inject() (
-  usersDao: UsersDao,
+  val db: Database,
   dailySummaryEmailMessage: DailySummaryEmailMessage,
-  userIdentifiersDao: UserIdentifiersDao,
   val config: Config,
   val controllerComponents: ControllerComponents,
   val flowControllerComponents: FlowControllerComponents
-) extends FlowController {
+) extends FlowController with DbImplicits {
 
   private[this] val TestEmailAddressName = "com.bryzek.dependency.api.test.email"
   private[this] lazy val TestEmailAddress = config.optionalString(TestEmailAddressName)

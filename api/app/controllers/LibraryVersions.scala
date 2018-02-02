@@ -2,20 +2,21 @@ package controllers
 
 import com.bryzek.dependency.v0.models.LibraryVersion
 import com.bryzek.dependency.v0.models.json._
-import db.{Authorization, LibraryVersionsDao}
+import db.{Authorization, DbImplicits, LibraryVersionsDao}
 import io.flow.common.v0.models.UserReference
 import io.flow.play.controllers.{FlowController, FlowControllerComponents}
 import io.flow.play.util.Config
+import play.api.db.Database
 import play.api.libs.json._
 import play.api.mvc._
 
 @javax.inject.Singleton
 class LibraryVersions @javax.inject.Inject() (
-  libraryVersionsDao: LibraryVersionsDao,
+  val db: Database,
   val config: Config,
   val controllerComponents: ControllerComponents,
   val flowControllerComponents: FlowControllerComponents
-) extends FlowController {
+) extends FlowController with DbImplicits {
 
   def get(
     id: Option[String],

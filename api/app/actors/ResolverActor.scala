@@ -6,6 +6,7 @@ import com.bryzek.dependency.v0.models.{Resolver, Visibility}
 import io.flow.postgresql.Pager
 import db._
 import akka.actor.Actor
+import play.api.db.Database
 
 import scala.concurrent.ExecutionContext
 
@@ -23,11 +24,8 @@ object ResolverActor {
 }
 
 class ResolverActor @Inject() (
-  usersDao: UsersDao,
-  resolversDao: ResolversDao,
-  librariesDao: LibrariesDao,
-  projectLibrariesDao: ProjectLibrariesDao
-) extends Actor with Util {
+  val db: Database
+) extends Actor with Util with DbImplicits {
 
   lazy val SystemUser = usersDao.systemUser
   var dataResolver: Option[Resolver] = None

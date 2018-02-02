@@ -12,9 +12,8 @@ import play.api.libs.json._
 
 @Singleton
 class SubscriptionsDao @Inject() (
-  db: Database,
-  usersDao: UsersDao
-) {
+  val db: Database
+) extends DbImplicits {
 
   private[this] val BaseQuery = Query(s"""
     select subscriptions.id,

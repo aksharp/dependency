@@ -9,6 +9,7 @@ import db._
 import play.api.Logger
 import akka.actor.{Actor, ActorSystem}
 import io.flow.github.v0.models.HookForm
+import play.api.db.Database
 import play.api.libs.ws.WSClient
 
 import scala.concurrent.ExecutionContext
@@ -55,20 +56,13 @@ class ProjectActor @javax.inject.Inject()(
   config: Config,
   @com.google.inject.assistedinject.Assisted projectId: String,
   system: ActorSystem,
-  usersDao: UsersDao,
-  projectsDao: ProjectsDao,
-  tokensDao: TokensDao,
-  syncsDao: SyncsDao,
-  projectBinariesDao: ProjectBinariesDao,
-  projectLibrariesDao: ProjectLibrariesDao,
-  recommendationsDao: RecommendationsDao,
-  librariesDao: LibrariesDao,
-  binariesDao: BinariesDao,
   wsClient: WSClient,
-  resolversDao: ResolversDao
-) extends Actor with ErrorHandler {
+  val db: Database
+) extends Actor with ErrorHandler with DbImplicits {
 
   lazy val SystemUser = usersDao.systemUser
+
+  implicit val implicitProjectDao = projectsDao
 
   implicit val projectExecutionContext: ExecutionContext = system.dispatchers.lookup("project-actor-context")
 
@@ -165,7 +159,7 @@ class ProjectActor @javax.inject.Inject()(
 
           dependencies.binaries.map { binaries =>
             val projectBinaries = binaries.map { form =>
-              projectBinariesDao.upsert(project.user, form, projectsDao.findById) match {
+              projectBinariesDao.upsert(project.user, form) match {
                 case Left(errors) => {
                   Logger.error(s"Project[${project.name}] id[${project.id}] Error storing binary[$form]: " + errors.mkString(", "))
                   None

@@ -13,12 +13,8 @@ import play.api.libs.json._
 
 @Singleton
 class ProjectsDao @Inject() (
-  db: Database,
-  membershipsDao: MembershipsDao,
-  projectLibrariesDao: ProjectLibrariesDao,
-  projectBinariesDao: ProjectBinariesDao,
-  recommendationsDao: RecommendationsDao
-) {
+  val db: Database
+) extends DbImplicits {
 
   private[this] val BaseQuery = Query(s"""
     select projects.id,
@@ -113,12 +109,11 @@ class ProjectsDao @Inject() (
     nameErrors ++ visibilityErrors ++ uriErrors ++ organizationErrors
   }
 
-  def create(createdBy: UserReference, form: ProjectForm,
-    findOrgByKey: (Authorization, String) => Option[Organization]): Either[Seq[String], Project] = {
+  def create(createdBy: UserReference, form: ProjectForm): Either[Seq[String], Project] = {
     validate(createdBy, form) match {
       case Nil => {
 
-        val org = findOrgByKey(Authorization.All, form.organization).getOrElse {
+        val org = organizationsDao.findByKey(Authorization.All, form.organization).getOrElse {
           sys.error("Could not find organization with key[${form.organization}]")
         }
 

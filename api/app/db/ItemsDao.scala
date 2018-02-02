@@ -22,9 +22,8 @@ case class ItemForm(
 
 @Singleton
 class ItemsDao @Inject() (
-  db: Database,
-  projectsDao: ProjectsDao
-) {
+  val db: Database
+) extends DbImplicits {
 
   private[this] val BaseQuery = Query(s"""
     select items.id,
@@ -67,7 +66,7 @@ class ItemsDao @Inject() (
     }
   }
 
-  private[this] def visibility(summary: ItemSummary, librariesDao: LibrariesDao): Visibility = {
+  private[this] def visibility(summary: ItemSummary): Visibility = {
     summary match {
       case BinarySummary(id, org, name) => {
         Visibility.Public
@@ -84,11 +83,12 @@ class ItemsDao @Inject() (
     }
   }
 
-  private[this] def visibility(resolver: ResolverSummary, resolversDao: ResolversDao): Visibility = {
+  private[this] def visibility(resolver: ResolverSummary): Visibility = {
     resolversDao.findById(Authorization.All, resolver.id).map(_.visibility).getOrElse(Visibility.Private)
   }
 
-  def replaceBinary(user: UserReference, binary: Binary, librariesDao: LibrariesDao): Item = {
+  def replaceBinary(user: UserReference, binary: Binary)
+    (implicit librariesDao: LibrariesDao): Item = {
     val label = binary.name.toString
     println(s"replaceBinary label: id[${binary.id}] label: $label")
     replace(
@@ -102,12 +102,11 @@ class ItemsDao @Inject() (
         label = label,
         description = None,
         contents = Seq(binary.id.toString, label).mkString(" ")
-      ),
-      librariesDao
+      )
     )
   }
 
-  def replaceLibrary(user: UserReference, library: Library, librariesDao: LibrariesDao): Item = {
+  def replaceLibrary(user: UserReference, library: Library): Item = {
     val label = Seq(library.groupId, library.artifactId).mkString(".")
     replace(
       user,
@@ -121,12 +120,11 @@ class ItemsDao @Inject() (
         label = label,
         description = None,
         contents = Seq(library.id.toString, label).mkString(" ")
-      ),
-      librariesDao
+      )
     )
   }
 
-  def replaceProject(user: UserReference, project: Project, librariesDao: LibrariesDao): Item = {
+  def replaceProject(user: UserReference, project: Project): Item = {
     val label = project.name
     val description = project.uri
 
@@ -141,18 +139,17 @@ class ItemsDao @Inject() (
         label = label,
         description = Some(description),
         contents = Seq(project.id.toString, label, description).mkString(" ")
-      ),
-      librariesDao: LibrariesDao
+      )
     )
   }
 
-  def replace(user: UserReference, form: ItemForm, librariesDao: LibrariesDao): Item = {
+  def replace(user: UserReference, form: ItemForm): Item = {
     db.withConnection { implicit c =>
       findByObjectId(Authorization.All, objectId(form.summary)).map { item =>
         deleteWithConnection(user, item)(c)
       }
 
-      Try(create(user, form, librariesDao)(c)) match {
+      Try(create(user, form)(c)) match {
         case Success(item) => item
         case Failure(ex) => {
           findByObjectId(Authorization.All, objectId(form.summary)).getOrElse {
@@ -163,13 +160,14 @@ class ItemsDao @Inject() (
     }
   }
 
-  private[this] def create(createdBy: UserReference, form: ItemForm, librariesDao: LibrariesDao)(implicit c: java.sql.Connection): Item = {
+  private[this] def create(createdBy: UserReference, form: ItemForm)
+  (implicit c: java.sql.Connection): Item = {
     val id = io.flow.play.util.IdGenerator("itm").randomId()
 
     SQL(InsertQuery).on(
       'id -> id,
       'organization_id -> organization(form.summary).id,
-      'visibility -> visibility(form.summary, librariesDao).toString,
+      'visibility -> visibility(form.summary).toString,
       'object_id -> objectId(form.summary),
       'label -> form.label,
       'description -> form.description,

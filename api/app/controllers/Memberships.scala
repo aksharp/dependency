@@ -1,23 +1,23 @@
 package controllers
 
 import com.bryzek.dependency.v0.models.json._
-import com.bryzek.dependency.v0.models.{Membership, MembershipForm, Organization, Role}
-import db.{Authorization, MembershipsDao, OrganizationsDao}
+import com.bryzek.dependency.v0.models.{Membership, MembershipForm, Role}
+import db.{Authorization, DbImplicits}
 import io.flow.common.v0.models.UserReference
+import io.flow.error.v0.models.json._
 import io.flow.play.controllers.{FlowController, FlowControllerComponents}
 import io.flow.play.util.{Config, Validation}
+import play.api.db.Database
 import play.api.libs.json._
 import play.api.mvc._
-import io.flow.error.v0.models.json._
 
 @javax.inject.Singleton
 class Memberships @javax.inject.Inject() (
-  membershipsDao: MembershipsDao,
-  organizationsDao: OrganizationsDao,
+  val db: Database,
   val config: Config,
   val controllerComponents: ControllerComponents,
   val flowControllerComponents: FlowControllerComponents
-) extends FlowController {
+) extends FlowController with DbImplicits {
 
   def get(
     id: Option[String],

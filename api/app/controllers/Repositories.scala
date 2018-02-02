@@ -1,7 +1,7 @@
 package controllers
 
 import com.bryzek.dependency.api.lib.Github
-import db.{Authorization, OrganizationsDao, ProjectsDao, TokensDao}
+import db._
 import io.flow.error.v0.models.json._
 import io.flow.play.controllers.{FlowController, FlowControllerComponents}
 import io.flow.play.util.{Config, Validation}
@@ -11,16 +11,15 @@ import play.api.mvc._
 import scala.concurrent.Future
 import io.flow.error.v0.models.json._
 import io.flow.github.v0.models.json._
+import play.api.db.Database
 
 class Repositories @javax.inject.Inject()(
-  projectsDao: ProjectsDao,
-  organizationsDao: OrganizationsDao,
-  tokensDao: TokensDao,
+  val db: Database,
   val github: Github,
   val config: Config,
   val controllerComponents: ControllerComponents,
   val flowControllerComponents: FlowControllerComponents
-) extends FlowController {
+) extends FlowController with DbImplicits {
 
   import scala.concurrent.ExecutionContext.Implicits.global
 

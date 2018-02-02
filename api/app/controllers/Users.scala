@@ -2,24 +2,24 @@ package controllers
 
 import com.bryzek.dependency.v0.models.UserForm
 import com.bryzek.dependency.v0.models.json._
-import db.{UserIdentifiersDao, UsersDao}
+import db.DbImplicits
 import io.flow.common.v0.models.User
 import io.flow.common.v0.models.json._
 import io.flow.error.v0.models.json._
 import io.flow.play.controllers.{FlowController, FlowControllerComponents}
 import io.flow.play.util.{Config, Validation}
-import play.api.mvc._
+import play.api.db.Database
 import play.api.libs.json._
+import play.api.mvc._
 
 import scala.concurrent.Future
 
 class Users @javax.inject.Inject()(
-  usersDao: UsersDao,
-  UserIdentifiersDao: UserIdentifiersDao,
+  val db: Database,
   val config: Config,
   val controllerComponents: ControllerComponents,
   val flowControllerComponents: FlowControllerComponents
-) extends FlowController {
+) extends FlowController with DbImplicits {
 
   import scala.concurrent.ExecutionContext.Implicits.global
 
@@ -53,7 +53,7 @@ class Users @javax.inject.Inject()(
 
   def getIdentifierById(id: String) = Identified { request =>
     withUser(id) { user =>
-      Ok(Json.toJson(UserIdentifiersDao.latestForUser(request.user, user)))
+      Ok(Json.toJson(userIdentifiersDao.latestForUser(request.user, user)))
     }
   }
 

@@ -2,16 +2,15 @@ package com.bryzek.dependency.actors
 
 import javax.inject.Inject
 
+import akka.actor.Actor
+import com.bryzek.dependency.api.lib.{Email, Recipient}
+import com.bryzek.dependency.lib.Urls
+import com.bryzek.dependency.v0.models.{Publication, Subscription}
+import db._
 import io.flow.play.util.Config
 import io.flow.postgresql.Pager
-import io.flow.common.v0.models.User
-import db.{Authorization, LastEmail, LastEmailForm, LastEmailsDao, RecommendationsDao, SubscriptionsDao, UserIdentifiersDao, UsersDao}
-import com.bryzek.dependency.v0.models.{Publication, Subscription}
-import com.bryzek.dependency.lib.Urls
-import com.bryzek.dependency.api.lib.{Email, Recipient}
 import org.joda.time.{DateTime, DateTimeZone}
-import play.api.Logger
-import akka.actor.Actor
+import play.api.db.Database
 
 object EmailActor {
 
@@ -31,10 +30,10 @@ object EmailActor {
 }
 
 class EmailActor @Inject()(
-  subscriptionsDao: SubscriptionsDao,
+  val db: Database,
   batchEmailProcessor: BatchEmailProcessor,
   dailySummaryEmailMessage: DailySummaryEmailMessage
-) extends Actor with Util {
+) extends Actor with Util with DbImplicits {
 
   private[this] def currentHourEst(): Int = {
     (new DateTime()).toDateTime(DateTimeZone.forID("America/New_York")).getHourOfDay

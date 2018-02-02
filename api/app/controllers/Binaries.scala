@@ -2,21 +2,21 @@ package controllers
 
 import com.bryzek.dependency.v0.models.BinaryForm
 import com.bryzek.dependency.v0.models.json._
-import db.{Authorization, BinariesDao, BinaryVersionsDao}
+import db.{Authorization, DbImplicits}
+import io.flow.error.v0.models.json._
 import io.flow.play.controllers.{FlowController, FlowControllerComponents}
 import io.flow.play.util.{Config, Validation}
+import play.api.db.Database
 import play.api.libs.json._
 import play.api.mvc._
-import io.flow.error.v0.models.json._
 
 @javax.inject.Singleton
 class Binaries @javax.inject.Inject() (
-  binariesDao: BinariesDao,
-  binaryVersionsDao: BinaryVersionsDao,
+  val db: Database,
   val config: Config,
   val controllerComponents: ControllerComponents,
   val flowControllerComponents: FlowControllerComponents
-  ) extends FlowController with Helpers {
+  ) extends FlowController with Helpers with DbImplicits {
 
   def get(
     id: Option[String],
@@ -64,7 +64,7 @@ class Binaries @javax.inject.Inject() (
 
   def deleteById(id: String) = Identified { request =>
     withBinary(binariesDao, request.user, id) { binary =>
-      binariesDao.delete(request.user, binary, binaryVersionsDao)
+      binariesDao.delete(request.user, binary)
       NoContent
     }
   }

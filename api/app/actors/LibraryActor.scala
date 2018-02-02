@@ -2,12 +2,12 @@ package com.bryzek.dependency.actors
 
 import javax.inject.Inject
 
-import com.bryzek.dependency.v0.models.{Library, LibraryForm, VersionForm}
-import com.bryzek.dependency.api.lib.DefaultLibraryArtifactProvider
-import io.flow.postgresql.Pager
-import db.{Authorization, ItemsDao, LibrariesDao, LibraryVersionsDao, ProjectLibrariesDao, ResolversDao, SyncsDao, UsersDao}
-import play.api.Logger
 import akka.actor.Actor
+import com.bryzek.dependency.api.lib.DefaultLibraryArtifactProvider
+import com.bryzek.dependency.v0.models.{Library, VersionForm}
+import db._
+import io.flow.postgresql.Pager
+import play.api.db.Database
 
 object LibraryActor {
 
@@ -20,14 +20,8 @@ object LibraryActor {
 }
 
 class LibraryActor @Inject()(
-  librariesDao: LibrariesDao,
-  syncsDao: SyncsDao,
-  resolversDao: ResolversDao,
-  libraryVersionsDao: LibraryVersionsDao,
-  itemsDao: ItemsDao,
-  usersDao: UsersDao,
-  projectLibrariesDao: ProjectLibrariesDao
-) extends Actor with Util {
+  val db: Database
+) extends Actor with Util with DbImplicits {
 
   lazy val SystemUser = usersDao.systemUser
 

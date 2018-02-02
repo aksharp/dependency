@@ -2,20 +2,20 @@ package controllers
 
 import com.bryzek.dependency.v0.models.OrganizationForm
 import com.bryzek.dependency.v0.models.json._
-import db.{OrganizationsDao, UsersDao}
+import db.{DbImplicits, OrganizationsDao, UsersDao}
 import io.flow.play.controllers.{FlowController, FlowControllerComponents}
 import io.flow.play.util.{Config, Validation}
 import play.api.libs.json._
 import play.api.mvc._
 import io.flow.error.v0.models.json._
+import play.api.db.Database
 
 class Organizations @javax.inject.Inject() (
-  usersDao: UsersDao,
-  organizationsDao: OrganizationsDao,
+  val db: Database,
   val config: Config,
   val controllerComponents: ControllerComponents,
   val flowControllerComponents: FlowControllerComponents
-) extends FlowController with Helpers {
+) extends FlowController with Helpers with DbImplicits{
 
   def get(
     id: Option[String],

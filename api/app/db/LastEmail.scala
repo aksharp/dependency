@@ -26,7 +26,7 @@ case class LastEmail(
 @Singleton
 class LastEmailsDao @Inject() (
   db: Database
-) {
+)  {
 
   private[this] val BaseQuery = Query(s"""
     select last_emails.*

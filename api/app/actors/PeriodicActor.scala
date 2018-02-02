@@ -3,9 +3,10 @@ package com.bryzek.dependency.actors
 import javax.inject.Inject
 
 import io.flow.postgresql.Pager
-import db.{Authorization, BinariesDao, LibrariesDao, ProjectsDao, SyncsDao}
+import db._
 import play.api.Logger
 import akka.actor.Actor
+import play.api.db.Database
 
 object PeriodicActor {
 
@@ -21,11 +22,8 @@ object PeriodicActor {
 }
 
 class PeriodicActor @Inject()(
-  syncsDao: SyncsDao,
-  projectsDao: ProjectsDao,
-  binariesDao: BinariesDao,
-  librariesDao: LibrariesDao
-) extends Actor with Util {
+  val db: Database
+) extends Actor with Util with DbImplicits {
 
   def receive = {
 

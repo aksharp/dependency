@@ -13,9 +13,8 @@ import play.api.libs.json._
 
 @Singleton
 class LibrariesDao @Inject() (
-  db: Database,
-  libraryVersionsDao: LibraryVersionsDao
-) {
+  val db: Database
+) extends DbImplicits {
 
   private[this] val BaseQuery = Query(s"""
     select libraries.id,

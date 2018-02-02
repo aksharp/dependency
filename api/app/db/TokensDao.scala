@@ -45,9 +45,8 @@ object InternalTokenForm {
 
 @Singleton
 class TokensDao @Inject() (
-  db: Database,
-  usersDao: UsersDao
-) {
+  val db: Database
+) extends DbImplicits {
 
   private[this] val BaseQuery = Query(s"""
     select tokens.id,
@@ -114,7 +113,8 @@ class TokensDao @Inject() (
     }
   }
 
-  private[this] def createWithConnection(createdBy: UserReference, form: InternalTokenForm)(implicit c: java.sql.Connection): Either[Seq[String], Token] = {
+  private[this] def createWithConnection(createdBy: UserReference, form: InternalTokenForm)
+    (implicit c: java.sql.Connection): Either[Seq[String], Token] = {
     validate(form) match {
       case Nil => {
         val id = io.flow.play.util.IdGenerator("tok").randomId()

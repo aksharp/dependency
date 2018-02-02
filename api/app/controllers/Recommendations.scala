@@ -1,21 +1,21 @@
 package controllers
 
-import db.{Authorization, RecommendationsDao}
-import io.flow.play.controllers.{FlowController, FlowControllerComponents}
 import com.bryzek.dependency.v0.models.RecommendationType
 import com.bryzek.dependency.v0.models.json._
-import io.flow.error.v0.models.json._
+import db.{Authorization, DbImplicits}
+import io.flow.play.controllers.{FlowController, FlowControllerComponents}
 import io.flow.play.util.Config
-import play.api.mvc._
+import play.api.db.Database
 import play.api.libs.json._
+import play.api.mvc._
 
 @javax.inject.Singleton
 class Recommendations @javax.inject.Inject() (
-  recommendationsDao: RecommendationsDao,
+  val db: Database,
   val config: Config,
   val controllerComponents: ControllerComponents,
   val flowControllerComponents: FlowControllerComponents
-) extends FlowController with Helpers {
+) extends FlowController with Helpers with DbImplicits {
 
   def get(
     organization: Option[String],

@@ -1,21 +1,21 @@
 package controllers
 
 import com.bryzek.dependency.actors.MainActor
-import db.{Authorization, LibrariesDao, ProjectsDao}
+import db.{Authorization, DbImplicits, LibrariesDao, ProjectsDao}
 import io.flow.play.controllers.{FlowController, FlowControllerComponents}
 import io.flow.play.util.Config
 import io.flow.postgresql.Pager
+import play.api.db.Database
 import play.api.libs.json._
 import play.api.mvc._
 
 @javax.inject.Singleton
 class GithubWebhooks @javax.inject.Inject() (
-  projectsDao: ProjectsDao,
-  librariesDao: LibrariesDao,
+  val db: Database,
   val config: Config,
   val controllerComponents: ControllerComponents,
   val flowControllerComponents: FlowControllerComponents
-) extends FlowController {
+) extends FlowController with DbImplicits {
 
   def postByProjectId(projectId: String) = Action { request =>
     projectsDao.findById(Authorization.All, projectId) match {

@@ -11,8 +11,8 @@ import play.api.db._
 
 @Singleton
 class BinariesDao @Inject() (
-  db: Database
-) {
+  val db: Database
+) extends DbImplicits {
 
   private[this] val BaseQuery = Query(s"""
     select binaries.id,
@@ -77,7 +77,7 @@ class BinariesDao @Inject() (
     }
   }
 
-  def delete(deletedBy: UserReference, binary: Binary, binaryVersionsDao: BinaryVersionsDao) {
+  def delete(deletedBy: UserReference, binary: Binary) {
     Pager.create { offset =>
       binaryVersionsDao.findAll(Authorization.All, binaryId = Some(binary.id), offset = offset)
     }.foreach { binaryVersionsDao.delete(deletedBy, _) }

@@ -10,10 +10,8 @@ import play.api.db._
 
 @Singleton
 class RecommendationsDao @Inject() (
-  db: Database,
-  libraryRecommendationsDao: LibraryRecommendationsDao,
-  binaryRecommendationsDao: BinaryRecommendationsDao
-) {
+  val db: Database
+) extends DbImplicits {
 
   private[this] case class RecommendationForm(
     projectId: String,

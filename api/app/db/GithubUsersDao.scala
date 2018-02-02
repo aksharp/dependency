@@ -11,9 +11,8 @@ import play.api.db._
 
 @Singleton
 class GithubUsersDao @Inject() (
-  db: Database,
-  usersDao: UsersDao
-) {
+  val db: Database
+) extends DbImplicits {
 
   private[this] val BaseQuery = Query(s"""
     select github_users.id,
@@ -36,7 +35,8 @@ class GithubUsersDao @Inject() (
     }
   }
 
-  def upsertByIdWithConnection(createdBy: Option[UserReference], form: GithubUserForm)(implicit c: java.sql.Connection): GithubUser = {
+  def upsertByIdWithConnection(createdBy: Option[UserReference], form: GithubUserForm)
+    (implicit c: java.sql.Connection): GithubUser = {
     findByGithubUserId(form.githubUserId).getOrElse {
       createWithConnection(createdBy, form)
     }
@@ -48,7 +48,8 @@ class GithubUsersDao @Inject() (
     }
   }
 
-  private[db] def createWithConnection(createdBy: Option[UserReference], form: GithubUserForm)(implicit c: java.sql.Connection): GithubUser = {
+  private[db] def createWithConnection(createdBy: Option[UserReference], form: GithubUserForm)
+    (implicit c: java.sql.Connection): GithubUser = {
     val id = io.flow.play.util.IdGenerator("ghu").randomId()
     SQL(InsertQuery).on(
       'id -> id,

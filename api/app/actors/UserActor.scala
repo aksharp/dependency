@@ -4,8 +4,9 @@ import javax.inject.Inject
 
 import com.bryzek.dependency.v0.models.{Publication, SubscriptionForm}
 import io.flow.common.v0.models.User
-import db.{OrganizationsDao, SubscriptionsDao, UserIdentifiersDao, UsersDao}
+import db._
 import akka.actor.Actor
+import play.api.db.Database
 
 import scala.concurrent.ExecutionContext
 
@@ -21,11 +22,8 @@ object UserActor {
 }
 
 class UserActor @Inject()(
-  usersDao: UsersDao,
-  userIdentifiersDao: UserIdentifiersDao,
-  subscriptionsDao: SubscriptionsDao,
-  organizationsDao: OrganizationsDao
-) extends Actor with Util {
+  val db: Database
+) extends Actor with Util with DbImplicits {
 
   lazy val SystemUser = usersDao.systemUser
   var dataUser: Option[User] = None

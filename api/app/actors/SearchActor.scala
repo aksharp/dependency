@@ -2,10 +2,9 @@ package com.bryzek.dependency.actors
 
 import javax.inject.Inject
 
-import com.bryzek.dependency.v0.models.{BinarySummary, LibrarySummary, ProjectSummary}
-import db._
-import play.api.Logger
 import akka.actor.Actor
+import db._
+import play.api.db.Database
 
 object SearchActor {
 
@@ -20,12 +19,8 @@ object SearchActor {
 }
 
 class SearchActor @Inject()(
-  usersDao: UsersDao,
-  binariesDao: BinariesDao,
-  itemsDao: ItemsDao,
-  librariesDao: LibrariesDao,
-  projectsDao: ProjectsDao
-) extends Actor with Util {
+  val db: Database
+) extends Actor with Util with DbImplicits {
 
   lazy val SystemUser = usersDao.systemUser
 
@@ -35,21 +30,21 @@ class SearchActor @Inject()(
       println(s"SearchActor.Messages.SyncBinary($id)")
       binariesDao.findById(Authorization.All, id) match {
         case None => itemsDao.deleteByObjectId(Authorization.All, SystemUser, id)
-        case Some(binary) => itemsDao.replaceBinary(SystemUser, binary, librariesDao)
+        case Some(binary) => itemsDao.replaceBinary(SystemUser, binary)
       }
     }
 
     case m @ SearchActor.Messages.SyncLibrary(id) => withErrorHandler(m) {
       librariesDao.findById(Authorization.All, id) match {
         case None => itemsDao.deleteByObjectId(Authorization.All, SystemUser, id)
-        case Some(library) => itemsDao.replaceLibrary(SystemUser, library, librariesDao)
+        case Some(library) => itemsDao.replaceLibrary(SystemUser, library)
       }
     }
 
     case m @ SearchActor.Messages.SyncProject(id) => withErrorHandler(m) {
       projectsDao.findById(Authorization.All, id) match {
         case None => itemsDao.deleteByObjectId(Authorization.All, SystemUser, id)
-        case Some(project) => itemsDao.replaceProject(SystemUser, project, librariesDao)
+        case Some(project) => itemsDao.replaceProject(SystemUser, project)
       }
     }
 

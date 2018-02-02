@@ -1,6 +1,6 @@
 package controllers
 
-import db.{Authorization, InternalTokenForm, TokensDao}
+import db.{Authorization, DbImplicits, InternalTokenForm, TokensDao}
 import io.flow.play.util.{Config, Validation}
 import io.flow.common.v0.models.UserReference
 import com.bryzek.dependency.v0.models.{Token, TokenForm}
@@ -10,14 +10,15 @@ import io.flow.play.controllers.{FlowController, FlowControllerComponents}
 import play.api.mvc._
 import play.api.libs.json._
 import io.flow.error.v0.models.json._
+import play.api.db.Database
 
 class Tokens @javax.inject.Inject()(
+  val db: Database,
   val tokenClient: io.flow.token.v0.interfaces.Client,
-  tokensDao: TokensDao,
   val config: Config,
   val controllerComponents: ControllerComponents,
   val flowControllerComponents: FlowControllerComponents
-) extends FlowController {
+) extends FlowController with DbImplicits {
 
   import scala.concurrent.ExecutionContext.Implicits.global
 

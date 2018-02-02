@@ -18,11 +18,8 @@ case class LibraryRecommendation(
 
 @Singleton
 class LibraryRecommendationsDao @Inject() (
-  db: Database,
-  projectLibrariesDao: ProjectLibrariesDao,
-  libraryVersionsDao: LibraryVersionsDao,
-  librariesDao: LibrariesDao
-) {
+  val db: Database
+) extends DbImplicits {
 
   def forProject(project: Project): Seq[LibraryRecommendation] = {
     var recommendations = scala.collection.mutable.ListBuffer[LibraryRecommendation]()
@@ -70,7 +67,7 @@ class LibraryRecommendationsDao @Inject() (
     auth: Authorization,
     library: Library,
     version: String
-  ): Seq[LibraryVersion] = {
+  )(implicit libraryVersionsDao: LibraryVersionsDao): Seq[LibraryVersion] = {
     libraryVersionsDao.findAll(
       auth,
       libraryId = Some(library.id),

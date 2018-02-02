@@ -2,14 +2,12 @@ package db
 
 import javax.inject.{Inject, Singleton}
 
-import com.bryzek.dependency.actors.MainActor
-import com.bryzek.dependency.api.lib.Version
-import com.bryzek.dependency.v0.models.{Binary, BinaryType, Project, ProjectBinary, SyncEvent}
-import io.flow.postgresql.{OrderBy, Pager, Query}
-import io.flow.common.v0.models.UserReference
 import anorm._
+import com.bryzek.dependency.actors.MainActor
+import com.bryzek.dependency.v0.models._
+import io.flow.common.v0.models.UserReference
+import io.flow.postgresql.{OrderBy, Pager, Query}
 import play.api.db._
-import play.api.libs.json._
 
 case class ProjectBinaryForm(
   projectId: String,
@@ -20,9 +18,8 @@ case class ProjectBinaryForm(
 
 @Singleton
 class ProjectBinariesDao @Inject() (
-  db: Database,
-  membershipsDao: MembershipsDao
-) {
+  val db: Database
+) extends DbImplicits {
 
   private[this] val BaseQuery = Query(s"""
     select project_binaries.id,
@@ -103,13 +100,12 @@ class ProjectBinariesDao @Inject() (
     projectErrors ++ nameErrors ++ versionErrors ++ existsErrors
   }
 
-  def upsert(createdBy: UserReference, form: ProjectBinaryForm,
-    findProjectById: ( Authorization, String) => Option[Project]): Either[Seq[String], ProjectBinary] = {
+  def upsert(createdBy: UserReference, form: ProjectBinaryForm): Either[Seq[String], ProjectBinary] = {
     findByProjectIdAndNameAndVersion(
       Authorization.All, form.projectId, form.name.toString, form.version
     ) match {
       case None => {
-        create(createdBy, form, findProjectById)
+        create(createdBy, form)
       }
       case Some(lib) => {
         Right(lib)
@@ -117,9 +113,8 @@ class ProjectBinariesDao @Inject() (
     }
   }
 
-  def create(createdBy: UserReference, form: ProjectBinaryForm,
-    findProjectById: ( Authorization, String) => Option[Project]): Either[Seq[String], ProjectBinary] = {
-    validate(createdBy, form, findProjectById) match {
+  def create(createdBy: UserReference, form: ProjectBinaryForm): Either[Seq[String], ProjectBinary] = {
+    validate(createdBy, form, projectsDao.findById) match {
       case Nil => {
         val id = io.flow.play.util.IdGenerator("prb").randomId()
 
